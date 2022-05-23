@@ -7,7 +7,7 @@ namespace WorldModify
 {
     class BossHelper
     {
-        public static void BossManage(CommandArgs args)
+        public static void Manage(CommandArgs args)
         {
             TSPlayer op = args.Player;
             if (args.Parameters.Count == 0 || args.Parameters[0].ToLowerInvariant() == "help")

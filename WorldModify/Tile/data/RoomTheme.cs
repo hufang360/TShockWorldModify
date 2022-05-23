@@ -1,5 +1,4 @@
-﻿using Terraria.ID;
-
+using Terraria.ID;
 
 namespace WorldModify
 {
@@ -11,9 +10,6 @@ namespace WorldModify
         public TileInfo chair = new TileInfo(TileID.Chairs, 0);
         public TileInfo bench = new TileInfo(TileID.WorkBenches, 0);
         public TileInfo torch = new TileInfo(TileID.Torches, 0);
-        public RoomTheme()
-        {
-        }
 
         public static RoomTheme GetGlass()
         {
@@ -44,18 +40,6 @@ namespace WorldModify
             //th.torch.style = 0;
 
             return th;
-        }
-    }
-
-
-    public class TileInfo
-    {
-        public int type;
-        public int style;
-        public TileInfo(int _type, int _style)
-        {
-            type = _type;
-            style = _style;
         }
     }
 }

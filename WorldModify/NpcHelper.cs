@@ -15,7 +15,7 @@ namespace WorldModify
         /// <summary>
         /// NPC 管理
         /// </summary>
-        public static void NPCManage(CommandArgs args)
+        public static void Manage(CommandArgs args)
         {
             TSPlayer op = args.Player;
             if (args.Parameters.Count == 0 || args.Parameters[0].ToLowerInvariant() == "help")
@@ -515,37 +515,16 @@ namespace WorldModify
             TSPlayer op = args.Player;
 
             // 解救状态
-            // 渔夫
             if (NPC.savedAngler) found.Add(369);
-
-            // 哥布林
             if (NPC.savedGoblin) found.Add(107);
-
-            // 机械师
             if (NPC.savedMech) found.Add(124);
-
-            // 发型师
             if (NPC.savedStylist) found.Add(353);
-
-            // 酒馆老板
             if (NPC.savedBartender) found.Add(550);
-
-            // 高尔夫球手
             if (NPC.savedGolfer) found.Add(588);
-
-            // 巫师
             if (NPC.savedWizard) found.Add(108);
-
-            // 税收管
-            if (NPC.savedTaxCollector) found.Add(441);
-
-            // 猫
-            if (NPC.boughtCat) found.Add(637);
-
-            // 狗
+            if (NPC.savedTaxCollector) found.Add(441);  // 税收管
+            if (NPC.boughtCat) found.Add(637);// 猫
             if (NPC.boughtDog) found.Add(638);
-
-            // 兔
             if (NPC.boughtBunny) found.Add(656);
 
             // 怪物图鉴解锁情况
@@ -567,26 +546,21 @@ namespace WorldModify
                 178, //蒸汽朋克人
                 160, //松露人
                 663 //公主
-
                 // 453, //骷髅商人
                 // 368, //旅商
                 // 37, // 老人
             };
             // 142, //圣诞老人
-            if (Main.xMas)
-                remains.Add(142);
+            if (Main.xMas) remains.Add(142);
 
             foreach (int npcID1 in remains)
             {
-                if (DidDiscoverBestiaryEntry(npcID1))
-                    found.Add(npcID1);
+                if (DidDiscoverBestiaryEntry(npcID1)) found.Add(npcID1);
             }
 
             for (int i = 0; i < Main.maxNPCs; i++)
             {
-                if (!Main.npc[i].active || !Main.npc[i].townNPC)
-                    continue;
-
+                if (!Main.npc[i].active || !Main.npc[i].townNPC || !found.Contains(Main.npc[i].type)) continue;
                 found.Remove(Main.npc[i].type);
             }
 

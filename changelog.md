@@ -1,6 +1,32 @@
 
 
 # 更新日志
+## 20220522 （v1.4)
+改进
+`/wm research` 指令，输入 `/wm re help` 获取帮助，全解锁时会自动备份，且支持从csv文件导入，解锁时不会卡服务器；
+`/wm bestiary` 指令，输入 `/wm be help` 获取帮助，全解锁时会自动备份，且支持从csv文件导入；
+`/wm backup [备注]` 指令，可以给文件添加备注，例如 world.wld.20220521210053_击败巨鹿.bak；
+
+`/igen room <数量>`，生成玻璃小房间（默认生成3个）
+`/igen pond`，现在生成的鱼池内会有水
+`/igen hell`，地狱直通车
+`/igen sm <w> <h>`，盾构机
+`/igen dig <w> <h>`，钻井机
+`/igen dirt`，填土
+
+
+新增
+`/wm find [图格名]`，支持查找 附魔剑、花苞、提炼机等图格
+
+`/igen fixtp`，将自己对齐到网格
+`/igen clear [all]`，清空 区域/全图
+`/igen random [all]`，随机 区域/全图
+`/igen replace [all]`，图格替换
+`/igen ice [all]`，冰河化，将水替换成薄冰
+`/igen melt [all]`，冰融化
+`/igen egypt`，创建沙漠地形
+
+
 ## 20220407 (v1.3)
 - /igen 指令，权限 wm.igen：
     - /igen world <种子> [腐化] [大小] [彩蛋特性], 重建地图；

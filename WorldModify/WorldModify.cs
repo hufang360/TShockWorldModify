@@ -1,8 +1,8 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Reflection;
-using System.Collections.Generic;
 using Terraria;
 using Terraria.GameContent.Bestiary;
 using Terraria.GameContent.Events;
@@ -24,7 +24,7 @@ namespace WorldModify
         public override Version Version => Assembly.GetExecutingAssembly().GetName().Version;
 
         public static readonly string SaveDir = Path.Combine(TShock.SavePath, "WorldModify");
-        //private static readonly string SaveFile = Path.Combine(SaveDir, "config.json");
+
 
         public WorldModify(Main game) : base(game)
         {
@@ -35,15 +35,19 @@ namespace WorldModify
             Commands.ChatCommands.Add(new Command(new List<string>() { "worldmodify" }, WMCommand, "worldmodify", "wm") { HelpText = "简易的世界修改器" });
             Commands.ChatCommands.Add(new Command(new List<string>() { "moonphase" }, ChangeMoonPhase, "moonphase", "moon") { HelpText = "月相管理" });
             Commands.ChatCommands.Add(new Command(new List<string>() { "moonstyle" }, ChangeMoonStyle, "moonstyle", "ms") { HelpText = "月亮样式管理" });
-            Commands.ChatCommands.Add(new Command(new List<string>() { "bossmanage" }, BossHelper.BossManage, "bossmanage", "boss") { HelpText = "boss管理" });
-            Commands.ChatCommands.Add(new Command(new List<string>() { "npcmanage" }, NPCHelper.NPCManage, "npcmanage", "npc") { HelpText = "npc管理" });
-            Commands.ChatCommands.Add(new Command(new List<string>() { "igen" }, ReGenHelper.iGen, "igen") { HelpText = "建造世界" });
+            Commands.ChatCommands.Add(new Command(new List<string>() { "bossmanage" }, BossHelper.Manage, "bossmanage", "boss") { HelpText = "boss管理" });
+            Commands.ChatCommands.Add(new Command(new List<string>() { "npcmanage" }, NPCHelper.Manage, "npcmanage", "npc") { HelpText = "npc管理" });
+            Commands.ChatCommands.Add(new Command(new List<string>() { "igen" }, GenHelper.GenManage, "igen") { HelpText = "建造世界" });
 
             Commands.ChatCommands.Add(new Command(new List<string>() { "relive" }, NPCHelper.Relive, "relive") { HelpText = "复活NPC" });
             Commands.ChatCommands.Add(new Command(new List<string>() { "bossinfo" }, BossHelper.BossInfo, "bossinfo", "bi") { HelpText = "boss进度信息" });
             Commands.ChatCommands.Add(new Command(new List<string>() { "worldinfo" }, WorldInfo, "worldinfo", "wi") { HelpText = "世界信息" });
 
             BackupHelper.BackupPath = Path.Combine(SaveDir, "backups");
+            Regen.SaveDir = SaveDir;
+            RetileHelper.SaveFile = Path.Combine(SaveDir, "retile.json");
+            ResearchHelper.SaveFile = Path.Combine(SaveDir, "research.csv");
+            BestiaryHelper.SaveFile = Path.Combine(SaveDir, "bestiary.csv");
         }
 
 
@@ -69,7 +73,7 @@ namespace WorldModify
 
                     "/wm seed [种子]，查看/修改 世界种子",
                     "/wm id [id]，查看/修改 世界ID",
-                    "/wm uuid [uuid]，查看/修改 世界uuid",
+                    "/wm uuid [uuid字符|new]，查看/修改 世界uuid",
                     "/wm sundial <on/off | 天数>，开关附魔日晷，修改/查看 附魔日晷冷却天数",
 
                     "/wm spawn，查看 出生点",
@@ -78,8 +82,8 @@ namespace WorldModify
                     "/wm cave [深度]，查看/修改 洞穴深度",
 
                     "/wm wind，查看 风速",
-                    "/wm research，解锁 全物品研究",
-                    "/wm bestiary [reset]，解锁/重置 怪物图鉴全收集",
+                    "/wm research help，物品研究",
+                    "/wm bestiary help，怪物图鉴",
                     "/wm backup，备份地图",
 
                     "/moon help，月相管理",
@@ -217,7 +221,7 @@ namespace WorldModify
                     }
 
                     string uuid = args.Parameters[1].ToLower();
-                    if( uuid=="new")
+                    if (uuid == "new")
                     {
                         Main.ActiveWorldFileData.UniqueId = Guid.NewGuid();
                         TSPlayer.All.SendData(PacketTypes.WorldInfo);
@@ -260,7 +264,8 @@ namespace WorldModify
                                 Main.fastForwardTime = true;
                                 TSPlayer.All.SendData(PacketTypes.WorldInfo);
                                 op.SendSuccessMessage("附魔日晷 已开启");
-                            } else
+                            }
+                            else
                             {
                                 op.SendSuccessMessage("附魔日晷 已是开启状态");
                             }
@@ -341,7 +346,7 @@ namespace WorldModify
                 // 地牢点
                 case "dungeon":
                 case "dun":
-                    op.SendInfoMessage($"地牢点：{Main.dungeonX }, {Main.dungeonY}" +
+                    op.SendInfoMessage($"地牢点：{Main.dungeonX}, {Main.dungeonY}" +
                         $"\n进入游戏后，输入 /setdungeon 设置地牢点" +
                         $"\n进入游戏后，输入 /tpnpc \"Old Man\" 传送至地牢点");
                     break;
@@ -451,43 +456,34 @@ namespace WorldModify
 
                 // 全物品研究
                 case "research":
-                case "res":
-                    if (args.Parameters.Count > 1 && args.Parameters[1].ToLower() == "reset")
-                        ResearchHelper.Reset();
-                    else
-                        ResearchHelper.unlockAll(op);
+                case "re":
+                    args.Parameters.RemoveAt(0);
+                    ResearchHelper.Manage(args);
                     break;
 
                 // 怪物图鉴
                 case "bestiary":
-                case "best":
-                    if (args.Parameters.Count > 1 && args.Parameters[1].ToLower() == "reset")
-                    {
-                        BestiaryHelper.ResetBestiary();
-
-                        text = "怪物图鉴 已重置，重进游戏后生效";
-                        TSPlayer.All.SendInfoMessage(text);
-                        if (!op.RealPlayer)
-                            op.SendInfoMessage(text);
-                    }
-                    else
-                    {
-                        BestiaryHelper.UnlockBestiary();
-
-                        BestiaryUnlockProgressReport result = Main.GetBestiaryProgressReport();
-                        text = $"怪物图鉴 已全部解锁 ;-) {result.CompletionAmountTotal}/{result.EntriesTotal}";
-                        TSPlayer.All.SendSuccessMessage(text);
-                        if (!op.RealPlayer)
-                            op.SendInfoMessage(text);
-                    }
+                case "be":
+                    args.Parameters.RemoveAt(0);
+                    BestiaryHelper.Manage(args);
                     break;
 
                 // 备份
                 case "backup":
-                    BackupHelper.Backup(op);
+                    string notes = "";
+                    if (args.Parameters.Count > 1)
+                    {
+                        args.Parameters.RemoveAt(0);
+                        notes = string.Join(" ", args.Parameters);
+                    }
+                    BackupHelper.Backup(op, notes);
                     break;
 
-
+                // 查找地形
+                case "find":
+                    args.Parameters.RemoveAt(0);
+                    TileHelper.FindCommand(args);
+                    break;
             }
         }
 
@@ -534,7 +530,7 @@ namespace WorldModify
                 time += 4.5;
                 if (!Main.dayTime)
                     time += 15.0;
-                time = time % 24.0;
+                time %= 24.0;
                 lines.Add(string.Format("时间：{0}:{1:D2}", (int)Math.Floor(time), (int)Math.Floor((time % 1.0) * 60.0)));
             }
 
@@ -549,7 +545,7 @@ namespace WorldModify
                 lines.Add($"月亮样式: {_moonTypes.Keys.ElementAt(Main.moonType)}");
 
                 string percent;
-                if (TShock.ServerSideCharacterConfig.Settings.Enabled && Main.GameMode==3)
+                if (TShock.ServerSideCharacterConfig.Settings.Enabled && Main.GameMode == 3)
                 {
                     int num1 = ResearchHelper.GetSacrificeCompleted();
                     int num2 = ResearchHelper.GetSacrificeTotal();
@@ -567,7 +563,7 @@ namespace WorldModify
 
 
                 lines.Add($"出生点：{Main.spawnTileX}, {Main.spawnTileY}");
-                lines.Add($"地牢点：{Main.dungeonX }, {Main.dungeonY}");
+                lines.Add($"地牢点：{Main.dungeonX}, {Main.dungeonY}");
                 lines.Add($"表层深度: {Main.worldSurface}");
                 lines.Add($"洞穴深度: {Main.rockLayer}");
 
@@ -644,7 +640,6 @@ namespace WorldModify
             op.SendInfoMessage(string.Join("\n", lines));
         }
         #endregion
-
 
         #region moon
         static Dictionary<string, int> _moonPhases = new Dictionary<string, int>
@@ -802,7 +797,7 @@ namespace WorldModify
                 ss.Add("not the bees");
 
             if (ss.Count > 0)
-                return $"彩蛋: { string.Join(", ", ss) }";
+                return $"彩蛋: {string.Join(", ", ss)}";
             else
                 return "";
         }
