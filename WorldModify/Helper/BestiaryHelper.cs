@@ -46,6 +46,10 @@ namespace WorldModify
                     op.SendInfoMessage("/wm be import，导入 怪物图鉴");
                     op.SendInfoMessage("/wm be backup，备份 怪物图鉴 到 csv文件，解锁和清空前会自动备份");
                     break;
+
+                default:
+                    op.SendSuccessMessage("语法错误，输入 /wm be help 查看用法！");
+                    break;
             }
 
         }

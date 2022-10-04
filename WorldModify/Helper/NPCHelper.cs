@@ -28,6 +28,7 @@ namespace WorldModify
                 op.SendInfoMessage("/npc tphere <NPC名|town>, 将NPC传送到你身边");
                 op.SendInfoMessage("/npc relive, 复活NPC（根据怪物图鉴记录）");
                 op.SendInfoMessage("/npc sm, sm召唤指令备注（SpawnMob NPC召唤指令）");
+                op.SendInfoMessage("/npc mq, 召唤美杜莎boss");
                 return;
             }
 
@@ -69,6 +70,9 @@ namespace WorldModify
 
                 // NPC重生
                 case "relive": Relive(args); break;
+
+                // 召唤美杜莎boss
+                case "mq": NPC.SpawnMechQueen(op.Index); break;
             }
         }
         #endregion
@@ -481,7 +485,7 @@ namespace WorldModify
                 if (!Main.npc[i].active)
                     continue;
 
-                if (!Main.npc[i].townNPC )
+                if (!Main.npc[i].townNPC)
                     continue;
 
                 int num = Main.npc[i].type;
@@ -649,15 +653,32 @@ namespace WorldModify
                     }
                     else
                     {
+                        bool isNum = int.TryParse(args.Parameters[1], out int npcID);
+                        if (_NPCTypes.ContainsKey(args.Parameters[1]))
+                        {
+                            npcID = _NPCTypes[args.Parameters[1]];
+                            isNum = true;
+                        }
+
                         int index = -1;
                         for (int i = 0; i < Main.maxNPCs; i++)
                         {
                             //Console.WriteLine($"FullName:{Main.npc[i].FullName} TypeName:{Main.npc[i].TypeName}");
-                            if (Main.npc[i].active && Main.npc[i].TypeName == args.Parameters[1])
+                            if (!Main.npc[i].active)
+                                continue;
+
+                            if (Main.npc[i].TypeName.ToLowerInvariant() == args.Parameters[1])
                             {
                                 index = i;
                                 break;
                             }
+
+                            if (isNum && Main.npc[i].netID == npcID)
+                            {
+                                index = i;
+                                break;
+                            }
+
                         }
                         if (index == -1)
                         {
@@ -665,7 +686,7 @@ namespace WorldModify
                         }
                         else
                         {
-                            
+
                             NPC npc = Main.npc[index];
                             npc.Teleport(newPos);
 

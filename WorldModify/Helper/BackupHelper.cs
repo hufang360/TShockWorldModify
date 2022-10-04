@@ -12,7 +12,7 @@ namespace WorldModify
         public static string BackupPath { get; set; }
 
 
-        public static void Backup(TSPlayer op, string notes="")
+        public static void Backup(TSPlayer op, string notes = "")
         {
             Thread t = new Thread(() =>
             {
@@ -29,7 +29,7 @@ namespace WorldModify
                 string worldname = Main.worldPathName;
                 string name = Path.GetFileName(worldname);
 
-                if( string.IsNullOrEmpty(notes) )
+                if (string.IsNullOrEmpty(notes))
                     Main.ActiveWorldFileData._path = Path.Combine(BackupPath, string.Format("{0}.{1:yyyyMMddHHmmss}.bak", name, DateTime.Now));
                 else
                     Main.ActiveWorldFileData._path = Path.Combine(BackupPath, string.Format("{0}.{1:yyyyMMddHHmmss}_{2}.bak", name, DateTime.Now, notes));

@@ -32,20 +32,22 @@ namespace WorldModify
 
         public override void Initialize()
         {
-            Commands.ChatCommands.Add(new Command(new List<string>() { "worldmodify" }, WMCommand, "worldmodify", "wm") { HelpText = "简易的世界修改器" });
-            Commands.ChatCommands.Add(new Command(new List<string>() { "moonphase" }, ChangeMoonPhase, "moonphase", "moon") { HelpText = "月相管理" });
-            Commands.ChatCommands.Add(new Command(new List<string>() { "moonstyle" }, ChangeMoonStyle, "moonstyle", "ms") { HelpText = "月亮样式管理" });
-            Commands.ChatCommands.Add(new Command(new List<string>() { "bossmanage" }, BossHelper.Manage, "bossmanage", "boss") { HelpText = "boss管理" });
-            Commands.ChatCommands.Add(new Command(new List<string>() { "npcmanage" }, NPCHelper.Manage, "npcmanage", "npc") { HelpText = "npc管理" });
-            Commands.ChatCommands.Add(new Command(new List<string>() { "igen" }, GenHelper.GenManage, "igen") { HelpText = "建造世界" });
+            Commands.ChatCommands.Add(new Command("worldmodify", WMCommand, "worldmodify", "wm") { HelpText = "简易的世界修改器" });
+            Commands.ChatCommands.Add(new Command("moonphase", ChangeMoonPhase, "moonphase", "moon") { HelpText = "月相管理" });
+            Commands.ChatCommands.Add(new Command("moonstyle", ChangeMoonStyle, "moonstyle", "ms") { HelpText = "月亮样式管理" });
+            Commands.ChatCommands.Add(new Command("bossmanage", BossHelper.Manage, "bossmanage", "boss") { HelpText = "boss管理" });
+            Commands.ChatCommands.Add(new Command("npcmanage", NPCHelper.Manage, "npcmanage", "npc") { HelpText = "npc管理" });
+            Commands.ChatCommands.Add(new Command("igen", ReGenHelper.Manage, "igen") { HelpText = "建造世界" });
 
-            Commands.ChatCommands.Add(new Command(new List<string>() { "relive" }, NPCHelper.Relive, "relive") { HelpText = "复活NPC" });
-            Commands.ChatCommands.Add(new Command(new List<string>() { "bossinfo" }, BossHelper.BossInfo, "bossinfo", "bi") { HelpText = "boss进度信息" });
-            Commands.ChatCommands.Add(new Command(new List<string>() { "worldinfo" }, WorldInfo, "worldinfo", "wi") { HelpText = "世界信息" });
+            Commands.ChatCommands.Add(new Command("relive", NPCHelper.Relive, "relive") { HelpText = "复活NPC" });
+            Commands.ChatCommands.Add(new Command("bossinfo", BossHelper.BossInfo, "bossinfo", "bi") { HelpText = "boss进度信息" });
+            Commands.ChatCommands.Add(new Command("worldinfo", WorldInfo, "worldinfo", "wi") { HelpText = "世界信息" });
+            Commands.ChatCommands.Add(new Command("cleartomb", ClearTomb, "cleartomb", "ct") { HelpText = "清理墓碑" });
 
+            utils.SaveDir = SaveDir;
             BackupHelper.BackupPath = Path.Combine(SaveDir, "backups");
-            Regen.SaveDir = SaveDir;
-            RetileHelper.SaveFile = Path.Combine(SaveDir, "retile.json");
+
+            RetileTool.SaveFile = Path.Combine(SaveDir, "retile.json");
             ResearchHelper.SaveFile = Path.Combine(SaveDir, "research.csv");
             BestiaryHelper.SaveFile = Path.Combine(SaveDir, "bestiary.csv");
         }
@@ -54,6 +56,7 @@ namespace WorldModify
         private void WMCommand(CommandArgs args)
         {
             TSPlayer op = args.Player;
+
             #region help
             void ShowHelpText()
             {
@@ -71,6 +74,11 @@ namespace WorldModify
                     "/wm ntb，开启/关闭 not the bees 秘密世界",
                     "/wm dst，开启/关闭 饥荒联动 秘密世界",
 
+
+                    "/wm remix，开启/关闭 Remix 秘密世界",
+                    "/wm nt，开启/关闭 No Traps 秘密世界",
+                    "/wm zenith，开启/关闭 Zenith 秘密世界",
+
                     "/wm seed [种子]，查看/修改 世界种子",
                     "/wm id [id]，查看/修改 世界ID",
                     "/wm uuid [uuid字符|new]，查看/修改 世界uuid",
@@ -84,7 +92,10 @@ namespace WorldModify
                     "/wm wind，查看 风速",
                     "/wm research help，物品研究",
                     "/wm bestiary help，怪物图鉴",
+                    "/wm clear help，全图清理",
+
                     "/wm backup，备份地图",
+
 
                     "/moon help，月相管理",
                     "/moonstyle help，月亮样式管理",
@@ -107,6 +118,10 @@ namespace WorldModify
             {
                 op.SendErrorMessage("语法错误，输入 /wm help 查询用法");
                 return;
+            }
+            string GetTFlag(bool _vaule)
+            {
+                return _vaule ? "已开启" : "已关闭";
             }
 
             string text;
@@ -136,7 +151,6 @@ namespace WorldModify
                         op.SendInfoMessage($"世界名称: {Main.worldName}\n输入 /wm seed <名称> 可更改世界名称");
                         break;
                     }
-
                     Main.worldName = args.Parameters[1];
                     TSPlayer.All.SendData(PacketTypes.WorldInfo);
                     op.SendSuccessMessage("世界名称已改成 {0}", args.Parameters[1]);
@@ -259,9 +273,9 @@ namespace WorldModify
                     switch (args.Parameters[1].ToLowerInvariant())
                     {
                         case "on":
-                            if (!Main.fastForwardTime)
+                            if (!Main.IsFastForwardingTime())
                             {
-                                Main.fastForwardTime = true;
+                                Main.fastForwardTimeToDawn = true;
                                 TSPlayer.All.SendData(PacketTypes.WorldInfo);
                                 op.SendSuccessMessage("附魔日晷 已开启");
                             }
@@ -271,9 +285,9 @@ namespace WorldModify
                             }
                             break;
                         case "off":
-                            if (Main.fastForwardTime)
+                            if (Main.IsFastForwardingTime())
                             {
-                                Main.fastForwardTime = false;
+                                Main.fastForwardTimeToDawn = false;
                                 TSPlayer.All.SendData(PacketTypes.WorldInfo);
                                 op.SendSuccessMessage("附魔日晷已关闭");
                             }
@@ -364,18 +378,9 @@ namespace WorldModify
                 case "05162020":
                 case "2020":
                 case "drunk":
-                    if (Main.drunkWorld)
-                    {
-                        Main.drunkWorld = false;
-                        TSPlayer.All.SendData(PacketTypes.WorldInfo);
-                        op.SendSuccessMessage("已关闭 05162020 秘密世界（醉酒世界 / DrunkWorld）");
-                    }
-                    else
-                    {
-                        Main.drunkWorld = true;
-                        TSPlayer.All.SendData(PacketTypes.WorldInfo);
-                        op.SendSuccessMessage("已开启 05162020 秘密世界（醉酒世界 / DrunkWorld）");
-                    }
+                    Main.drunkWorld = !Main.drunkWorld;
+                    TSPlayer.All.SendData(PacketTypes.WorldInfo);
+                    op.SendSuccessMessage($"{GetTFlag(Main.drunkWorld)} 05162020 秘密世界（醉酒世界 / DrunkWorld）");
                     break;
 
 
@@ -387,70 +392,58 @@ namespace WorldModify
                 case "05162011":
                 case "05162021":
                 case "celebrationmk10":
-                    if (Main.tenthAnniversaryWorld)
-                    {
-                        Main.tenthAnniversaryWorld = false;
-                        TSPlayer.All.SendData(PacketTypes.WorldInfo);
-                        op.SendSuccessMessage("已关闭 05162021 秘密世界（10周年庆典）");
-                    }
-                    else
-                    {
-                        Main.tenthAnniversaryWorld = true;
-                        TSPlayer.All.SendData(PacketTypes.WorldInfo);
-                        op.SendSuccessMessage("已开启 05162021 秘密世界（10周年庆典）");
-                    }
+                    Main.tenthAnniversaryWorld = !Main.tenthAnniversaryWorld;
+                    TSPlayer.All.SendData(PacketTypes.WorldInfo);
+                    op.SendSuccessMessage($"{GetTFlag(Main.tenthAnniversaryWorld)} 10周年庆典 秘密世界（05162021）");
                     break;
-
 
                 // ftw
                 case "ftw":
                 case "for the worthy":
-                    if (Main.getGoodWorld)
-                    {
-                        Main.getGoodWorld = false;
-                        TSPlayer.All.SendData(PacketTypes.WorldInfo);
-                        op.SendSuccessMessage("已关闭 for the worthy 秘密世界");
-                    }
-                    else
-                    {
-                        Main.getGoodWorld = true;
-                        TSPlayer.All.SendData(PacketTypes.WorldInfo);
-                        op.SendSuccessMessage("已开启 for the worthy 秘密世界");
-                    }
+                    Main.getGoodWorld = !Main.getGoodWorld;
+                    TSPlayer.All.SendData(PacketTypes.WorldInfo);
+                    op.SendSuccessMessage($"{GetTFlag(Main.getGoodWorld)} for the worthy 秘密世界");
                     break;
 
                 // not the bees
                 case "ntb":
-                    if (Main.notTheBeesWorld)
-                    {
-                        Main.notTheBeesWorld = false;
-                        TSPlayer.All.SendData(PacketTypes.WorldInfo);
-                        op.SendSuccessMessage("已关闭 not the bees 秘密世界");
-                    }
-                    else
-                    {
-                        Main.notTheBeesWorld = true;
-                        TSPlayer.All.SendData(PacketTypes.WorldInfo);
-                        op.SendSuccessMessage("已开启 not the bees 秘密世界");
-                    }
+                    Main.notTheBeesWorld = !Main.notTheBeesWorld;
+                    TSPlayer.All.SendData(PacketTypes.WorldInfo);
+                    op.SendSuccessMessage($"{GetTFlag(Main.notTheBeesWorld)} not the bees 秘密世界");
                     break;
 
                 //  饥荒联动
                 case "eye":
                 case "dst":
                 case "constant":
-                    if (Main.dontStarveWorld)
-                    {
-                        Main.dontStarveWorld = false;
-                        TSPlayer.All.SendData(PacketTypes.WorldInfo);
-                        op.SendSuccessMessage("已关闭 永恒领域 秘密世界（饥荒联动）");
-                    }
-                    else
-                    {
-                        Main.dontStarveWorld = true;
-                        TSPlayer.All.SendData(PacketTypes.WorldInfo);
-                        op.SendSuccessMessage("已开启 永恒领域 秘密世界（饥荒联动）");
-                    }
+                    Main.dontStarveWorld = !Main.dontStarveWorld;
+                    TSPlayer.All.SendData(PacketTypes.WorldInfo);
+                    op.SendSuccessMessage($"{GetTFlag(Main.dontStarveWorld)} 永恒领域 秘密世界（饥荒联动）");
+                    break;
+
+
+                //  Remix 种子
+                case "remix":
+                    Main.remixWorld = !Main.remixWorld;
+                    TSPlayer.All.SendData(PacketTypes.WorldInfo);
+                    op.SendSuccessMessage($"{GetTFlag(Main.remixWorld)} Remix 秘密世界（don't dig up）");
+                    break;
+
+                //  noTraps 种子
+                case "nt":
+                case "no traps":
+                    Main.noTrapsWorld = !Main.noTrapsWorld;
+                    TSPlayer.All.SendData(PacketTypes.WorldInfo);
+                    op.SendSuccessMessage($"{GetTFlag(Main.noTrapsWorld)} No Traps 秘密世界");
+                    break;
+
+                //  天顶种子
+                case "zenith":
+                case "gfb":
+                case "everything":
+                    Main.zenithWorld = !Main.zenithWorld;
+                    TSPlayer.All.SendData(PacketTypes.WorldInfo);
+                    op.SendSuccessMessage($"{GetTFlag(Main.zenithWorld)} 天顶剑 秘密世界（getfixedboi）");
                     break;
                 #endregion
 
@@ -482,7 +475,18 @@ namespace WorldModify
                 // 查找地形
                 case "find":
                     args.Parameters.RemoveAt(0);
-                    TileHelper.FindCommand(args);
+                    FindTool.Manage(args);
+                    break;
+
+                // 清理目标
+                case "clear":
+                    args.Parameters.RemoveAt(0);
+                    ClearToolWM.Manage(args);
+                    break;
+
+                // 点亮全图
+                case "showall":
+                    //ShowAll(op);
                     break;
             }
         }
@@ -498,6 +502,15 @@ namespace WorldModify
         private void WorldInfo(CommandArgs args)
         {
             ShowWorldInfo(args);
+        }
+
+        /// <summary>
+        /// 清理墓碑指令
+        /// </summary>
+        /// <param name="args"></param>
+        private void ClearTomb(CommandArgs args)
+        {
+            ClearToolWM.ClearTombstone(args.Player);
         }
 
         private void ShowWorldInfo(CommandArgs args, bool isSuperAdmin = false)
@@ -535,9 +548,9 @@ namespace WorldModify
             }
 
             // 附魔日晷
-            text = GetSundial();
-            if (!string.IsNullOrEmpty(text))
-                lines.Add(GetSundial());
+            //text = GetSundial();
+            //if (!string.IsNullOrEmpty(text))
+            //    lines.Add(GetSundial());
 
             if (isSuperAdmin)
             {
@@ -759,7 +772,7 @@ namespace WorldModify
         private string GetSundial()
         {
             // 附魔日晷
-            string text = Main.fastForwardTime ? "生效中" : "";
+            string text = Main.IsFastForwardingTime() ? "生效中" : "";
             string text2 = Main.sundialCooldown > 0 ? $"{Main.sundialCooldown}天后可再次使用" : "";
             if (string.IsNullOrEmpty(text))
                 text = text2;
@@ -781,20 +794,14 @@ namespace WorldModify
         {
             List<string> ss = new List<string>();
 
-            if (Main.getGoodWorld)
-                ss.Add("for the worthy");
-
-            if (Main.drunkWorld)
-                ss.Add("05162020");
-
-            if (Main.tenthAnniversaryWorld)
-                ss.Add("05162021");
-
-            if (Main.dontStarveWorld)
-                ss.Add("the constant");
-
-            if (Main.notTheBeesWorld)
-                ss.Add("not the bees");
+            if (Main.getGoodWorld) ss.Add("for the worthy");
+            if (Main.drunkWorld) ss.Add("05162020");
+            if (Main.tenthAnniversaryWorld) ss.Add("05162021");
+            if (Main.dontStarveWorld) ss.Add("the constant");
+            if (Main.notTheBeesWorld) ss.Add("not the bees");
+            if (Main.remixWorld) ss.Add("Remix");
+            if (Main.noTrapsWorld) ss.Add("No Traps");
+            if (Main.zenithWorld) ss.Add("Zenith");
 
             if (ss.Count > 0)
                 return $"彩蛋: {string.Join(", ", ss)}";
@@ -877,7 +884,6 @@ namespace WorldModify
         }
         #endregion
 
-
         #region dispose
         protected override void Dispose(bool disposing)
         {
@@ -891,6 +897,7 @@ namespace WorldModify
                 NPCHelper.Clear();
                 ResearchHelper.Clear();
             }
+            SelectionTool.dispose();
             base.Dispose(disposing);
         }
         #endregion

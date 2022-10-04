@@ -133,9 +133,7 @@
     { "before": { "type": 1, "id": 272 }, "after": { "type": 1, "id": 216 }, "comment":"大理石墙（天然） → 硬化沙墙（天然）"},
     
     
-    { "before": { "id": 25 }, "after": { "id": 223 }, "comment":"黑檀石块 → 钛金矿"},
-    { "before": { "id":  203}, "after": { "id": 111 }, "comment":"猩红石块  → 精金矿"},
-
-    { "before": { "type": 2, "id": 1 }, "after": { "id": 162 } , "comment":"水 → 薄冰"}
+    { "before": { "id": 25 }, "after": { "id": 396 }, "comment":"黑檀石块 → 沙岩块"},
+    { "before": { "id": 203}, "after": { "id": 396 }, "comment":"猩红石块  → 沙岩块"}
   ]
 }

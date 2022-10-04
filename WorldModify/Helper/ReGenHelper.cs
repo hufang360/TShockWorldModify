@@ -1,234 +1,290 @@
 using Microsoft.Xna.Framework;
-using OTAPI.Tile;
 using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using Terraria;
-using Terraria.GameContent.Biomes;
 using Terraria.ID;
 using Terraria.Utilities;
-using Terraria.WorldBuilding;
 using TShockAPI;
 
 
 namespace WorldModify
 {
-    class Regen
+    /// <summary>
+    /// 建造
+    /// </summary>
+    class ReGenHelper
     {
-        #region GenWorld
-        /// <summary>
-        /// GenWorld
-        /// 参考：https://github.com/Illuminousity/WorldRefill/blob/master/WorldRefill/WorldRefill.cs#L997
-        /// </summary>
-        /// <param name="op"></param>
-        /// <param name="seedStr"></param>
-        /// <param name="size"></param>
-        /// <param name="evil"></param>
-        /// <param name="eggStr"></param>
-        public static async void GenWorld(TSPlayer op, string seedStr = "", int size = 0, int evil = -1, string eggStr = "")
+        public static bool isTaskRunning { get; set; }
+        public static int realcount { get; set; }
+
+        public async static void Manage(CommandArgs args)
         {
-            if (GenHelper.NeedWaitTask(op)) return;
-
-            BackupHelper.Backup(op, "GenWorld");
-            if (!op.RealPlayer)
+            TSPlayer op = args.Player;
+            void helpText()
             {
-                Console.WriteLine($"seed:{seedStr}");
-                op.SendErrorMessage($"[i:556]世界正在解体~");
+                op.SendInfoMessage("/igen world [种子] [腐化] [大小] [彩蛋特性], 重建地图");
+                op.SendInfoMessage("/igen room <数量>，生成玻璃小房间（默认生成3个）");
+                op.SendInfoMessage("/igen pond，玻璃鱼池");
+                op.SendInfoMessage("/igen hell，地狱直通车");
+                op.SendInfoMessage("/igen sm <w> <h>，盾构机");
+                op.SendInfoMessage("/igen dig <w> <h>，钻井机");
+                op.SendInfoMessage("/igen dirt，填土");
+                op.SendInfoMessage("========");
+                op.SendInfoMessage("/igen random help，随机");
+
+                op.SendInfoMessage("/igen selection help，选区工具");
+                op.SendInfoMessage("/igen replace help，替换工具");
+                op.SendInfoMessage("/igen fill help，填充工具");
+                op.SendInfoMessage("/igen clear help，擦除");
+                //op.SendInfoMessage("/igen hammer help，锤子工具");
+
+                //op.SendInfoMessage("/igen place help，放置工具");
+                //op.SendInfoMessage("/igen place 附魔剑，放置附魔剑");
+                //op.SendInfoMessage("/igen place <id> [style]，放置图格");
             }
-            TSPlayer.All.SendErrorMessage("[i:556]世界正在解体~");
-            int secondLast = utils.GetUnixTimestamp;
-
-            // 设置创建参数
-            ProcessSeeds(seedStr);
-            ProcessEggSeeds(eggStr);
-            seedStr = seedStr.ToLowerInvariant();
-            if (string.IsNullOrEmpty(seedStr) || seedStr == "0")
-                seedStr = "random";
-            if (Main.ActiveWorldFileData.Seed == 5162020)
-                seedStr = "5162020";
-
-            if (seedStr == "random")
-                Main.ActiveWorldFileData.SetSeedToRandom();
-            else
-                Main.ActiveWorldFileData.SetSeed(seedStr);
-
-            // 大小 腐化
-            int tilesX = 0;
-            int tilesY = 0;
-            int rawSize = -1;
-            if (Main.maxTilesX == 4200 & Main.maxTilesY == 1200)
-                rawSize = 1;
-            else if (Main.maxTilesX == 6400 & Main.maxTilesY == 1800)
-                rawSize = 2;
-            else if (Main.maxTilesX == 8400 & Main.maxTilesY == 2400)
-                rawSize = 3;
-
-            if (size == 1)
+            if (args.Parameters.Count == 0)
             {
-                tilesX = 4200;
-                tilesY = 1200;
+                helpText();
+                return;
             }
-            else if (size == 2)
-            {
-                tilesX = 6400;
-                tilesY = 1800;
-            }
-            else if (size == 3)
-            {
-                tilesX = 8400;
-                tilesY = 2400;
-            }
-            if (tilesX > 0)
-            {
-                Main.maxTilesX = tilesX;
-                Main.maxTilesY = tilesY;
-                Main.ActiveWorldFileData.SetWorldSize(tilesX, tilesY);
-            }
-            WorldGen.WorldGenParam_Evil = evil;
 
-            // 开始创建
-            if (!op.RealPlayer)
-                op.SendErrorMessage($"[i:3061]世界正在重建（{WorldGen.currentWorldSeed}）");
-            TSPlayer.All.SendErrorMessage($"[i:3061]世界正在重建（{WorldGen.currentWorldSeed}）");
-            await AsyncGenerateWorld(Main.ActiveWorldFileData.Seed);
-            GenHelper.isTaskRunning = false;
-
-            // 创建完成
-            int second = utils.GetUnixTimestamp - secondLast;
-            string text = $"[i:3061]世界重建完成 （用时 {second}s, {WorldGen.currentWorldSeed}）；-）";
-            TSPlayer.All.SendSuccessMessage(text);
-            if (!op.RealPlayer) op.SendErrorMessage(text);
-
-            if (rawSize != -1 && size != 0 && rawSize != size)
+            bool isRight;
+            int w;
+            int h;
+            int num;
+            Rectangle selection = SelectionTool.GetSelection(op.Index);
+            switch (args.Parameters[0].ToLowerInvariant())
             {
-                if (Main.ServerSideCharacter)
-                {
-                    foreach (TSPlayer player in TShock.Players)
+                case "help": helpText(); break;
+                default: op.SendErrorMessage("语法错误，请输入 /igen help 查询帮助"); break; ;
+
+                // 重建世界
+                case "world":
+                case "w":
+                    if (NeedWaitTask(op)) return;
+                    WorldTool.Manage(args);
+                    return;
+
+                #region info
+                case "info":
+                    if (NeedInGame(op)) return;
+                    int cx = op.TileX;
+                    int cy = op.TileY + 3;
+                    op.SendInfoMessage($"pos:{op.TileX},{op.TileY} || {op.TPlayer.position.X},{op.TPlayer.position.Y}");
+                    op.SendInfoMessage($"type:{Main.tile[cx, cy].type}");
+                    op.SendInfoMessage($"wall:{Main.tile[cx, cy].wall}");
+                    op.SendInfoMessage($"frameX:{Main.tile[cx, cy].frameX}");
+                    op.SendInfoMessage($"frameY:{Main.tile[cx, cy].frameY}");
+                    op.SendInfoMessage($"blockType:{Main.tile[cx, cy].blockType()}");
+                    op.SendInfoMessage($"slope:{Main.tile[cx, cy].slope()}");
+                    break;
+                #endregion
+
+
+                // 玻璃小房间
+                case "room":
+                    if (NeedInGame(op) || NeedWaitTask(op)) return;
+                    int total = 3;
+                    if (args.Parameters.Count > 1)
                     {
-                        if (player != null && player.IsLoggedIn && !player.IsDisabledPendingTrashRemoval)
+                        if (!int.TryParse(args.Parameters[1], out total))
                         {
-                            player.SaveServerCharacter();
+                            op.SendErrorMessage("输入的房间数量不对");
+                            return;
+                        }
+                        if (total < 1 || total > 1000)
+                        {
+                            total = 3;
                         }
                     }
-                }
-                utils.Log("服务器已关闭：重建后的地图大小和之前不一样，为了稳定起见，请重新开服");
-                TShock.Utils.StopServer(true, "服务器已关闭：地图大小和创建前不一样");
+                    isRight = op.TPlayer.direction != -1;
+                    await AsyncGenRoom(op.TileX, op.TileY + 4, total, isRight, true);
+                    return;
+
+
+                // 鱼池
+                case "pond":
+                    if (NeedInGame(op) || NeedWaitTask(op)) return;
+                    await AsyncGenPond(op.TileX, op.TileY + 3);
+                    return;
+
+
+                // 盾构机
+                case "shieldmachine":
+                case "sm":
+                    if (NeedInGame(op) || NeedWaitTask(op)) return;
+                    isRight = op.TPlayer.direction != -1;
+                    w = 61;
+                    h = 34;
+                    if (args.Parameters.Count > 1)
+                    {
+                        if (int.TryParse(args.Parameters[1], out num))
+                            w = Math.Max(3, num);
+                    }
+                    if (args.Parameters.Count > 2)
+                    {
+                        if (int.TryParse(args.Parameters[2], out num))
+                            h = Math.Max(3, num);
+                    }
+                    await AsyncGenShieldMachine(op.TileX, op.TileY + 3, w, h, isRight);
+                    return;
+
+
+                // 挖掘机
+                case "dig":
+                    if (NeedInGame(op) || NeedWaitTask(op)) return;
+                    isRight = op.TPlayer.direction != -1;
+                    w = 3;
+                    h = 34;
+                    if (utils.TryParseInt(args.Parameters, 1, out num)) w = Math.Max(3, num);
+                    if (utils.TryParseInt(args.Parameters, 2, out num)) h = Math.Max(34, num);
+                    await AsyncDigArea(op.TileX, op.TileY + 3, w, h, isRight);
+                    return;
+
+
+                // 地狱直通车
+                case "hell":
+                    await AsyncGenHellevator(op.TileX, op.TileY + 3);
+                    FinishGen();
+                    InformPlayers();
+                    op.SendSuccessMessage("创建地狱直通车结束");
+                    return;
+
+
+                // 填土
+                case "dirt":
+                    if (NeedInGame(op) || NeedWaitTask(op)) return;
+                    await AsyncPlaceDirt(op.TileX, op.TileY + 3);
+                    return;
+
+
+                #region 带区域操作
+                // 设置选区
+                case "selection":
+                case "s":
+                    if (NeedInGame(op)) return;
+                    args.Parameters.RemoveAt(0);
+                    SelectionTool.RectMange(args);
+                    break;
+
+                // 替换
+                case "replace":
+                case "r":
+                    if (NeedInGame(op)) return;
+                    args.Parameters.RemoveAt(0);
+                    ReplaceTool.Manage(args);
+                    break;
+
+                // 填充
+                case "fill":
+                case "f":
+                    if (NeedInGame(op)) return;
+                    args.Parameters.RemoveAt(0);
+                    FillTool.Manage(args);
+                    break;
+
+                // 清空
+                case "clear":
+                case "c":
+                    if (NeedInGame(op)) return;
+                    args.Parameters.RemoveAt(0);
+                    ClearTool.Manage(args);
+                    break;
+                #endregion
+
+
+                #region 全图沙漠化
+                case "egypt":
+                    if (NeedInGame(op) || NeedWaitTask(op)) return;
+                    //Regen.AsyncDesertWorld(op);
+                    op.SendInfoMessage("这个功能还没写好");
+                    break;
+
+                case "char":
+                    if (NeedInGame(op) || NeedWaitTask(op)) return;
+                    //Regen.CharPaint(op);
+                    op.SendInfoMessage("这个功能还没写好");
+                    break;
+                #endregion
+
+
+                #region 随机
+                case "random":
+                    if (NeedInGame(op) || NeedWaitTask(op)) return;
+                    bool needAll = selection.Width == Main.maxTilesX && selection.Height == Main.maxTilesY;
+                    if (needAll)
+                        AsyncRandomAll(op);
+                    else
+                        AsyncRandomArea(3, op);
+                    break;
+                #endregion
+
+
+                // 像素画
+                case "paint":
+                    if (NeedInGame(op) || NeedWaitTask(op)) return;
+                    PaintTool.Manage(op);
+                    break;
             }
 
-            // 传送到出生点
-            foreach (TSPlayer plr in TShock.Players)
+        }
+
+
+        public static bool NeedWaitTask(TSPlayer op)
+        {
+            if (isTaskRunning)
             {
-                if (plr != null && plr.Active)
-                {
-                    plr.Teleport(Main.spawnTileX * 16, (Main.spawnTileY * 16) - 48);
-                }
+                if (op != null) op.SendErrorMessage("另一个创建任务正在执行，请稍后再操作");
             }
-            FinishGen();
-            InformPlayers();
+            return isTaskRunning;
         }
-        #endregion
 
-        #region 处理种子
-        /// <summary>
-        /// 处理秘密世界种子
-        /// </summary>
-        /// <param name="seed"></param>
-        private static void ProcessSeeds(string seed)
+        public static bool NeedInGame(TSPlayer op)
         {
-            // UIWorldCreation.ProcessSpecialWorldSeeds(seedStr);
-            WorldGen.notTheBees = false;
-            WorldGen.getGoodWorldGen = false;
-            WorldGen.tenthAnniversaryWorldGen = false;
-            WorldGen.dontStarveWorldGen = false;
-            ToggleSpecialWorld(seed.ToLowerInvariant());
+            return utils.NeedInGame(op);
         }
 
-        /// <summary>
-        /// 处理彩蛋
-        /// </summary>
-        /// <param name="seedstr">例如：2020,2021,ftw</param>
-        private static void ProcessEggSeeds(string seedstr)
-        {
-            string[] seeds = seedstr.ToLowerInvariant().Split(',');
-            foreach (string newseed in seeds)
-            {
-                ToggleSpecialWorld(newseed);
-            }
-        }
-        /// <summary>
-        /// 开关秘密世界（创建器的属性）
-        /// </summary>
-        /// <param name="seed"></param>
-        private static void ToggleSpecialWorld(string seed)
-        {
-            switch (seed)
-            {
-                case "2020":
-                case "516":
-                case "5162020":
-                case "05162020":
-                    Main.ActiveWorldFileData._seed = 5162020;
-                    break;
 
-                case "2021":
-                case "5162011":
-                case "5162021":
-                case "05162011":
-                case "05162021":
-                case "celebrationmk10":
-                    WorldGen.tenthAnniversaryWorldGen = true;
-                    break;
-
-                case "ntb":
-                case "not the bees":
-                case "not the bees!":
-                    WorldGen.notTheBees = true;
-                    break;
-
-                case "ftw":
-                case "for the worthy":
-                    WorldGen.getGoodWorldGen = true;
-                    break;
-
-                case "dst":
-                case "constant":
-                case "theconstant":
-                case "the constant":
-                case "eye4aneye":
-                case "eyeforaneye":
-                    WorldGen.dontStarveWorldGen = true;
-                    break;
-
-                case "superegg":
-                    Main.ActiveWorldFileData._seed = 5162020;
-
-                    WorldGen.notTheBees = true;
-                    WorldGen.getGoodWorldGen = true;
-                    WorldGen.tenthAnniversaryWorldGen = true;
-                    WorldGen.dontStarveWorldGen = true;
-                    break;
-            }
-        }
-        #endregion
-
-        #region  AsyncGenerateWorld
-        private static Task AsyncGenerateWorld(int seed)
-        {
-            GenHelper.isTaskRunning = true;
-            WorldGen.clearWorld();
-            return Task.Run(() => WorldGen.GenerateWorld(seed)).ContinueWith((d) => FinishGen());
-        }
-        #endregion
 
         #region 一些方法
+        // 清理图格
+        public static void ClearTile(int x, int y, int w = 1, int h = 1)
+        {
+            for (int i = 0; i < w; i++)
+            {
+                for (int j = 0; j < h; j++)
+                {
+                    Main.tile[x + i, y + j].ClearTile();
+                    NetMessage.SendTileSquare(-1, x + i, y + j);
+                }
+            }
+        }
+
+        // 挖方块
+        public static void BreakTile(int x, int y)
+        {
+            Main.tile[x, y].ClearTile();
+            WorldGen.SquareTileFrame(x, y);
+            NetMessage.SendTileSquare(-1, x, y);
+        }
+
+        // 清除方块
+        public static void Clear(int x, int y)
+        {
+            Main.tile[x, y].ClearEverything();
+            WorldGen.SquareTileFrame(x, y);
+            NetMessage.SendTileSquare(-1, x, y);
+        }
+
         /// <summary>
         /// 完成创建
         /// </summary>
         public static void FinishGen(bool needSound = true)
         {
-            GenHelper.isTaskRunning = false;
+            isTaskRunning = false;
             if (needSound)
             {
                 foreach (TSPlayer player in TShock.Players)
@@ -297,7 +353,7 @@ namespace WorldModify
         #region 生成小房间
         public static Task AsyncGenRoom(int posX, int posY, int total = 1, bool isRight = true, bool needCenter = false)
         {
-            GenHelper.isTaskRunning = true;
+            isTaskRunning = true;
             return Task.Run(() => GenRooms(posX, posY, total, isRight, needCenter)).ContinueWith((d) => FinishGen());
         }
 
@@ -317,10 +373,10 @@ namespace WorldModify
 
         public static void GenRoom(int posX, int posY, bool isRight = true)
         {
-            RoomTheme th = RoomTheme.GetGlass();
+            RoomTheme th = RoomTheme.GetGray();
 
-            ushort tile = th.tile;
-            ushort wall = th.wall;
+            ushort tileID = th.tile;
+            ushort wallID = th.wall;
             TileInfo platform = th.platform;
             TileInfo chair = th.chair;
             TileInfo bench = th.bench;
@@ -338,15 +394,16 @@ namespace WorldModify
             {
                 Parallel.For(Ystart - height, Ystart, (cy) =>
                 {
+                    ITile tile = Main.tile[cx, cy];
                     // 清空区域
-                    Main.tile[cx, cy].ClearEverything();
+                    tile.ClearEverything();
+                    tile.wall = 0;
 
                     // 墙
                     if ((cx > Xstart) && (cy < Ystart - 5) && (cx < Xstart + Width - 1) && (cy > Ystart - height))
                     {
-                        Main.tile[cx, cy].wall = wall;
+                        tile.wall = wallID;
                     }
-
 
                     if ((cx == Xstart && cy > Ystart - 5)
                     || (cx == Xstart + Width - 1 && cy > Ystart - 5)
@@ -361,10 +418,10 @@ namespace WorldModify
                     || (cy == Ystart - 5))
                     {
                         // 方块
-                        Main.tile[cx, cy].type = tile;
-                        Main.tile[cx, cy].active(true);
-                        Main.tile[cx, cy].slope(0);
-                        Main.tile[cx, cy].halfBrick(false);
+                        tile.type = tileID;
+                        tile.active(true);
+                        tile.slope(0);
+                        tile.halfBrick(false);
                     }
                 });
             });
@@ -391,13 +448,13 @@ namespace WorldModify
 
             InformPlayers();
         }
-
         #endregion
+
 
         #region 盾构机
         public static Task AsyncGenShieldMachine(int posX, int posY, int w, int h, bool isRight = true)
         {
-            GenHelper.isTaskRunning = true;
+            isTaskRunning = true;
             return Task.Run(() => GenShieldMachine(posX, posY, w, h, isRight)).ContinueWith((d) => FinishGen());
         }
         public static void GenShieldMachine(int posX, int posY, int w, int h, bool isRight = true)
@@ -436,7 +493,7 @@ namespace WorldModify
         #region 挖掘机
         public static Task AsyncDigArea(int posX, int posY, int w, int h, bool isRight = true, bool isHell = false)
         {
-            GenHelper.isTaskRunning = true;
+            isTaskRunning = true;
             return Task.Run(() => DigArea(posX, posY, w, h, isRight, isHell)).ContinueWith((d) => FinishGen());
         }
         public static void DigArea(int posX, int posY, int w, int h, bool isRight = true, bool isHell = false)
@@ -455,9 +512,9 @@ namespace WorldModify
             });
 
             Parallel.For(posX, posX + 2, (cx) =>
-              {
-                  WorldGen.PlaceTile(cx, Ystart, 19, false, true, -1, 43);
-              });
+            {
+                WorldGen.PlaceTile(cx, Ystart, 19, false, true, -1, 43);
+            });
 
             InformPlayers();
         }
@@ -466,38 +523,34 @@ namespace WorldModify
         #region 生成鱼池
         public static Task AsyncGenPond(int posX, int posY)
         {
-            GenHelper.isTaskRunning = true;
+            isTaskRunning = true;
             return Task.Run(() => GenPond(posX, posY)).ContinueWith((d) => FinishGen());
         }
         public static void GenPond(int posX, int posY)
         {
-            RoomTheme th = RoomTheme.GetGlass();
+            RoomTheme th = RoomTheme.GetGray();
 
             ushort tileID = th.tile;
             ushort wallID = th.wall;
             TileInfo platform = th.platform;
-            TileInfo chair = th.chair;
-            TileInfo bench = th.bench;
-            TileInfo torch = th.torch;
 
             int Xstart = posX - 6;
             int Ystart = posY;
-            int Width = 11 + 4;
+            int Width = 11 + 2;
             int height = 30 + 2;
 
             Parallel.For(Xstart, Xstart + Width, (cx) =>
             {
                 Parallel.For(Ystart, Ystart + height, (cy) =>
                 {
-
                     ITile tile = Main.tile[cx, cy];
                     if (tile.active())
                     {
                         tile.ClearEverything();
                     }
+                    tile.wall = 0;
 
-                    if ((cx == Xstart) || (cx == Xstart + 1) || (cx == Xstart + Width - 1) || (cx == Xstart + Width - 2)
-                    || (cy == Ystart + height - 1) || (cy == Ystart + height - 2))
+                    if ((cx == Xstart) || (cx == Xstart + Width - 1) || (cy == Ystart + height - 1))
                     {
                         // 方块
                         tile.type = tileID;
@@ -510,22 +563,22 @@ namespace WorldModify
                 WorldGen.PlaceTile(cx, Ystart, platform.id, false, true, -1, platform.style);
             });
 
-            Parallel.For(Xstart + 2, Xstart + Width - 2, (cx) =>
+            Parallel.For(Xstart + 1, Xstart + Width - 1, (cx) =>
+            {
+                Parallel.For(Ystart + 1, Ystart + height - 1, (cy) =>
                 {
-                    Parallel.For(Ystart + 1, Ystart + height - 2, (cy) =>
-                    {
-                        ITile tile = Main.tile[cx, cy];
+                    ITile tile = Main.tile[cx, cy];
 
-                        tile.active(active: false);
-                        tile.liquid = byte.MaxValue;
-                        WorldGen.SquareTileFrame(cx, cy);
+                    tile.active(active: false);
+                    tile.liquid = byte.MaxValue;
+                    WorldGen.SquareTileFrame(cx, cy);
 
-                        //tile.type = TileID.Dirt;
-                        //tile.active(true);
-                        //tile.slope(0);
-                        //tile.halfBrick(false);
-                    });
+                    //tile.type = TileID.Dirt;
+                    //tile.active(true);
+                    //tile.slope(0);
+                    //tile.halfBrick(false);
                 });
+            });
 
             InformPlayers();
         }
@@ -534,7 +587,7 @@ namespace WorldModify
         #region 生成地狱直通车
         public static Task AsyncGenHellevator(int posX, int posY)
         {
-            GenHelper.isTaskRunning = true;
+            isTaskRunning = true;
             return Task.Run(() => GenHellevator(posX, posY));
         }
         private static void GenHellevator(int posX, int posY)
@@ -603,7 +656,7 @@ namespace WorldModify
         #region 填土
         public static Task AsyncPlaceDirt(int posX, int posY)
         {
-            GenHelper.isTaskRunning = true;
+            isTaskRunning = true;
             return Task.Run(() => PlaceDirt(posX, posY)).ContinueWith((d) => FinishGen());
         }
         public static void PlaceDirt(int posX, int posY)
@@ -637,7 +690,7 @@ namespace WorldModify
         #region 清空区域
         public static Task AsyncClearArea(Rectangle area, Point center, bool ClearAll = false)
         {
-            GenHelper.isTaskRunning = true;
+            isTaskRunning = true;
             return Task.Run(() => ClearArea(area, center, ClearAll)).ContinueWith((d) => FinishGen());
         }
         private static void ClearArea(Rectangle area, Point center, bool ClearAll = false)
@@ -672,12 +725,7 @@ namespace WorldModify
         }
         #endregion
 
-
-        #region 物块 随机/替换
-        public static string SaveDir;
         public static Rectangle lastArea = new Rectangle();
-        private static StructureMap structures = new StructureMap();
-        private static WorldGenConfiguration configuration = WorldGenConfiguration.FromEmbeddedPath("Terraria.GameContent.WorldBuilding.Configuration.json");
 
         #region 范围随机
         /// <summary>
@@ -687,7 +735,7 @@ namespace WorldModify
         /// <param name="op"></param>
         public static async void AsyncRandomArea(int style = 1, TSPlayer op = null, bool needTP = false)
         {
-            GenHelper.isTaskRunning = true;
+            ReGenHelper.isTaskRunning = true;
             int w = style == 1 ? 20 : 200;
             int h = style == 1 ? 15 : 150;
 
@@ -724,12 +772,12 @@ namespace WorldModify
         {
             lastArea = rect;
 
-            TileHelper.ResetTileMapping();
+            RandomTool.ResetTileMapping();
             for (int cx = rect.X; cx < rect.Right; cx++)
             {
                 for (int cy = rect.Y; cy < rect.Bottom; cy++)
                 {
-                    TileHelper.RandomTile(cx, cy);
+                    RandomTool.RandomTile(cx, cy);
                 }
             }
         }
@@ -757,15 +805,15 @@ namespace WorldModify
         /// <param name="op"></param>
         public static async void AsyncRandomAll(TSPlayer op = null)
         {
-            GenHelper.isTaskRunning = true;
+            ReGenHelper.isTaskRunning = true;
             await Task.Run(() =>
             {
-                TileHelper.ResetTileMapping();
+                RandomTool.ResetTileMapping();
                 for (int cx = 0; cx < Main.maxTilesX; cx++)
                 {
                     for (int cy = 0; cy < Main.maxTilesY; cy++)
                     {
-                        TileHelper.RandomTile(cx, cy);
+                        RandomTool.RandomTile(cx, cy);
                     }
                 }
 
@@ -779,70 +827,10 @@ namespace WorldModify
         #endregion
 
 
-        #region 图格替换
-        public static async void AsyncUniReTile(TSPlayer op, int type = 1, bool needAll = false)
-        {
-            GenHelper.isTaskRunning = true;
-            int secondLast = utils.GetUnixTimestamp;
-            string GetOpString()
-            {
-                switch (type)
-                {
-                    case 1: return "图格替换";
-                    case 2: return "冰河化";
-                    case 3: return "冰融化";
-                    default: return "图格修改";
-                }
-            }
-            string opString = GetOpString();
-            if (needAll) op.SendSuccessMessage($"全图{opString}开始");
-            Rectangle rect = needAll ? utils.GetWorldArea() : utils.GetScreen(op);
-            await Task.Run(() =>
-            {
-                ReplaceTile(rect, type, needAll);
-            }).ContinueWith((d) =>
-            {
-                if (needAll)
-                {
-                    InformPlayers();
-                    FinishGen(true);
-                    op.SendSuccessMessage($"全图{opString}结束（用时 {utils.GetUnixTimestamp - secondLast}s）");
-                }
-                else
-                {
-                    InformSections(rect);
-                    FinishGen();
-                    op.SendSuccessMessage($"{opString}结束");
-                }
-            });
-        }
-
-        private static void ReplaceTile(Rectangle rect, int type = 1, bool needAll = false)
-        {
-            if (!needAll) lastArea = rect;
-            for (int cx = rect.X; cx < rect.Right; cx++)
-            {
-                for (int cy = rect.Y; cy < rect.Bottom; cy++)
-                {
-                    switch (type)
-                    {
-                        case 1: TileHelper.ReplaceTile(cx, cy); break;
-                        case 2: TileHelper.IceAgeTile(cx, cy); break;
-                        case 3: TileHelper.IceMeltTile(cx, cy); break;
-                    }
-
-                }
-            }
-        }
-        #endregion
-        #endregion
-
-
-
         #region 沙漠地形
         public static async void AsyncDesertWorld(TSPlayer op)
         {
-            GenHelper.isTaskRunning = true;
+            ReGenHelper.isTaskRunning = true;
             await Task.Run(() =>
             {
                 for (int i = 0; i < 10; i++)
@@ -861,24 +849,24 @@ namespace WorldModify
         }
 
         private static UnifiedRandom genRand = WorldGen.genRand;
-        
+
         #endregion
 
 
-        # region 字符画
+        #region 字符画
         /// <summary>
         /// 字符画
         /// </summary>
         /// <param name="op"></param>
         public static void CharPaint(TSPlayer op)
         {
-            string[] chars = File.ReadAllLines(Path.Combine(SaveDir, "raw_0.txt"));
+            string[] chars = File.ReadAllLines(Path.Combine(utils.SaveDir, "raw_0.txt"));
             int x = op.TileX - 61;
             int y = op.TileY - 30;
             int col;
             int row = 0;
             int maxCol = 0;
-            TileHelper.ResetTileMapping();
+            RandomTool.ResetTileMapping();
             foreach (string s in chars)
             {
                 row++;
@@ -889,13 +877,39 @@ namespace WorldModify
                     if (maxCol < col) maxCol = col;
                     if (c != ' ')
                     {
-                        TileHelper.RandomTile(x + col, y + row);
+                        RandomTool.RandomTile(x + col, y + row);
                     }
                 }
             }
             InformSections(new Rectangle(x, y, maxCol, row));
         }
         #endregion
+
+
+        public static void ShowAll(TSPlayer op)
+        {
+            AsyncShowAll(op);
+        }
+
+        public static async void AsyncShowAll(TSPlayer op)
+        {
+            int secondLast = utils.GetUnixTimestamp;
+
+            await Task.Run(() =>
+            {
+                for (int x = 0; x < Main.maxTilesX; x++)
+                {
+                    for (int y = 0; y < Main.maxTilesY; y++)
+                    {
+                        WorldGen.SquareTileFrame(x, y);
+                        NetMessage.SendTileSquare(-1, x, y);
+                    }
+                }
+            }).ContinueWith((d) =>
+            {
+                op.SendInfoMessage("操作完成！");
+            });
+        }
 
 
         #region trees
@@ -914,6 +928,60 @@ namespace WorldModify
             TileID.VanityTreeSakura
         };
         #endregion
+
+        class RoomTheme
+        {
+            public ushort tile = TileID.Dirt;
+            public ushort wall = WallID.Dirt;
+            public TileInfo platform = new TileInfo(TileID.Platforms, 0);
+            public TileInfo chair = new TileInfo(TileID.Chairs, 0);
+            public TileInfo bench = new TileInfo(TileID.WorkBenches, 0);
+            public TileInfo torch = new TileInfo(TileID.Torches, 0);
+
+            public static RoomTheme GetGlass()
+            {
+                // 玻璃消耗 边框19 墙16-4 平台12-6 椅子1-4 工作台1-10 火把1-1凝胶1木材
+                RoomTheme th = new RoomTheme
+                {
+                    tile = TileID.Glass,
+                    wall = WallID.Glass
+                };
+                th.platform.style = 14;
+                th.chair.style = 18;
+                th.bench.style = 25;
+                th.torch.style = TorchID.White;
+
+                return th;
+            }
+
+            public static RoomTheme GetGray()
+            {
+                // 玻璃消耗 边框19 墙16-4 平台12-6 椅子1-4 工作台1-10 火把1-1凝胶1木材
+                RoomTheme th = new RoomTheme
+                {
+                    tile = TileID.GrayBrick,
+                    wall = WallID.GrayBrick
+                };
+
+                th.platform.style = 43;
+                return th;
+            }
+
+            public static RoomTheme GetWood()
+            {
+                RoomTheme th = new RoomTheme
+                {
+                    tile = TileID.WoodBlock,
+                    wall = WallID.Wood,
+                };
+                //th.platform.style = 0;
+                //th.chair.style = 0;
+                //th.bench.style = 0;
+                //th.torch.style = 0;
+
+                return th;
+            }
+        }
 
     }
 }

@@ -18,15 +18,23 @@ namespace WorldModify
     {
         public static string SaveFile;
 
+        private static bool isTasking = false;
+
         public static void Manage(CommandArgs args)
         {
             TSPlayer op = args.Player;
             if (args.Parameters.Count == 0)
             {
+                if (isTasking)
+                {
+                    op.SendSuccessMessage("有任务正在运行，请稍后再试！");
+                    return;
+                }
                 UnlockAll(op);
                 return;
             }
 
+            isTasking = true;
             switch (args.Parameters[0].ToLower())
             {
                 case "reset":
@@ -53,7 +61,12 @@ namespace WorldModify
                     op.SendInfoMessage("/wm re clear, 清空 历史世界 的 物品研究");
                     op.SendInfoMessage("/wm re backup，备份 物品研究 到 csv文件，解锁和清空前会自动备份");
                     break;
+
+                default:
+                    op.SendSuccessMessage("语法错误，输入 /wm re help 查看用法！");
+                    break;
             }
+            isTasking = false;
         }
 
         // 解锁全部

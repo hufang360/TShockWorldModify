@@ -7,24 +7,38 @@
 `/wm bestiary` 指令，输入 `/wm be help` 获取帮助，全解锁时会自动备份，且支持从csv文件导入；
 `/wm backup [备注]` 指令，可以给文件添加备注，例如 world.wld.20220521210053_击败巨鹿.bak；
 
-`/igen room <数量>`，生成玻璃小房间（默认生成3个）
-`/igen pond`，现在生成的鱼池内会有水
-`/igen hell`，地狱直通车
+`/igen room`，建造材料改用灰砖、灰砖墙 和 灰砖平台。
+`/igen pond`，会给鱼池注满水，建造材料改用灰砖和灰砖平台，砖墙的宽度改为1格。
 `/igen sm <w> <h>`，盾构机
 `/igen dig <w> <h>`，钻井机
 `/igen dirt`，填土
 
 
 新增
+`/igen hell`，创建 地狱直通车
 `/wm find [图格名]`，支持查找 附魔剑、花苞、提炼机等图格
 
 `/igen fixtp`，将自己对齐到网格
-`/igen clear [all]`，清空 区域/全图
-`/igen random [all]`，随机 区域/全图
-`/igen replace [all]`，图格替换
-`/igen ice [all]`，冰河化，将水替换成薄冰
-`/igen melt [all]`，冰融化
+
+`/igen re [all]`，图格替换
+/igen place 放置
+
+/igen selection help
+/igen se 查看区域
+/igen se 1，设置区域的 起始点
+/igen se 2，设置区域的 结束点
+/igen se 0，清空区域
+
+`/igen clear`，清空
+`/igen re`，图格替换
+`/igen ice`，冰河化
+`/igen melt`，冰融化
+`/igen water`，注水
+
+
+`/igen random`，随机
 `/igen egypt`，创建沙漠地形
+`/igen forest`
 
 
 ## 20220407 (v1.3)

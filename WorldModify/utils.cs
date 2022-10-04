@@ -5,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Reflection;
 using Terraria;
 using TShockAPI;
 
@@ -13,10 +14,10 @@ namespace WorldModify
 {
     class utils
     {
-        public static string CFlag(bool foo, string fstr)
-        {
-            return foo ? $"[c/96FF96:✔{fstr}]" : $"-{fstr}";
-        }
+        public static string SaveDir;
+
+        public static string CFlag(bool foo, string fstr) { return foo ? $"[c/96FF96:✔{fstr}]" : $"-{fstr}"; }
+        public static string BFlag(bool _vaule) { return _vaule ? "已开启" : "已关闭"; }
 
         public static bool NeedInGame(TSPlayer op)
         {
@@ -47,11 +48,7 @@ namespace WorldModify
         public static bool IsProtected(int x, int y)
         {
             var regions = TShock.Regions.InAreaRegion(x, y);
-            if (regions.Count() > 0)
-            {
-                return true;
-            }
-            else return false;
+            return regions.Any();
         }
 
         /// <summary>
@@ -73,18 +70,10 @@ namespace WorldModify
         /// </summary>
         /// <param name="op"></param>
         /// <returns></returns>
-        public static Rectangle GetScreen(TSPlayer op)
-        {
-            return new Rectangle(op.TileX - 61, op.TileY - 34 + 3, 122, 68);
-        }
-        public static Rectangle GetScreen(int playerX, int playerY)
-        {
-            return new Rectangle(playerX - 61, playerY - 34 + 3, 122, 68);
-        }
-        public static Rectangle GetWorldArea()
-        {
-            return new Rectangle(0, 0, Main.maxTilesX, Main.maxTilesY);
-        }
+        public static Rectangle GetScreen(TSPlayer op) { return GetScreen(op.TileX, op.TileY); }
+        public static Rectangle GetScreen(int playerX, int playerY) { return new Rectangle(playerX - 61, playerY - 34 + 3, 122, 68); }
+        public static Rectangle GetWorldArea() { return new Rectangle(0, 0, Main.maxTilesX, Main.maxTilesY); }
+        public static Rectangle CloneRect(Rectangle rect) { return new Rectangle(rect.X, rect.Y, rect.Width, rect.Height); }
 
         public static bool ToGuid(string str)
         {
@@ -129,13 +118,19 @@ namespace WorldModify
             File.WriteAllText(SaveFile, SaveStr);
         }
 
+        public static string FromEmbeddedPath(string path)
+        {
+            Stream stream = Assembly.GetExecutingAssembly().GetManifestResourceStream(path);
+            StreamReader streamReader = new StreamReader(stream);
+            return streamReader.ReadToEnd();
+        }
 
         public static void Log(string msg) { TShock.Log.ConsoleInfo("[wm]" + msg); }
 
     }
 
 
-
+    #region RectangleConverter
     public class RectangleConverter : JsonConverter
     {
         public override void WriteJson(JsonWriter writer, object value, JsonSerializer serializer)
@@ -167,4 +162,5 @@ namespace WorldModify
             return o.TryGetValue(tokenName, StringComparison.InvariantCultureIgnoreCase, out t) ? (int)t : (int?)null;
         }
     }
+    #endregion
 }
