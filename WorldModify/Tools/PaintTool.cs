@@ -1,7 +1,7 @@
-using System.Collections.Generic;
 using System.Drawing;
 using System.IO;
 using Terraria;
+using Terraria.Map;
 using TShockAPI;
 
 namespace WorldModify
@@ -20,7 +20,7 @@ namespace WorldModify
                 return;
             }
 
-            Bitmap bmp = new Bitmap(filename);
+            Bitmap bmp = new(filename);
             if (bmp.Width > Main.maxTilesX)
             {
                 op.SendErrorMessage($"图片宽度太大了，不应超过{Main.maxTilesX}px");
@@ -96,37 +96,37 @@ namespace WorldModify
         // 假彩色图像（Real TileColor）
         public static int GetBrickFromColor(Color color)
         {
-            foreach (int k in ColorDict.Keys)
+            for (int i = 0; i < MapHelper.colorLookup.Length; i++)
             {
-                Color c = ColorDict[k];
+                Microsoft.Xna.Framework.Color c = MapHelper.colorLookup[i];
                 if (color.R == c.R && color.G == c.G && color.B == c.B)
-                    return k;
+                    return i;
             }
             return -1;
         }
-        private static Dictionary<int, Color> _tcDict = new Dictionary<int, Color>();
-        private static bool _tcInit = false;
-        public static Dictionary<int, Color> ColorDict
-        {
-            get
-            {
-                if (_tcInit) return _tcDict;
+        //private static Dictionary<int, Color> _tcDict = new Dictionary<int, Color>();
+        //private static bool _tcInit = false;
+        //public static Dictionary<int, Color> ColorDict
+        //{
+        //    get
+        //    {
+        //        if (_tcInit) return _tcDict;
 
-                foreach (string line in utils.FromEmbeddedPath("WorldModify.res.TileColor.csv").Split('\n'))
-                {
-                    var arr = line.Split(',');
-                    if (arr.Length != 2) continue;
+        //        foreach (string line in utils.FromEmbeddedPath("WorldModify.res.TileColor.csv").Split('\n'))
+        //        {
+        //            var arr = line.Split(',');
+        //            if (arr.Length != 2) continue;
 
-                    if (int.TryParse(arr[0], out int id))
-                    {
-                        if (_tcDict.ContainsKey(id)) continue;
-                        _tcDict.Add(id, ColorTranslator.FromHtml($"#{arr[1]}"));
-                    }
-                }
-                _tcInit = true;
-                return _tcDict;
-            }
-        }
+        //            if (int.TryParse(arr[0], out int id))
+        //            {
+        //                if (_tcDict.ContainsKey(id)) continue;
+        //                _tcDict.Add(id, ColorTranslator.FromHtml($"#{arr[1]}"));
+        //            }
+        //        }
+        //        _tcInit = true;
+        //        return _tcDict;
+        //    }
+        //}
 
     }
 }

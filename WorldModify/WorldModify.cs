@@ -33,21 +33,22 @@ namespace WorldModify
         public override void Initialize()
         {
             Commands.ChatCommands.Add(new Command("worldmodify", WMCommand, "worldmodify", "wm") { HelpText = "简易的世界修改器" });
-            Commands.ChatCommands.Add(new Command("moonphase", ChangeMoonPhase, "moonphase", "moon") { HelpText = "月相管理" });
-            Commands.ChatCommands.Add(new Command("moonstyle", ChangeMoonStyle, "moonstyle", "ms") { HelpText = "月亮样式管理" });
+            Commands.ChatCommands.Add(new Command("moonphase", MoonHelper.ChangeMoonPhase, "moonphase", "moon") { HelpText = "月相管理" });
+            Commands.ChatCommands.Add(new Command("moonstyle", MoonHelper.ChangeMoonStyle, "moonstyle", "ms") { HelpText = "月亮样式管理" });
             Commands.ChatCommands.Add(new Command("bossmanage", BossHelper.Manage, "bossmanage", "boss") { HelpText = "boss管理" });
             Commands.ChatCommands.Add(new Command("npcmanage", NPCHelper.Manage, "npcmanage", "npc") { HelpText = "npc管理" });
-            Commands.ChatCommands.Add(new Command("igen", ReGenHelper.Manage, "igen") { HelpText = "建造世界" });
+            Commands.ChatCommands.Add(new Command("igen", iGen.Manage, "igen") { HelpText = "建造世界" });
 
-            Commands.ChatCommands.Add(new Command("relive", NPCHelper.Relive, "relive") { HelpText = "复活NPC" });
-            Commands.ChatCommands.Add(new Command("bossinfo", BossHelper.BossInfo, "bossinfo", "bi") { HelpText = "boss进度信息" });
             Commands.ChatCommands.Add(new Command("worldinfo", WorldInfo, "worldinfo", "wi") { HelpText = "世界信息" });
-            Commands.ChatCommands.Add(new Command("cleartomb", ClearTomb, "cleartomb", "ct") { HelpText = "清理墓碑" });
+            Commands.ChatCommands.Add(new Command("bossinfo", BossHelper.BossInfo, "bossinfo", "bi") { HelpText = "boss进度信息" });
+            Commands.ChatCommands.Add(new Command("relive", NPCHelper.Relive, "relive") { HelpText = "复活NPC" });
+            Commands.ChatCommands.Add(new Command("cleartomb", ClearToolWM.ClearTomb, "cleartomb", "ct") { HelpText = "清理墓碑" });
 
             utils.SaveDir = SaveDir;
             BackupHelper.BackupPath = Path.Combine(SaveDir, "backups");
 
             RetileTool.SaveFile = Path.Combine(SaveDir, "retile.json");
+            ReportTool.SaveFile = Path.Combine(SaveDir, "report.json");
             ResearchHelper.SaveFile = Path.Combine(SaveDir, "research.csv");
             BestiaryHelper.SaveFile = Path.Combine(SaveDir, "bestiary.csv");
         }
@@ -74,15 +75,15 @@ namespace WorldModify
                     "/wm ntb，开启/关闭 not the bees 秘密世界",
                     "/wm dst，开启/关闭 饥荒联动 秘密世界",
 
-
                     "/wm remix，开启/关闭 Remix 秘密世界",
                     "/wm nt，开启/关闭 No Traps 秘密世界",
                     "/wm zenith，开启/关闭 Zenith 秘密世界",
-
                     "/wm seed [种子]，查看/修改 世界种子",
+
                     "/wm id [id]，查看/修改 世界ID",
                     "/wm uuid [uuid字符|new]，查看/修改 世界uuid",
-                    "/wm sundial <on/off | 天数>，开关附魔日晷，修改/查看 附魔日晷冷却天数",
+                    "/wm sundial <on/off | 天数>，查看/开关附魔日晷，修改 冷却天数",
+                    "/wm moondial <on/off | 天数>，查看/开关附魔月晷，修改 冷却天数",
 
                     "/wm spawn，查看 出生点",
                     "/wm dungeon，查看 地牢点",
@@ -90,38 +91,30 @@ namespace WorldModify
                     "/wm cave [深度]，查看/修改 洞穴深度",
 
                     "/wm wind，查看 风速",
+                    "/wm backup [备注]，备份地图",
                     "/wm research help，物品研究",
                     "/wm bestiary help，怪物图鉴",
-                    "/wm clear help，全图清理",
 
-                    "/wm backup，备份地图",
-
-
+                    "/wm clear help，全图清理指定图格",
                     "/moon help，月相管理",
                     "/moonstyle help，月亮样式管理",
                     "/boss help，boss管理",
+
                     "/npc help，npc管理",
                     "/igen help，建造世界"
                 };
 
-                PaginationTools.SendPage(
-                    op, pageNumber, lines,
-                    new PaginationTools.Settings
-                    {
-                        HeaderFormat = "帮助 ({0}/{1})：",
-                        FooterFormat = "输入 {0}wm help {{0}} 查看更多".SFormat(Commands.Specifier)
-                    }
-                );
+                PaginationTools.SendPage(op, pageNumber, lines, new PaginationTools.Settings
+                {
+                    HeaderFormat = "帮助 ({0}/{1})：",
+                    FooterFormat = "输入 /wm help {{0}} 查看更多".SFormat(Commands.Specifier)
+                });
             }
 
             if (args.Parameters.Count == 0)
             {
                 op.SendErrorMessage("语法错误，输入 /wm help 查询用法");
                 return;
-            }
-            string GetTFlag(bool _vaule)
-            {
-                return _vaule ? "已开启" : "已关闭";
             }
 
             string text;
@@ -130,25 +123,18 @@ namespace WorldModify
             switch (args.Parameters[0].ToLowerInvariant())
             {
                 // 帮助
-                case "help":
-                    ShowHelpText();
-                    return;
-
-                default:
-                    op.SendErrorMessage("语法不正确！输入 /wm help 查询用法");
-                    break;
+                case "help": ShowHelpText(); break;
+                default: op.SendErrorMessage("语法不正确！输入 /wm help 查询用法"); break;
 
                 // 世界信息
-                case "info":
-                    ShowWorldInfo(args, true);
-                    break;
+                case "info": ShowWorldInfo(args, true); break;
 
-
+                #region 基础信息
                 // 名字
                 case "name":
                     if (args.Parameters.Count == 1)
                     {
-                        op.SendInfoMessage($"世界名称: {Main.worldName}\n输入 /wm seed <名称> 可更改世界名称");
+                        op.SendInfoMessage($"世界名称：{Main.worldName}\n输入 /wm seed <名称> 可更改世界名称");
                         break;
                     }
                     Main.worldName = args.Parameters[1];
@@ -160,10 +146,10 @@ namespace WorldModify
                 case "mode":
                     if (args.Parameters.Count == 1)
                     {
-                        op.SendInfoMessage($"世界难度: {_worldModes.Keys.ElementAt(Main.GameMode)}" +
+                        op.SendInfoMessage($"世界难度：{_worldModes.Keys.ElementAt(Main.GameMode)}" +
                             $"\n用法：/wm mode <难度>" +
                             $"\n可用的难度：{string.Join(", ", _worldModes.Keys)}");
-                        return;
+                        break;
                     }
 
                     if (int.TryParse(args.Parameters[1], out int mode))
@@ -171,7 +157,7 @@ namespace WorldModify
                         if (mode < 1 || mode > 4)
                         {
                             op.SendErrorMessage($"语法错误！用法：/wm mode <难度>\n可用的难度：{string.Join(", ", _worldModes.Keys)}");
-                            return;
+                            break;
                         }
                     }
                     else if (_worldModes.ContainsKey(args.Parameters[1]))
@@ -181,7 +167,7 @@ namespace WorldModify
                     else
                     {
                         op.SendErrorMessage($"语法错误！用法：/wm mode <难度>\n可用的难度：{string.Join(", ", _worldModes.Keys)}");
-                        return;
+                        break;
                     }
                     Main.GameMode = mode - 1;
                     TSPlayer.All.SendData(PacketTypes.WorldInfo);
@@ -193,8 +179,7 @@ namespace WorldModify
                 case "seed":
                     if (args.Parameters.Count == 1)
                     {
-                        op.SendInfoMessage($"世界种子: {WorldGen.currentWorldSeed}（{Main.ActiveWorldFileData.GetFullSeedText()}）" +
-                            $"\n输入 /wm seed <种子> 可更改世界种子");
+                        op.SendInfoMessage($"世界种子：{WorldGen.currentWorldSeed}（{Main.ActiveWorldFileData.GetFullSeedText()}）\n输入 /wm seed <种子> 可更改世界种子");
                         break;
                     }
 
@@ -208,12 +193,11 @@ namespace WorldModify
                 case "id":
                     if (args.Parameters.Count == 1)
                     {
-                        op.SendInfoMessage($"世界ID: {Main.worldID}\n输入 /wm id <id> 可更改世界ID");
+                        op.SendInfoMessage($"世界ID：{Main.worldID}\n输入 /wm id <id> 可更改世界ID");
                         break;
                     }
 
-                    int worldId;
-                    if (int.TryParse(args.Parameters[1], out worldId))
+                    if (int.TryParse(args.Parameters[1], out int worldId))
                     {
                         Main.worldID = worldId;
                         TSPlayer.All.SendData(PacketTypes.WorldInfo);
@@ -230,7 +214,7 @@ namespace WorldModify
                 case "uuid":
                     if (args.Parameters.Count == 1)
                     {
-                        op.SendInfoMessage($"uuid: {Main.ActiveWorldFileData.UniqueId}\n输入 /wm uuid <uuid> 可更改世界的uuid");
+                        op.SendInfoMessage($"uuid：{Main.ActiveWorldFileData.UniqueId}\n输入 /wm uuid <uuid> 可更改世界的uuid");
                         break;
                     }
 
@@ -254,11 +238,13 @@ namespace WorldModify
                             op.SendErrorMessage("uuid格式不正确！");
                         }
                     }
-
                     break;
+                #endregion
 
 
-                # region 附魔日晷
+                #region 附魔日晷 附魔月晷
+                // 附魔日晷
+                case "sd":
                 case "sundial":
                     if (args.Parameters.Count == 1)
                     {
@@ -310,13 +296,67 @@ namespace WorldModify
                             break;
                     }
                     break;
+
+                // 附魔月晷
+                case "md":
+                case "moondial":
+                    if (args.Parameters.Count == 1)
+                    {
+                        text = GetMoondial();
+                        if (string.IsNullOrEmpty(text))
+                            text = "附魔月晷：无";
+                        op.SendInfoMessage($"{text}" +
+                            $"\n输入 /wm moondial <天数> 可修改修改附魔月晷冷却天数" +
+                            $"\n输入 /wm moondial <on/off> 可开关附魔月晷");
+                        break;
+                    }
+                    switch (args.Parameters[1].ToLowerInvariant())
+                    {
+                        case "on":
+                            if (!Main.IsFastForwardingTime())
+                            {
+                                Main.fastForwardTimeToDusk = true;
+                                TSPlayer.All.SendData(PacketTypes.WorldInfo);
+                                op.SendSuccessMessage("附魔月晷 已开启");
+                            }
+                            else
+                            {
+                                op.SendSuccessMessage("附魔月晷 已是开启状态");
+                            }
+                            break;
+                        case "off":
+                            if (Main.IsFastForwardingTime())
+                            {
+                                Main.fastForwardTimeToDusk = false;
+                                TSPlayer.All.SendData(PacketTypes.WorldInfo);
+                                op.SendSuccessMessage("附魔月晷已关闭");
+                            }
+                            else
+                            {
+                                op.SendSuccessMessage("附魔月晷 已是关闭状态");
+                            }
+                            break;
+                        default:
+                            if (int.TryParse(args.Parameters[1], out int days))
+                            {
+                                Main.moondialCooldown = days;
+                                TSPlayer.All.SendData(PacketTypes.WorldInfo);
+                                op.SendSuccessMessage("附魔日晷冷却天数 已改成 {0}", days);
+                            }
+                            else
+                            {
+                                op.SendErrorMessage("天数输入错误！");
+                            }
+                            break;
+                    }
+                    break;
                 #endregion
 
                 // 地表深度
                 case "surface":
                     if (args.Parameters.Count == 1)
                     {
-                        op.SendInfoMessage($"表层深度: {Main.worldSurface}\n输入 /wm surface <深度> 可修改地表深度");
+                        op.SendInfoMessage($"表层深度：{Main.worldSurface}\n输入 /wm surface <深度> 可修改地表深度");
                         break;
                     }
                     if (int.TryParse(args.Parameters[1], out int surface))
@@ -335,7 +375,7 @@ namespace WorldModify
                 case "cave":
                     if (args.Parameters.Count == 1)
                     {
-                        op.SendInfoMessage($"洞穴深度: {Main.rockLayer}\n输入 /wm cave <深度> 可修改洞穴深度");
+                        op.SendInfoMessage($"洞穴深度：{Main.rockLayer}\n输入 /wm cave <深度> 可修改洞穴深度");
                         break;
                     }
                     if (int.TryParse(args.Parameters[1], out int cave))
@@ -352,17 +392,13 @@ namespace WorldModify
 
                 // 出生点
                 case "spawn":
-                    op.SendInfoMessage($"出生点：{Main.spawnTileX}, {Main.spawnTileY}" +
-                        $"\n进入游戏后，输入 /setspawn 设置出生点" +
-                        $"\n进入游戏后，输入 /spawn 传送至出生点");
+                    op.SendInfoMessage($"出生点：{Main.spawnTileX}, {Main.spawnTileY} \n进入游戏后，输入 /setspawn 设置出生点 \n进入游戏后，输入 /spawn 传送至出生点");
                     break;
 
                 // 地牢点
                 case "dungeon":
                 case "dun":
-                    op.SendInfoMessage($"地牢点：{Main.dungeonX}, {Main.dungeonY}" +
-                        $"\n进入游戏后，输入 /setdungeon 设置地牢点" +
-                        $"\n进入游戏后，输入 /tpnpc \"Old Man\" 传送至地牢点");
+                    op.SendInfoMessage($"地牢点：{Main.dungeonX}, {Main.dungeonY} \n进入游戏后，输入 /setdungeon 设置地牢点 \n进入游戏后，输入 /tpnpc \"Old Man\" 传送至地牢点");
                     break;
 
                 // 风速
@@ -380,7 +416,7 @@ namespace WorldModify
                 case "drunk":
                     Main.drunkWorld = !Main.drunkWorld;
                     TSPlayer.All.SendData(PacketTypes.WorldInfo);
-                    op.SendSuccessMessage($"{GetTFlag(Main.drunkWorld)} 05162020 秘密世界（醉酒世界 / DrunkWorld）");
+                    op.SendSuccessMessage($"{utils.BFlag(Main.drunkWorld)} 05162020 秘密世界（醉酒世界 / DrunkWorld）");
                     break;
 
 
@@ -394,22 +430,22 @@ namespace WorldModify
                 case "celebrationmk10":
                     Main.tenthAnniversaryWorld = !Main.tenthAnniversaryWorld;
                     TSPlayer.All.SendData(PacketTypes.WorldInfo);
-                    op.SendSuccessMessage($"{GetTFlag(Main.tenthAnniversaryWorld)} 10周年庆典 秘密世界（05162021）");
+                    op.SendSuccessMessage($"{utils.BFlag(Main.tenthAnniversaryWorld)} 10周年庆典 秘密世界（05162021）");
                     break;
 
-                // ftw
+                // ftw（for the worthy）
                 case "ftw":
                 case "for the worthy":
                     Main.getGoodWorld = !Main.getGoodWorld;
                     TSPlayer.All.SendData(PacketTypes.WorldInfo);
-                    op.SendSuccessMessage($"{GetTFlag(Main.getGoodWorld)} for the worthy 秘密世界");
+                    op.SendSuccessMessage($"{utils.BFlag(Main.getGoodWorld)} for the worthy 秘密世界");
                     break;
 
                 // not the bees
                 case "ntb":
                     Main.notTheBeesWorld = !Main.notTheBeesWorld;
                     TSPlayer.All.SendData(PacketTypes.WorldInfo);
-                    op.SendSuccessMessage($"{GetTFlag(Main.notTheBeesWorld)} not the bees 秘密世界");
+                    op.SendSuccessMessage($"{utils.BFlag(Main.notTheBeesWorld)} not the bees 秘密世界");
                     break;
 
                 //  饥荒联动
@@ -418,7 +454,7 @@ namespace WorldModify
                 case "constant":
                     Main.dontStarveWorld = !Main.dontStarveWorld;
                     TSPlayer.All.SendData(PacketTypes.WorldInfo);
-                    op.SendSuccessMessage($"{GetTFlag(Main.dontStarveWorld)} 永恒领域 秘密世界（饥荒联动）");
+                    op.SendSuccessMessage($"{utils.BFlag(Main.dontStarveWorld)} 永恒领域 秘密世界（饥荒联动）");
                     break;
 
 
@@ -426,7 +462,7 @@ namespace WorldModify
                 case "remix":
                     Main.remixWorld = !Main.remixWorld;
                     TSPlayer.All.SendData(PacketTypes.WorldInfo);
-                    op.SendSuccessMessage($"{GetTFlag(Main.remixWorld)} Remix 秘密世界（don't dig up）");
+                    op.SendSuccessMessage($"{utils.BFlag(Main.remixWorld)} Remix 秘密世界（don't dig up）");
                     break;
 
                 //  noTraps 种子
@@ -434,7 +470,7 @@ namespace WorldModify
                 case "no traps":
                     Main.noTrapsWorld = !Main.noTrapsWorld;
                     TSPlayer.All.SendData(PacketTypes.WorldInfo);
-                    op.SendSuccessMessage($"{GetTFlag(Main.noTrapsWorld)} No Traps 秘密世界");
+                    op.SendSuccessMessage($"{utils.BFlag(Main.noTrapsWorld)} No Traps 秘密世界");
                     break;
 
                 //  天顶种子
@@ -443,21 +479,19 @@ namespace WorldModify
                 case "everything":
                     Main.zenithWorld = !Main.zenithWorld;
                     TSPlayer.All.SendData(PacketTypes.WorldInfo);
-                    op.SendSuccessMessage($"{GetTFlag(Main.zenithWorld)} 天顶剑 秘密世界（getfixedboi）");
+                    op.SendSuccessMessage($"{utils.BFlag(Main.zenithWorld)} 天顶 秘密世界（getfixedboi）");
                     break;
                 #endregion
 
                 // 全物品研究
                 case "research":
                 case "re":
-                    args.Parameters.RemoveAt(0);
                     ResearchHelper.Manage(args);
                     break;
 
                 // 怪物图鉴
                 case "bestiary":
                 case "be":
-                    args.Parameters.RemoveAt(0);
                     BestiaryHelper.Manage(args);
                     break;
 
@@ -474,25 +508,30 @@ namespace WorldModify
 
                 // 查找地形
                 case "find":
-                    args.Parameters.RemoveAt(0);
                     FindTool.Manage(args);
                     break;
 
                 // 清理目标
                 case "clear":
-                    args.Parameters.RemoveAt(0);
                     ClearToolWM.Manage(args);
                     break;
 
                 // 点亮全图
                 case "showall":
+                    op.SendInfoMessage("未实现！");
                     //ShowAll(op);
+                    break;
+
+                // 测试 debug用
+                case "debug":
+                    TShock.Config.Settings.DebugLogs = !TShock.Config.Settings.DebugLogs;
+                    op.SendInfoMessage($"debug模式:{TShock.Config.Settings.DebugLogs}");
                     break;
             }
         }
 
         # region worldinfo
-        static Dictionary<string, int> _worldModes = new Dictionary<string, int>
+        static readonly Dictionary<string, int> _worldModes = new Dictionary<string, int>
         {
             { "经典", 1 },
             { "专家", 2 },
@@ -504,31 +543,22 @@ namespace WorldModify
             ShowWorldInfo(args);
         }
 
-        /// <summary>
-        /// 清理墓碑指令
-        /// </summary>
-        /// <param name="args"></param>
-        private void ClearTomb(CommandArgs args)
-        {
-            ClearToolWM.ClearTombstone(args.Player);
-        }
-
         private void ShowWorldInfo(CommandArgs args, bool isSuperAdmin = false)
         {
             TSPlayer op = args.Player;
 
             List<string> lines = new List<string> {
-                $"名称: {Main.worldName}",
-                $"大小: {Main.ActiveWorldFileData.WorldSizeName}（{Main.maxTilesX}x{Main.maxTilesY}）",
-                $"难度: {_worldModes.Keys.ElementAt(Main.GameMode)}",
-                $"种子: {WorldGen.currentWorldSeed}"
+                $"名称：{Main.worldName}",
+                $"大小：{GetWorldSize()}",
+                $"难度：{_worldModes.Keys.ElementAt(Main.GameMode)}",
+                $"种子：{WorldGen.currentWorldSeed}"
             };
-            // if( isSuperAdmin )
-            // {
-            //     // lines.Add($"ID: {Main.worldID}");
-            //     // lines.Add($"UUID: {Main.ActiveWorldFileData.UniqueId}");
-            //     // lines.Add($"版本: {Main.curRelease}  {Main.versionNumber}");
-            // }
+            if (isSuperAdmin)
+            {
+                lines.Add($"ID：{Main.worldID}");
+                lines.Add($"UUID：{Main.ActiveWorldFileData.UniqueId}");
+                lines.Add($"版本：{Main.curRelease}  {Main.versionNumber}");
+            }
 
             // 腐化 秘密世界
             string text = GetSecretWorldDescription();
@@ -536,50 +566,53 @@ namespace WorldModify
                 lines.Add(text);
             lines.Add(GetCorruptionDescription(isSuperAdmin));
 
+            lines.Add($"增强：" +
+                $"{utils.CFlag(NPC.combatBookWasUsed, "[i:4382]先进战斗技术")}, " +
+                $"{utils.CFlag(NPC.combatBookVolumeTwoWasUsed, "[i:5336]先进战斗技术：卷二")}, " +
+                $"{utils.CFlag(NPC.peddlersSatchelWasUsed, "[i:5343]商贩背包")}");
+
             // 时间
-            if (isSuperAdmin)
-            {
-                double time = Main.time / 3600.0;
-                time += 4.5;
-                if (!Main.dayTime)
-                    time += 15.0;
-                time %= 24.0;
-                lines.Add(string.Format("时间：{0}:{1:D2}", (int)Math.Floor(time), (int)Math.Floor((time % 1.0) * 60.0)));
-            }
+            //if (isSuperAdmin)
+            //{
+            //    double time = Main.time / 3600.0;
+            //    time += 4.5;
+            //    if (!Main.dayTime)
+            //        time += 15.0;
+            //    time %= 24.0;
+            //    lines.Add(string.Format("时间：{0}:{1:D2}", (int)Math.Floor(time), (int)Math.Floor((time % 1.0) * 60.0)));
+            //}
 
             // 附魔日晷
-            //text = GetSundial();
-            //if (!string.IsNullOrEmpty(text))
-            //    lines.Add(GetSundial());
+            text = GetSundial();
+            if (!string.IsNullOrEmpty(text))
+                lines.Add(GetSundial());
 
             if (isSuperAdmin)
             {
-                lines.Add($"月亮: {_moonPhases.Keys.ElementAt(Main.moonPhase)}");
-                lines.Add($"月亮样式: {_moonTypes.Keys.ElementAt(Main.moonType)}");
+                lines.Add($"月相：{MoonHelper.MoonPhaseDesc}（{MoonHelper.MoonTypeDesc}）");
+
+
+                List<string> texts = new List<string>();
+                if (Main.raining) texts.Add("[i:1601]雨天");
+                if (Main.IsItStorming) texts.Add("[i:4357]雷雨天");
+                if (Main.IsItAHappyWindyDay) texts.Add("[i:4082]大风天");
+                if (Sandstorm.Happening) texts.Add("[i:3796]沙尘暴");
+                lines.Add($"天气：[i:399]{Main.numClouds}  [i:4074]{Main.windSpeedCurrent}  {string.Join("  ", texts)}");
 
                 string percent;
                 if (TShock.ServerSideCharacterConfig.Settings.Enabled && Main.GameMode == 3)
                 {
                     int num1 = ResearchHelper.GetSacrificeCompleted();
                     int num2 = ResearchHelper.GetSacrificeTotal();
-                    if (num1 > 0)
-                    {
-                        percent = Terraria.Utils.PrettifyPercentDisplay(num1 / num2, "P2");
-                        lines.Add($"物品研究：{percent}（{num1}/{num2}）");
-                    }
+                    percent = Terraria.Utils.PrettifyPercentDisplay(num1 / num2, "P2");
+                    lines.Add($"物品研究：{percent}（{num1}/{num2}）");
                 }
 
                 BestiaryUnlockProgressReport result = Main.GetBestiaryProgressReport();
                 percent = Terraria.Utils.PrettifyPercentDisplay(result.CompletionPercent, "P2");
-                if (result.CompletionAmountTotal > 0)
-                    lines.Add($"怪物图鉴：{percent}（{result.CompletionAmountTotal}/{result.EntriesTotal}）");
+                lines.Add($"图鉴：{percent}（{result.CompletionAmountTotal}/{result.EntriesTotal}）");
 
-
-                lines.Add($"出生点：{Main.spawnTileX}, {Main.spawnTileY}");
-                lines.Add($"地牢点：{Main.dungeonX}, {Main.dungeonY}");
-                lines.Add($"表层深度: {Main.worldSurface}");
-                lines.Add($"洞穴深度: {Main.rockLayer}");
-
+                lines.Add($"杂项1：表层深度={Main.worldSurface}  洞穴深度={Main.rockLayer}  出生点={Main.spawnTileX},{Main.spawnTileY}  地牢点={Main.dungeonX},{Main.dungeonY}");
 
                 if (DD2Event.DownedInvasionT1)
                     text = "已通过 T1难度";
@@ -625,148 +658,42 @@ namespace WorldModify
                 if (!string.IsNullOrEmpty(text))
                     lines.Add($"入侵：{string.Join(", ", text)}");
 
-                // lines.Add($"云量：{Main.numClouds}");
-                // lines.Add($"风速：{Main.windSpeedCurrent}");
 
                 // 杂项
-                List<string> texts = new List<string>();
-                if (BirthdayParty._wasCelebrating) texts.Add("派对");
-                if (LanternNight.LanternsUp) texts.Add("灯笼夜");
-                if (Star.starfallBoost > 3f) texts.Add("流星雨");
-                if (Main.bloodMoon) texts.Add("血月");
-                if (Main.eclipse) texts.Add("日食");
-                if (Main.raining) texts.Add("雨");
-                if (Main.IsItStorming) texts.Add("雷雨");
-                if (Main.IsItAHappyWindyDay) texts.Add("大风天");
-                if (Sandstorm.Happening) texts.Add("沙尘暴");
-                if (Main.slimeRain) texts.Add("史莱姆雨");
+                texts.Clear();
+                if (BirthdayParty._wasCelebrating) texts.Add("[i:3747]派对");
+                if (LanternNight.LanternsUp) texts.Add("[i:4702]灯笼夜");
+                if (Star.starfallBoost > 3f) texts.Add("[i:75]流星雨");
+                if (Main.bloodMoon) texts.Add("[i:4271]血月");
+                if (Main.eclipse) texts.Add("[i:1609]日食");
+                if (Main.slimeRain) texts.Add("[i:4078]史莱姆雨");
                 if (texts.Count > 0)
                     lines.Add($"事件：{string.Join(", ", texts)}");
 
-                texts = new List<string>();
+                texts.Clear();
                 if (WorldGen.spawnMeteor) texts.Add("陨石");
                 if (Main.xMas) texts.Add("圣诞节");
                 if (Main.halloween) texts.Add("万圣节");
                 if (texts.Count > 0)
-                    lines.Add($"杂项：{string.Join(", ", texts)}");
+                    lines.Add($"杂项2：{string.Join(", ", texts)}");
             }
             op.SendInfoMessage(string.Join("\n", lines));
         }
-        #endregion
-
-        #region moon
-        static Dictionary<string, int> _moonPhases = new Dictionary<string, int>
+        private string GetWorldSize()
         {
-            { "满月", 1 },
-            { "亏凸月", 2 },
-            { "下弦月", 3 },
-            { "残月", 4 },
-            { "新月", 5 },
-            { "娥眉月", 6 },
-            { "上弦月", 7 },
-            { "盈凸月", 8 }
-        };
-
-        // https://terraria.fandom.com/wiki/Moon_phase
-        static Dictionary<string, int> _moonTypes = new Dictionary<string, int>
-        {
-            { "正常", 1 },
-            { "火星样式", 2 },
-            { "土星样式", 3 },
-            { "秘银风格", 4 },
-            { "明亮的偏蓝白色", 5 },
-            { "绿色", 6 },
-            { "糖果", 7 },
-            { "金星样式", 8 },
-            { "紫色的三重月亮", 9 }
-        };
-
-        // 修改月相
-        private void ChangeMoonPhase(CommandArgs args)
-        {
-            if (args.Parameters.Count<string>() == 0 || args.Parameters[0].ToLowerInvariant() == "help")
-            {
-                args.Player.SendInfoMessage("当前月相: {0}", _moonPhases.Keys.ElementAt(Main.moonPhase));
-                args.Player.SendInfoMessage("用法：/moon <月相>");
-                args.Player.SendInfoMessage("月相：{0} （可用数字 1~8 代替）", String.Join(", ", _moonPhases.Keys));
-                return;
-            }
-
-            int moon;
-            if (int.TryParse(args.Parameters[0], out moon))
-            {
-                if (moon < 1 || moon > 8)
-                {
-                    args.Player.SendErrorMessage("语法错误！用法：/moon <月相>");
-                    args.Player.SendErrorMessage("月相：{0} （可用数字 1~8 代替）", String.Join(", ", _moonPhases.Keys));
-                    return;
-                }
-            }
-            else if (_moonPhases.ContainsKey(args.Parameters[0]))
-            {
-                moon = _moonPhases[args.Parameters[0]];
-            }
-            else
-            {
-                args.Player.SendErrorMessage("语法错误！用法：/moon <月相>");
-                args.Player.SendErrorMessage("月相：{0} （可用数字 1~8 代替）", String.Join(", ", _moonPhases.Keys));
-                return;
-            }
-
-            Main.dayTime = false;
-            Main.moonPhase = moon - 1;
-            Main.time = 0.0;
-            TSPlayer.All.SendData(PacketTypes.WorldInfo);
-            args.Player.SendSuccessMessage("月相已改为 {0}", _moonPhases.Keys.ElementAt(moon - 1));
-        }
-
-        // 修改月亮样式
-        private void ChangeMoonStyle(CommandArgs args)
-        {
-            void helpText()
-            {
-                args.Player.SendInfoMessage("用法：/moonstyle <月亮样式>");
-                args.Player.SendInfoMessage("月亮样式：{0} （可用数字 1~9 代替）", String.Join(", ", _moonTypes.Keys));
-            }
-
-            if (args.Parameters.Count<string>() == 0)
-            {
-                args.Player.SendInfoMessage("当前月亮样式: {0}", _moonTypes.Keys.ElementAt(Main.moonType));
-                helpText();
-                return;
-            }
-
-            if (args.Parameters[0].ToLowerInvariant() == "help")
-            {
-                helpText();
-                return;
-            }
-
-            int moontype;
-            if (int.TryParse(args.Parameters[0], out moontype))
-            {
-                if (moontype < 1 || moontype > 9)
-                {
-                    helpText();
-                    return;
-                }
-            }
-            else if (_moonTypes.ContainsKey(args.Parameters[0]))
-            {
-                moontype = _moonTypes[args.Parameters[0]];
-            }
-            else
-            {
-                helpText();
-                return;
-            }
-            Main.dayTime = false;
-            Main.moonType = moontype - 1;
-            Main.time = 0.0;
-            TSPlayer.All.SendData(PacketTypes.WorldInfo);
-            args.Player.SendSuccessMessage("月亮样式已改为 {0}", _moonTypes.Keys.ElementAt(moontype - 1));
+            bool b1 = Main.maxTilesX == 8400 && Main.maxTilesY == 2400;
+            bool b2 = Main.maxTilesX == 6400 && Main.maxTilesY == 1800;
+            bool b3 = Main.maxTilesX == 4200 && Main.maxTilesY == 1200;
+            string text = $"{utils.CFlag(b1, "小（4200x1200）")}, " +
+                $"{utils.CFlag(b2, "中（6400x1800）")}, " +
+                $"{utils.CFlag(b3, "大（8400x2400）")}";
+            if (!b1 && !b2 && !b3)
+                text += $", {utils.CFlag(false, "未知")}";
+            return text;
         }
         #endregion
+
+
 
         #region 附魔日晷
         private string GetSundial()
@@ -786,9 +713,26 @@ namespace WorldModify
             else
                 return "";
         }
+        private string GetMoondial()
+        {
+            // 附魔日晷
+            string text = Main.IsFastForwardingTime() ? "生效中" : "";
+            string text2 = Main.moondialCooldown > 0 ? $"{Main.moondialCooldown}天后可再次使用" : "";
+            if (string.IsNullOrEmpty(text))
+                text = text2;
+            else
+            {
+                if (!string.IsNullOrEmpty(text2))
+                    text = $"{text} {text2}";
+            }
+            if (!string.IsNullOrEmpty(text))
+                return $"附魔月晷：{text}";
+            else
+                return "";
+        }
         #endregion
 
-        #region get description
+        #region GetSecretWorldDescription
         // 获取秘密世界种子状态描述
         private string GetSecretWorldDescription()
         {
@@ -804,7 +748,7 @@ namespace WorldModify
             if (Main.zenithWorld) ss.Add("Zenith");
 
             if (ss.Count > 0)
-                return $"彩蛋: {string.Join(", ", ss)}";
+                return $"彩蛋：{string.Join(", ", ss)}";
             else
                 return "";
         }
@@ -822,18 +766,18 @@ namespace WorldModify
 
                 string text;
                 if (type == 1)
-                    text = $"已摧毁 {WorldGen.shadowOrbCount}个[i:115]";
+                    text = $"已摧毁 暗影珠x{WorldGen.shadowOrbCount} ";
                 else if (type == 2)
-                    text = $"已摧毁 {WorldGen.heartCount}个[i:3062]";
+                    text = $"已摧毁 猩红之心x{WorldGen.heartCount} ";
                 else
-                    text = $"已摧毁 {WorldGen.heartCount}个[i:3062] {WorldGen.shadowOrbCount}个[i:115]";
+                    text = $"已摧毁 猩红之心x{WorldGen.heartCount} 暗影珠x{WorldGen.shadowOrbCount} ";
 
                 if (Main.hardMode)
-                    text += $" {WorldGen.altarCount}个祭坛";
+                    text += $"祭坛x{WorldGen.altarCount}";
 
                 string s2 = GetWorldStatusDialog();
                 if (!string.IsNullOrEmpty(s2))
-                    text += $", {s2}";
+                    text += $" （{s2}）";
 
                 return text;
             }
@@ -841,16 +785,16 @@ namespace WorldModify
             if (Main.drunkWorld)
             {
                 if (WorldGen.crimson)
-                    return $"腐化: 今天是猩红（醉酒世界）, {more(3)}";
+                    return $"腐化：今天是猩红[i:3016], {more(3)}";
                 else
-                    return $"腐化: 今天是腐化（醉酒世界）, {more(3)}";
+                    return $"腐化：今天是腐化[i:3015], {more(3)}";
             }
             else
             {
                 if (WorldGen.crimson)
-                    return $"腐化: 猩红, {more(2)}";
+                    return $"腐化：猩红[i:880], {more(2)}";
                 else
-                    return $"腐化: 腐化, {more(1)}";
+                    return $"腐化：腐化[i:56], {more(1)}";
             }
         }
 
@@ -890,12 +834,6 @@ namespace WorldModify
             if (disposing)
             {
                 _worldModes.Clear();
-                _moonPhases.Clear();
-                _moonTypes.Clear();
-
-                BossHelper.Clear();
-                NPCHelper.Clear();
-                ResearchHelper.Clear();
             }
             SelectionTool.dispose();
             base.Dispose(disposing);

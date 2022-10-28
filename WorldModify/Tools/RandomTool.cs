@@ -1,14 +1,71 @@
+using Microsoft.Xna.Framework;
 using System;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 using Terraria;
 using Terraria.ID;
+using TShockAPI;
 
 namespace WorldModify
 {
     class RandomTool
     {
+        /// <summary>
+        /// 全图随机
+        /// </summary>
+        /// <param name="args"></param>
+        public async static void RandomAll(CommandArgs args)
+        {
+            TSPlayer op = args.Player;
+            if (TileHelper.NeedWaitTask(op)) return;
+            await AsyncRandomArea(op, utils.GetWorldArea());
+        }
+
+        /// <summary>
+        /// 范围随机
+        /// </summary>
+        static Task AsyncRandomArea(TSPlayer op, Rectangle rect)
+        {
+            int secondLast = utils.GetUnixTimestamp;
+
+            op.SendSuccessMessage($"全图随机开始……");
+            return Task.Run(() =>
+            {
+                ResetTileMapping();
+                for (int cx = rect.X; cx < rect.Right; cx++)
+                {
+                    for (int cy = rect.Y; cy < rect.Bottom; cy++)
+                    {
+                        RandomTile(cx, cy);
+                    }
+                }
+            }).ContinueWith((d) =>
+            {
+                TileHelper.FinishGen();
+                int second = utils.GetUnixTimestamp - secondLast;
+                op.SendSuccessMessage($"随机完成（用时 {second}s）");
+            });
+        }
+
+        //private static List<int> RandomSkip()
+        //{
+        //    var nums = Enumerable.Range(0, 300).ToArray();
+        //    var rnd = new Random();
+
+        //    // Shuffle the array
+        //    for (int i = 0; i < nums.Length; ++i)
+        //    {
+        //        int randomIndex = rnd.Next(nums.Length);
+        //        int temp = nums[randomIndex];
+        //        nums[randomIndex] = nums[i];
+        //        nums[i] = temp;
+        //    }
+
+        //    return new List<int>(nums.Skip(100));
+        //}
+
         #region 随机方块
-        public static void RandomTile(int tileX, int tileY)
+        public static void RandomTile(int x, int y)
         {
             // TileID.GrayBrick
             // WallID.GrayBrick
@@ -17,17 +74,19 @@ namespace WorldModify
             // Corrupt
             // Hallow
             // Crimson
-            ITile tile = Main.tile[tileX, tileY];
+            ITile tile = Main.tile[x, y];
             //Random rng = new Random((int)DateTime.Now.Ticks);
             //bool needSkip = rng.Next(10) < 2;
             if (tile.active() && matchBlockID.Contains(tile.type) && Mapping.ContainsKey(tile.type))
             {
                 tile.type = (ushort)Mapping[tile.type];
+                NetMessage.SendTileSquare(-1, x, y);
             }
 
             if (tile.wall != 0 && WallMapping.ContainsKey(tile.wall))
             {
                 tile.wall = (ushort)WallMapping[tile.wall];
+                NetMessage.SendTileSquare(-1, x, y);
             }
         }
 

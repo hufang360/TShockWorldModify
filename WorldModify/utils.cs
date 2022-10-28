@@ -16,7 +16,8 @@ namespace WorldModify
     {
         public static string SaveDir;
 
-        public static string CFlag(bool foo, string fstr) { return foo ? $"[c/96FF96:✔{fstr}]" : $"-{fstr}"; }
+        public static string CFlag(bool foo, string fstr) { return foo ? $"[c/96FF96:✔]{fstr}" : $"-{fstr}"; }
+        public static string CFlag(string fstr, bool foo) { return foo ? $"{fstr}✓" : $"{fstr}-"; }
         public static string BFlag(bool _vaule) { return _vaule ? "已开启" : "已关闭"; }
 
         public static bool NeedInGame(TSPlayer op)
@@ -73,7 +74,45 @@ namespace WorldModify
         public static Rectangle GetScreen(TSPlayer op) { return GetScreen(op.TileX, op.TileY); }
         public static Rectangle GetScreen(int playerX, int playerY) { return new Rectangle(playerX - 61, playerY - 34 + 3, 122, 68); }
         public static Rectangle GetWorldArea() { return new Rectangle(0, 0, Main.maxTilesX, Main.maxTilesY); }
+        public static Rectangle GetBaseArea() { return new Rectangle(Main.spawnTileX - 61, Main.spawnTileY - 34, 122, 68); }
         public static Rectangle CloneRect(Rectangle rect) { return new Rectangle(rect.X, rect.Y, rect.Width, rect.Height); }
+
+        // 地图坐标点转换成位置信息
+        public static string PointToLocationDesc(int tileX, int tileY)
+        {
+            int num1 = tileX * 2 - Main.maxTilesX + 2;
+            string textHor = (num1 > 0) ? $"{num1}以东" : ((num1 >= 0) ? "中心" : $"{-num1}以西");
+
+            int num2 = (int)((double)(tileY * 2f) - Main.worldSurface * 2.0 + 2);
+            float num3 = Main.maxTilesX / 4200f;
+            num3 *= num3;
+            int num4 = 1200;
+            float num5 = (float)((double)(tileY - (65f + 10f * num3)) / (Main.worldSurface / 5.0));
+            string text3 = (tileY > (Main.maxTilesY - 204)) ? "地狱" : ((tileY > Main.rockLayer + num4 / 32 + 1) ? "洞穴" : ((num2 > 0) ? "地下" : ((!(num5 >= 1f)) ? "太空" : "地表")));
+            num2 = Math.Abs(num2);
+            string text4 = (num2 != 0) ? $"{num2}的" : "级别";
+            string textVer = text4 + text3;
+
+            return $"{textHor} {textVer}";
+        }
+
+        public static string PointToLocationDesc(NPC npc)
+        {
+            int num1 = (int)((npc.position.X + (npc.width / 2)) * 2f / 16f - Main.maxTilesX);
+            string textHor = (num1 > 0) ? $"{num1}以东" : ((num1 >= 0) ? "中心" : $"{-num1}以西");
+
+            int num2 = (int)((double)((npc.position.Y + npc.height) * 2f / 16f) - Main.worldSurface * 2.0);
+            float num3 = Main.maxTilesX / 4200f;
+            num3 *= num3;
+            int num4 = 1200;
+            float num5 = (float)((double)(npc.Center.Y / 16f - (65f + 10f * num3)) / (Main.worldSurface / 5.0));
+            string text3 = (npc.position.Y > (Main.maxTilesY - 204) * 16) ? "地狱" : ((npc.position.Y > Main.rockLayer * 16.0 + (num4 / 2) + 16.0) ? "洞穴" : ((num2 > 0) ? "地下" : ((!(num5 >= 1f)) ? "太空" : "地表")));
+            num2 = Math.Abs(num2);
+            string text4 = (num2 != 0) ? $"{num2}的" : "级别";
+            string textVer = text4 + text3;
+
+            return $"{textHor} {textVer}";
+        }
 
         public static bool ToGuid(string str)
         {
@@ -109,6 +148,7 @@ namespace WorldModify
         // 保存前先备份文件
         public static void SaveAndBack(string SaveFile, string SaveStr)
         {
+            CreateSaveDir();
             if (File.Exists(SaveFile))
             {
                 string ext = SaveFile.Substring(SaveFile.Length - 3);
@@ -126,6 +166,8 @@ namespace WorldModify
         }
 
         public static void Log(string msg) { TShock.Log.ConsoleInfo("[wm]" + msg); }
+
+        public static void CreateSaveDir() { if (!Directory.Exists(SaveDir)) Directory.CreateDirectory(SaveDir); }
 
     }
 

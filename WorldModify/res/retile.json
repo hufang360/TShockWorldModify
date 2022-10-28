@@ -1,0 +1,9 @@
+{
+  "replace": [
+    {"before": {"id":0}, "after":{"id":396}, "comment":"土块 → 沙岩块"},
+    {"before": {"id":5}, "after":{"id":-1}, "comment":"清除树"},
+    {"before": {"id":1, "type":0}, "after":{"id":396, "type":0}, "comment":"石块 → 沙岩块"},
+    {"before": {"id":2, "type":1}, "after":{"id":216, "type":1}, "comment":"土墙（天然）→ 硬化沙墙（天然）"},
+    {"before": {"id":1, "type":2}, "after":{"id":162, "type":0}, "comment":"水 → 薄冰"}
+  ]
+}

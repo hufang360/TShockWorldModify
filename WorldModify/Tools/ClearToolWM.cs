@@ -7,10 +7,11 @@ using TShockAPI;
 namespace WorldModify
 {
     /// <summary>
-    /// È«Í¼ÇåÀí¹¤¾ß
+    /// å…¨å›¾æ¸…ç†å·¥å…·
     /// </summary>
     class ClearToolWM
     {
+
         enum Type
         {
             Tomb,
@@ -19,42 +20,50 @@ namespace WorldModify
 
         public static void Manage(CommandArgs args)
         {
+            args.Parameters.RemoveAt(0);
             TSPlayer op = args.Player;
+            void Help()
+            {
+                op.SendInfoMessage("/wm clear æŒ‡ä»¤ç”¨æ³•ï¼š");
+                op.SendInfoMessage("/wm clear tombstoneï¼Œå…¨å›¾æ¸…ç† å¢“ç¢‘");
+                op.SendInfoMessage("/wm clear dressersï¼Œå…¨å›¾æ¸…ç† æ¢³å¦†å°ï¼ˆå…¨ç±»å‹ï¼‰");
+            }
             if (args.Parameters.Count == 0)
             {
-                op.SendInfoMessage("ÊäÈë /wm clear help ²é¿´°ïÖú");
+                Help();
                 return;
             }
 
             switch (args.Parameters[0].ToLowerInvariant())
             {
                 case "help":
-                    op.SendErrorMessage($"ÇëÊäÈëÒªÇåÀíµÄÃû×Ö£¬Ä¿Ç°Ö»Ö§³Ö£ºÄ¹±®£¬Êá×±Ì¨£¨È«ÀàĞÍ£©");
+                    Help();
                     return;
 
                 case "tombstone":
                 case "tomb":
-                case "Ä¹±®":
-                    if (ReGenHelper.NeedWaitTask(op)) return;
+                case "å¢“ç¢‘":
+                    if (TileHelper.NeedWaitTask(op)) return;
                     Action(op, Type.Tomb);
                     break;
 
 
                 case "dressers":
                 case "dress":
-                    if (ReGenHelper.NeedWaitTask(op)) return;
+                    if (TileHelper.NeedWaitTask(op)) return;
                     Action(op, Type.Dress);
+                    break;
+
+                default:
+                    op.SendInfoMessage("è¯­æ³•é”™è¯¯ï¼Œè¾“å…¥ /wm clear help æŸ¥çœ‹å¸®åŠ©");
                     break;
             }
         }
 
-        /// <summary>
-        /// ÇåÀíÄ¹±®£¨Íâ²¿µ÷ÓÃ£©
-        /// </summary>
-        /// <param name="op"></param>
-        public static void ClearTombstone(TSPlayer op)
+        public static void ClearTomb(CommandArgs args)
         {
-            if (ReGenHelper.NeedWaitTask(op)) return;
+            TSPlayer op = args.Player;
+            if (TileHelper.NeedWaitTask(op)) return;
             Action(op, Type.Tomb);
         }
 
@@ -64,8 +73,8 @@ namespace WorldModify
             {
                 switch (type)
                 {
-                    case Type.Tomb: return "Ä¹±®";
-                    case Type.Dress: return "Êá×±Ì¨";
+                    case Type.Tomb: return "å¢“ç¢‘";
+                    case Type.Dress: return "æ¢³å¦†å°";
                     default: return "";
                 };
             }
@@ -78,7 +87,7 @@ namespace WorldModify
             int count = 0;
             await Task.Run(() =>
             {
-                op.SendSuccessMessage($"È«Í¼ Çå³ı{opString} ¿ªÊ¼");
+                op.SendSuccessMessage($"å…¨å›¾ æ¸…é™¤{opString} å¼€å§‹");
                 for (int x = rect.X; x < rect.Right; x++)
                 {
                     for (int y = rect.Y; y < rect.Bottom; y++)
@@ -94,8 +103,8 @@ namespace WorldModify
                 }
             }).ContinueWith((d) =>
             {
-                ReGenHelper.FinishGen(false);
-                op.SendSuccessMessage($"È«Í¼¹²ÇåÀíÁË{count}¸ö{opString}£¨ÓÃÊ± {utils.GetUnixTimestamp - secondLast}Ãë£©");
+                TileHelper.FinishGen();
+                op.SendSuccessMessage($"å…¨å›¾å…±æ¸…ç†äº†{count}ä¸ª{opString}ï¼ˆç”¨æ—¶ {utils.GetUnixTimestamp - secondLast}ç§’ï¼‰");
             });
         }
 
@@ -107,7 +116,7 @@ namespace WorldModify
             FindData fd = new FindData(tileID, -1, 2, 2);
             if (FindTool.GetItem(x, y, fd))
             {
-                ReGenHelper.ClearTile(x, y, fd.w, fd.h);
+                TileHelper.ClearTile(x, y, fd.w, fd.h);
                 return true;
             }
             return false;
@@ -120,7 +129,7 @@ namespace WorldModify
             FindData fd = new FindData(tileID, -1, 3, 2);
             if (FindTool.GetItem(x, y, fd))
             {
-                ReGenHelper.ClearTile(x, y, fd.w, fd.h);
+                TileHelper.ClearTile(x, y, fd.w, fd.h);
                 return true;
             }
             return false;

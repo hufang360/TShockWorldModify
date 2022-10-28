@@ -6,6 +6,7 @@
 OTAPI.dll
 TerrariaServer.exe
 TShockAPI.dll
+[Ll]ocal/
 
 # User-specific files
 *.suo

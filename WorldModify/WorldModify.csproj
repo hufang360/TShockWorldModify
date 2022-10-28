@@ -1,89 +1,80 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
-<Project ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
-  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+<?xml version="1.0" encoding="utf-8"?>
+<Project Sdk="Microsoft.NET.Sdk">
+
   <PropertyGroup>
-    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
-    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProjectGuid>{17E7005A-4173-4791-8276-995A79BF2A46}</ProjectGuid>
     <OutputType>Library</OutputType>
-    <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>WorldModify</RootNamespace>
-    <AssemblyName>WorldModify</AssemblyName>
-    <TargetFrameworkVersion>v4.7.2</TargetFrameworkVersion>
-    <FileAlignment>512</FileAlignment>
-    <Deterministic>true</Deterministic>
-  </PropertyGroup>
-  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
-    <DebugSymbols>true</DebugSymbols>
-    <DebugType>full</DebugType>
-    <Optimize>false</Optimize>
-    <OutputPath>bin\Debug\</OutputPath>
-    <DefineConstants>DEBUG;TRACE</DefineConstants>
-    <ErrorReport>prompt</ErrorReport>
-    <WarningLevel>4</WarningLevel>
-    <PlatformTarget>AnyCPU</PlatformTarget>
+    <TargetFramework>net6.0</TargetFramework>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <GenerateDocumentationFile>False</GenerateDocumentationFile>
+    <!-- 
+      Version information for an assembly consists of the following four values:
+
+          Major Version
+          Minor Version 
+          Build Number
+          Starting in version 4.2.5, we are no longer including the fourth decimal
+          location, which previously held the date and time.
+
+      Also, be sure to release on github with the exact assembly version tag as below
+      so that the update manager works correctly (via the Github releases api and mimic)
+    -->
+    <Version>1.4.0.5</Version>
+    <AssemblyTitle>WorldModify</AssemblyTitle>
+    <Company></Company>
+    <Product>WorldModify</Product>
+    <Copyright>Copyright © hufang360 2022</Copyright>
+    <!-- extras for nuget -->
+    <GeneratePackageOnBuild>False</GeneratePackageOnBuild>
+    <PackageLicenseExpression></PackageLicenseExpression>
+    <Authors>hufang360</Authors>
+    <Description></Description>
+    <PackageId>WorldModify</PackageId>
+    <AssemblyName>WorldModify</AssemblyName> <!-- package name for nuget -->
   </PropertyGroup>
-  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
-    <DebugType>pdbonly</DebugType>
-    <Optimize>true</Optimize>
-    <OutputPath>bin\Release\</OutputPath>
-    <DefineConstants>TRACE</DefineConstants>
-    <ErrorReport>prompt</ErrorReport>
-    <WarningLevel>4</WarningLevel>
+
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
+    <NoWarn>1701;1702;1591;CA1416</NoWarn>
+    <DebugType>none</DebugType>
   </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
+    <NoWarn>1701;1702;1591;CA1416</NoWarn>
+    <DebugType>none</DebugType>
+  </PropertyGroup>
+
   <ItemGroup>
-    <Reference Include="System" />
-    <Reference Include="System.Data" />
-    <Reference Include="System.Drawing" />
-    <Reference Include="Newtonsoft.Json">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>lib\144\Newtonsoft.Json.dll</HintPath>
-    </Reference>
+    <None Remove="res\retile.json" />
+    <None Remove="res\TileFrame.csv" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <EmbeddedResource Include="res\retile.json" />
+    <EmbeddedResource Include="res\TileFrame.csv" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="System.Drawing.Common" Version="6.0.0" />
+  </ItemGroup>
+
+  <ItemGroup>
     <Reference Include="ModFramework">
-      <HintPath>lib\144\ModFramework.dll</HintPath>
+      <HintPath>..\..\@lib\1.4.4.5\ModFramework.dll</HintPath>
     </Reference>
     <Reference Include="MySql.Data">
-      <HintPath>lib\144\MySql.Data.dll</HintPath>
+      <HintPath>..\..\@lib\1.4.4.5\MySql.Data.dll</HintPath>
+    </Reference>
+    <Reference Include="Newtonsoft.Json">
+      <HintPath>..\..\@lib\1.4.4.5\Newtonsoft.Json.dll</HintPath>
     </Reference>
     <Reference Include="OTAPI">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>lib\144\OTAPI.dll</HintPath>
+      <HintPath>..\..\@lib\1.4.4.5\OTAPI.dll</HintPath>
     </Reference>
     <Reference Include="TerrariaServer">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>lib\144\TerrariaServer.dll</HintPath>
+      <HintPath>..\..\@lib\1.4.4.5\TerrariaServer.dll</HintPath>
     </Reference>
     <Reference Include="TShockAPI">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>lib\144\TShockAPI.dll</HintPath>
+      <HintPath>..\..\@lib\1.4.4.5\TShockAPI.dll</HintPath>
     </Reference>
-    <Compile Include="Tools\ClearToolWM.cs" />
-    <Compile Include="Tools\ClearTool.cs" />
-    <Compile Include="Tools\FindTool.cs" />
-    <Compile Include="Tools\FillTool.cs" />
-    <Compile Include="Tools\RandomTool.cs" />
-    <Compile Include="Tools\SelectionTool.cs" />
-    <Compile Include="Tools\WorldTool.cs" />
-    <Compile Include="Tools\ReplaceTool.cs" />
-    <Compile Include="WorldModify.cs" />
-    <Compile Include="Helper\BossHelper.cs" />
-    <Compile Include="Helper\NPCHelper.cs" />
-    <Compile Include="Helper\ReGenHelper.cs" />
-    <Compile Include="Helper\BackupHelper.cs" />
-    <Compile Include="Tools\RetileTool.cs" />
-    <Compile Include="Tools\PaintTool.cs" />
-    <Compile Include="Helper\BestiaryHelper.cs" />
-    <Compile Include="Helper\ResearchHelper.cs" />
-    <Compile Include="utils.cs" />
-    <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
-  <ItemGroup>
-    <EmbeddedResource Include="res\TileColor.csv" />
-    <EmbeddedResource Include="res\retile_desert.json" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="app.config" />
-  </ItemGroup>
-  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+
 </Project>

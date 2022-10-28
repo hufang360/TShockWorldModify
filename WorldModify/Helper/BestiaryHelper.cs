@@ -5,6 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using Terraria;
 using Terraria.GameContent.Bestiary;
+using Terraria.ID;
 using TShockAPI;
 
 
@@ -16,17 +17,30 @@ namespace WorldModify
 
         public static void Manage(CommandArgs args)
         {
+            args.Parameters.RemoveAt(0);
             TSPlayer op = args.Player;
+            void HelpTxt()
+            {
+                op.SendInfoMessage("/wm bestiary 指令用法：");
+                op.SendInfoMessage("/wm be unlock，解锁 全怪物图鉴");
+                op.SendInfoMessage("/wm be <id/名称>，解锁 单条记录");
+                op.SendInfoMessage("/wm be reset，重置 怪物图鉴");
+                op.SendInfoMessage("/wm be import，导入 怪物图鉴");
+                op.SendInfoMessage("/wm be backup，备份 怪物图鉴 到 csv文件，解锁和重置前会自动备份");
+            }
 
             if (args.Parameters.Count == 0)
             {
-                Unlock(op);
+                HelpTxt();
                 return;
             }
 
-
             switch (args.Parameters[0].ToLowerInvariant())
             {
+                case "unlock":
+                    Unlock(op);
+                    break;
+
                 case "reset":
                     Reset(op);
                     break;
@@ -41,58 +55,69 @@ namespace WorldModify
                     break;
 
                 case "help":
-                    op.SendInfoMessage("/wm be，解锁 全怪物图鉴");
-                    op.SendInfoMessage("/wm be reset，清空 怪物图鉴");
-                    op.SendInfoMessage("/wm be import，导入 怪物图鉴");
-                    op.SendInfoMessage("/wm be backup，备份 怪物图鉴 到 csv文件，解锁和清空前会自动备份");
+                    HelpTxt();
                     break;
 
                 default:
-                    op.SendSuccessMessage("语法错误，输入 /wm be help 查看用法！");
+                    // 解锁单条
+                    if (int.TryParse(args.Parameters[0], out int id))
+                    {
+                        if (id > 0 && id < NPCID.Count)
+                        {
+                            UnlockOne(id, op);
+                        }
+                        else
+                        {
+                            op.SendErrorMessage($"NPC ID 只能在 1~{ItemID.Count} 范围内");
+                        }
+                    }
+                    else
+                    {
+                        List<NPC> npcs = TShock.Utils.GetNPCByName(args.Parameters[0]);
+                        if (npcs.Count == 0)
+                        {
+                            args.Player.SendErrorMessage("无效的NPC名称!");
+                        }
+                        else if (npcs.Count > 1)
+                        {
+                            args.Player.SendMultipleMatchError(npcs.Select(i => $"{i.FullName}({i.netID})"));
+                        }
+                        else
+                        {
+                            UnlockOne(npcs[0].netID, op);
+                        }
+                    }
                     break;
             }
 
         }
 
-        // 参考：https://github.com/TEdit/Terraria-Map-Editor/blob/d0cd544c2f08ca96b8723257b98d4ba120db81f8/src/TEdit/Terraria/World.FileV2.cs#L111
-        static string killedData = "BigHornetStingy,LittleHornetStingy,BigHornetSpikey,LittleHornetSpikey,BigHornetLeafy,LittleHornetLeafy,BigHornetHoney,LittleHornetHoney,BigHornetFatty,LittleHornetFatty,BigRainZombie,SmallRainZombie,BigPantlessSkeleton,SmallPantlessSkeleton,BigMisassembledSkeleton,SmallMisassembledSkeleton,BigHeadacheSkeleton,SmallHeadacheSkeleton,BigSkeleton,SmallSkeleton,BigFemaleZombie,SmallFemaleZombie,DemonEye2,PurpleEye2,GreenEye2,DialatedEye2,SleepyEye2,CataractEye2,BigTwiggyZombie,SmallTwiggyZombie,BigSwampZombie,SmallSwampZombie,BigSlimedZombie,SmallSlimedZombie,BigPincushionZombie,SmallPincushionZombie,BigBaldZombie,SmallBaldZombie,BigZombie,SmallZombie,BigCrimslime,LittleCrimslime,BigCrimera,LittleCrimera,GiantMossHornet,BigMossHornet,LittleMossHornet,TinyMossHornet,BigStinger,LittleStinger,HeavySkeleton,BigBoned,ShortBones,BigEater,LittleEater,JungleSlime,YellowSlime,RedSlime,PurpleSlime,BlackSlime,BabySlime,Pinky,GreenSlime,Slimer2,Slimeling,None,BlueSlime,DemonEye,Zombie,EyeofCthulhu,ServantofCthulhu,EaterofSouls,DevourerHead,DevourerBody,DevourerTail,GiantWormHead,GiantWormBody,GiantWormTail,EaterofWorldsHead,EaterofWorldsBody,EaterofWorldsTail,MotherSlime,Merchant,Nurse,ArmsDealer,Dryad,Skeleton,Guide,MeteorHead,FireImp,BurningSphere,GoblinPeon,GoblinThief,GoblinWarrior,GoblinSorcerer,ChaosBall,AngryBones,DarkCaster,WaterSphere,CursedSkull,SkeletronHead,SkeletronHand,OldMan,Demolitionist,BoneSerpentHead,BoneSerpentBody,BoneSerpentTail,Hornet,ManEater,UndeadMiner,Tim,Bunny,CorruptBunny,Harpy,CaveBat,KingSlime,JungleBat,DoctorBones,TheGroom,Clothier,Goldfish,Snatcher,CorruptGoldfish,Piranha,LavaSlime,Hellbat,Vulture,Demon,BlueJellyfish,PinkJellyfish,Shark,VoodooDemon,Crab,DungeonGuardian,Antlion,SpikeBall,DungeonSlime,BlazingWheel,GoblinScout,Bird,Pixie,None2,ArmoredSkeleton,Mummy,DarkMummy,LightMummy,CorruptSlime,Wraith,CursedHammer,EnchantedSword,Mimic,Unicorn,WyvernHead,WyvernLegs,WyvernBody,WyvernBody2,WyvernBody3,WyvernTail,GiantBat,Corruptor,DiggerHead,DiggerBody,DiggerTail,SeekerHead,SeekerBody,SeekerTail,Clinger,AnglerFish,GreenJellyfish,Werewolf,BoundGoblin,BoundWizard,GoblinTinkerer,Wizard,Clown,SkeletonArcher,GoblinArcher,VileSpit,WallofFlesh,WallofFleshEye,TheHungry,TheHungryII,LeechHead,LeechBody,LeechTail,ChaosElemental,Slimer,Gastropod,BoundMechanic,Mechanic,Retinazer,Spazmatism,SkeletronPrime,PrimeCannon,PrimeSaw,PrimeVice,PrimeLaser,BaldZombie,WanderingEye,TheDestroyer,TheDestroyerBody,TheDestroyerTail,IlluminantBat,IlluminantSlime,Probe,PossessedArmor,ToxicSludge,SantaClaus,SnowmanGangsta,MisterStabby,SnowBalla,None3,IceSlime,Penguin,PenguinBlack,IceBat,Lavabat,GiantFlyingFox,GiantTortoise,IceTortoise,Wolf,RedDevil,Arapaima,VampireBat,Vampire,Truffle,ZombieEskimo,Frankenstein,BlackRecluse,WallCreeper,WallCreeperWall,SwampThing,UndeadViking,CorruptPenguin,IceElemental,PigronCorruption,PigronHallow,RuneWizard,Crimera,Herpling,AngryTrapper,MossHornet,Derpling,Steampunker,CrimsonAxe,PigronCrimson,FaceMonster,FloatyGross,Crimslime,SpikedIceSlime,SnowFlinx,PincushionZombie,SlimedZombie,SwampZombie,TwiggyZombie,CataractEye,SleepyEye,DialatedEye,GreenEye,PurpleEye,LostGirl,Nymph,ArmoredViking,Lihzahrd,LihzahrdCrawler,FemaleZombie,HeadacheSkeleton,MisassembledSkeleton,PantlessSkeleton,SpikedJungleSlime,Moth,IcyMerman,DyeTrader,PartyGirl,Cyborg,Bee,BeeSmall,PirateDeckhand,PirateCorsair,PirateDeadeye,PirateCrossbower,PirateCaptain,CochinealBeetle,CyanBeetle,LacBeetle,SeaSnail,Squid,QueenBee,ZombieRaincoat,FlyingFish,UmbrellaSlime,FlyingSnake,Painter,WitchDoctor,Pirate,GoldfishWalker,HornetFatty,HornetHoney,HornetLeafy,HornetSpikey,HornetStingy,JungleCreeper,JungleCreeperWall,BlackRecluseWall,BloodCrawler,BloodCrawlerWall,BloodFeeder,BloodJelly,IceGolem,RainbowSlime,Golem,GolemHead,GolemFistLeft,GolemFistRight,GolemHeadFree,AngryNimbus,Eyezor,Parrot,Reaper,ZombieMushroom,ZombieMushroomHat,FungoFish,AnomuraFungus,MushiLadybug,FungiBulb,GiantFungiBulb,FungiSpore,Plantera,PlanterasHook,PlanterasTentacle,Spore,BrainofCthulhu,Creeper,IchorSticker,RustyArmoredBonesAxe,RustyArmoredBonesFlail,RustyArmoredBonesSword,RustyArmoredBonesSwordNoArmor,BlueArmoredBones,BlueArmoredBonesMace,BlueArmoredBonesNoPants,BlueArmoredBonesSword,HellArmoredBones,HellArmoredBonesSpikeShield,HellArmoredBonesMace,HellArmoredBonesSword,RaggedCaster,RaggedCasterOpenCoat,Necromancer,NecromancerArmored,DiabolistRed,DiabolistWhite,BoneLee,DungeonSpirit,GiantCursedSkull,Paladin,SkeletonSniper,TacticalSkeleton,SkeletonCommando,AngryBonesBig,AngryBonesBigMuscle,AngryBonesBigHelmet,BirdBlue,BirdRed,Squirrel,Mouse,Raven,SlimeMasked,BunnySlimed,HoppinJack,Scarecrow1,Scarecrow2,Scarecrow3,Scarecrow4,Scarecrow5,Scarecrow6,Scarecrow7,Scarecrow8,Scarecrow9,Scarecrow10,HeadlessHorseman,Ghost,DemonEyeOwl,DemonEyeSpaceship,ZombieDoctor,ZombieSuperman,ZombiePixie,SkeletonTopHat,SkeletonAstonaut,SkeletonAlien,MourningWood,Splinterling,Pumpking,PumpkingBlade,Hellhound,Poltergeist,ZombieXmas,ZombieSweater,SlimeRibbonWhite,SlimeRibbonYellow,SlimeRibbonGreen,SlimeRibbonRed,BunnyXmas,ZombieElf,ZombieElfBeard,ZombieElfGirl,PresentMimic,GingerbreadMan,Yeti,Everscream,IceQueen,SantaNK1,ElfCopter,Nutcracker,NutcrackerSpinning,ElfArcher,Krampus,Flocko,Stylist,WebbedStylist,Firefly,Butterfly,Worm,LightningBug,Snail,GlowingSnail,Frog,Duck,Duck2,DuckWhite,DuckWhite2,ScorpionBlack,Scorpion,TravellingMerchant,Angler,DukeFishron,DetonatingBubble,Sharkron,Sharkron2,TruffleWorm,TruffleWormDigger,SleepingAngler,Grasshopper,ChatteringTeethBomb,CultistArcherBlue,CultistArcherWhite,BrainScrambler,RayGunner,MartianOfficer,ForceBubble,GrayGrunt,MartianEngineer,MartianTurret,MartianDrone,GigaZapper,ScutlixRider,Scutlix,MartianSaucer,MartianSaucerTurret,MartianSaucerCannon,MartianSaucerCore,MoonLordHead,MoonLordHand,MoonLordCore,MartianProbe,MoonLordFreeEye,MoonLordLeechBlob,StardustWormHead,StardustWormBody,StardustWormTail,StardustCellBig,StardustCellSmall,StardustJellyfishBig,StardustJellyfishSmall,StardustSpiderBig,StardustSpiderSmall,StardustSoldier,SolarCrawltipedeHead,SolarCrawltipedeBody,SolarCrawltipedeTail,SolarDrakomire,SolarDrakomireRider,SolarSroller,SolarCorite,SolarSolenian,NebulaBrain,NebulaHeadcrab,NebulaBeast,NebulaSoldier,VortexRifleman,VortexHornetQueen,VortexHornet,VortexLarva,VortexSoldier,ArmedZombie,ArmedZombieEskimo,ArmedZombiePincussion,ArmedZombieSlimed,ArmedZombieSwamp,ArmedZombieTwiggy,ArmedZombieCenx,CultistTablet,CultistDevote,CultistBoss,CultistBossClone,GoldBird,GoldBunny,GoldButterfly,GoldFrog,GoldGrasshopper,GoldMouse,GoldWorm,BoneThrowingSkeleton,BoneThrowingSkeleton2,BoneThrowingSkeleton3,BoneThrowingSkeleton4,SkeletonMerchant,CultistDragonHead,CultistDragonBody1,CultistDragonBody2,CultistDragonBody3,CultistDragonBody4,CultistDragonTail,Butcher,CreatureFromTheDeep,Fritz,Nailhead,CrimsonBunny,CrimsonGoldfish,Psycho,DeadlySphere,DrManFly,ThePossessed,CrimsonPenguin,GoblinSummoner,ShadowFlameApparition,BigMimicCorruption,BigMimicCrimson,BigMimicHallow,BigMimicJungle,Mothron,MothronEgg,MothronSpawn,Medusa,GreekSkeleton,GraniteGolem,GraniteFlyer,EnchantedNightcrawler,Grubby,Sluggy,Buggy,TargetDummy,BloodZombie,Drippler,PirateShip,PirateShipCannon,LunarTowerStardust,Crawdad,Crawdad2,GiantShelly,GiantShelly2,Salamander,Salamander2,Salamander3,Salamander4,Salamander5,Salamander6,Salamander7,Salamander8,Salamander9,LunarTowerNebula,LunarTowerVortex,TaxCollector,GiantWalkingAntlion,GiantFlyingAntlion,DuneSplicerHead,DuneSplicerBody,DuneSplicerTail,TombCrawlerHead,TombCrawlerBody,TombCrawlerTail,SolarFlare,LunarTowerSolar,SolarSpearman,SolarGoop,MartianWalker,AncientCultistSquidhead,AncientLight,AncientDoom,DesertGhoul,DesertGhoulCorruption,DesertGhoulCrimson,DesertGhoulHallow,DesertLamiaLight,DesertLamiaDark,DesertScorpionWalk,DesertScorpionWall,DesertBeast,DesertDjinn,DemonTaxCollector,SlimeSpiked,TheBride,SandSlime,SquirrelRed,SquirrelGold,PartyBunny,SandElemental,SandShark,SandsharkCorrupt,SandsharkCrimson,SandsharkHallow,Tumbleweed,DD2AttackerTest,DD2EterniaCrystal,DD2LanePortal,DD2Bartender,DD2Betsy,DD2GoblinT1,DD2GoblinT2,DD2GoblinT3,DD2GoblinBomberT1,DD2GoblinBomberT2,DD2GoblinBomberT3,DD2WyvernT1,DD2WyvernT2,DD2WyvernT3,DD2JavelinstT1,DD2JavelinstT2,DD2JavelinstT3,DD2DarkMageT1,DD2DarkMageT3,DD2SkeletonT1,DD2SkeletonT3,DD2WitherBeastT2,DD2WitherBeastT3,DD2DrakinT2,DD2DrakinT3,DD2KoboldWalkerT2,DD2KoboldWalkerT3,DD2KoboldFlyerT2,DD2KoboldFlyerT3,DD2OgreT2,DD2OgreT3,DD2LightningBugT3,BartenderUnconscious,WalkingAntlion,FlyingAntlion,LarvaeAntlion,FairyCritterPink,FairyCritterGreen,FairyCritterBlue,ZombieMerman,EyeballFlyingFish,Golfer,GolferRescue,TorchZombie,ArmedTorchZombie,GoldGoldfish,GoldGoldfishWalker,WindyBalloon,BlackDragonfly,BlueDragonfly,GreenDragonfly,OrangeDragonfly,RedDragonfly,YellowDragonfly,GoldDragonfly,Seagull,Seagull2,LadyBug,GoldLadyBug,Maggot,Pupfish,Grebe,Grebe2,Rat,Owl,WaterStrider,GoldWaterStrider,ExplosiveBunny,Dolphin,Turtle,TurtleJungle,BloodNautilus,BloodSquid,GoblinShark,BloodEelHead,BloodEelBody,BloodEelTail,Gnome,SeaTurtle,Seahorse,GoldSeahorse,Dandelion,IceMimic,BloodMummy,RockGolem,MaggotZombie,BestiaryGirl,SporeBat,SporeSkeleton,HallowBoss,TownCat,TownDog,GemSquirrelAmethyst,GemSquirrelTopaz,GemSquirrelSapphire,GemSquirrelEmerald,GemSquirrelRuby,GemSquirrelDiamond,GemSquirrelAmber,GemBunnyAmethyst,GemBunnyTopaz,GemBunnySapphire,GemBunnyEmerald,GemBunnyRuby,GemBunnyDiamond,GemBunnyAmber,HellButterfly,Lavafly,MagmaSnail,TownBunny,QueenSlimeBoss,QueenSlimeMinionBlue,QueenSlimeMinionPink,QueenSlimeMinionPurple,EmpressButterfly,PirateGhost,Princess,TorchGod,ChaosBallTim,VileSpitEaterOfWorlds,GoldenSlime,Deerclops,DeerclopsLeg";
-        static List<string> killedKeys = killedData.Split(',').Reverse().ToList();
-
-        static string sightData = "Bird,BirdBlue,BirdRed,Buggy,PartyBunny,ExplosiveBunny,GemBunnyAmethyst,GemBunnyTopaz,GemBunnySapphire,GemBunnyEmerald,GemBunnyRuby,GemBunnyDiamond,GemBunnyAmber,TownBunny,Bunny,CorruptBunny,BunnySlimed,BunnyXmas,GoldBunny,CrimsonBunny,Dolphin,Duck,Duck2,DuckWhite,DuckWhite2,EnchantedNightcrawler,FairyCritterPink,FairyCritterGreen,FairyCritterBlue,Firefly,Frog,GoldFrog,GlowingSnail,CrimsonGoldfish,GoldGoldfish,GoldGoldfishWalker,Goldfish,CorruptGoldfish,GoldfishWalker,Grasshopper,GoldGrasshopper,Grebe,Grebe2,Grubby,LadyBug,GoldLadyBug,MushiLadybug,Lavafly,LightningBug,Maggot,MagmaSnail,Mouse,GoldMouse,Owl,Penguin,PenguinBlack,CorruptPenguin,CrimsonPenguin,Pupfish,Rat,ScorpionBlack,Scorpion,Seagull,Seagull2,Seahorse,GoldSeahorse,SeaTurtle,Sluggy,Snail,GlowingSnail,SeaSnail,SquirrelRed,SquirrelGold,GemSquirrelAmethyst,GemSquirrelTopaz,GemSquirrelSapphire,GemSquirrelEmerald,GemSquirrelRuby,GemSquirrelDiamond,GemSquirrelAmber,Squirrel,Turtle,TurtleJungle,WaterStrider,GoldWaterStrider,Worm,GoldWorm,HellButterfly,EmpressButterfly,Butterfly,GoldButterfly,BlackDragonfly,BlueDragonfly,GreenDragonfly,OrangeDragonfly,RedDragonfly,YellowDragonfly,GoldDragonfly,TruffleWorm";
-        static List<string> sightKeys = sightData.Split(',').Reverse().ToList();
-
-        static string chatData = "SleepingAngler,Angler,OldMan,Guide,Merchant,Dryad,BestiaryGirl,TravellingMerchant,Painter,Demolitionist,ArmsDealer,DyeTrader,SkeletonMerchant,Pirate,BoundGoblin,GoblinTinkerer,Nurse,Clothier,BartenderUnconscious,DD2Bartender,BoundMechanic,Mechanic,TownCat,TownDog,WitchDoctor,WebbedStylist,Stylist,TaxCollector,BoundWizard,Wizard,Truffle,Steampunker,TownBunny,PartyGirl,GolferRescue,Golfer,Cyborg,Princess,SantaClaus";
-        static List<string> chatKeys = chatData.Split(',').Reverse().ToList();
+        // 条目的NPCID参考：
+        // Terraria.GameContent.Bestiary\BestiaryDatabaseNPCsPopulator.cs
+        // AddTownNPCs_Manual();
+        static List<int> kills = new List<int>() { };
+        static List<int> sights = new List<int>() { };
+        static List<int> chats = new List<int>() { 369, 37, 22, 17, 20, 633, 368, 227, 38, 19, 207, 453, 229, 107, 18, 54, 550, 124, 637, 638, 228, 353, 441, 108, 160, 178, 656, 208, 588, 209, 663, 142, 678, 679, 680, 681, 682, 683, 684, 670 };
 
         private static async void Unlock(TSPlayer op)
         {
             await Task.Run(() =>
             {
                 Backup();
-
-                foreach (string key in killedKeys)
+                if (kills.Count == 0) ReadEnmeyAndCritter();
+                foreach (int id in kills)
                 {
-                    if (Main.BestiaryTracker.Kills._killCountsByNpcId.ContainsKey(key))
-                    {
-                        if (Main.BestiaryTracker.Kills._killCountsByNpcId[key] < 50)
-                            Main.BestiaryTracker.Kills._killCountsByNpcId[key] = 50;
-                    }
-                    else
-                    {
-                        Main.BestiaryTracker.Kills._killCountsByNpcId.Add(key, 50);
-                    }
+                    UnlockKill(id);
                 }
 
-                foreach (string key in sightKeys)
+                foreach (int id in sights)
                 {
-                    if (!Main.BestiaryTracker.Sights._wasNearPlayer.Contains(key))
-                        Main.BestiaryTracker.Sights._wasNearPlayer.Add(key);
+                    UnlockSight(id);
                 }
 
-                foreach (string key in chatKeys)
+                foreach (int id in chats)
                 {
-                    if (!Main.BestiaryTracker.Chats._chattedWithPlayer.Contains(key))
-                        Main.BestiaryTracker.Chats._chattedWithPlayer.Add(key);
+                    UnlockChat(id);
                 }
 
                 TSPlayer.All.SendData(PacketTypes.WorldInfo);
@@ -105,6 +130,68 @@ namespace WorldModify
                 BestiaryUnlockProgressReport result = Main.GetBestiaryProgressReport();
                 op.SendSuccessMessage($"怪物图鉴 已全部解锁 ;-) {result.CompletionAmountTotal}/{result.EntriesTotal}");
             });
+        }
+        private static void UnlockOne(int id, TSPlayer op)
+        {
+            if (kills.Count == 0) ReadEnmeyAndCritter();
+            bool flag = false;
+            if (kills.Contains(id)) flag = UnlockKill(id);
+            else if (sights.Contains(id)) flag = UnlockSight(id);
+            else if (chats.Contains(id)) flag = UnlockChat(id);
+
+            if (flag)
+            {
+                TSPlayer.All.SendData(PacketTypes.WorldInfo);
+                for (int i = 0; i < Main.maxPlayers; i++)
+                {
+                    if (Main.player[i].active)
+                        Main.BestiaryTracker.OnPlayerJoining(i);
+                }
+                op.SendSuccessMessage($"已将 {TShock.Utils.GetNPCById(id).FullName} 加入怪物图鉴");
+            }
+            else
+            {
+                op.SendSuccessMessage($"此条目已经解锁过了");
+            }
+        }
+        private static bool UnlockKill(int id)
+        {
+            string key = GetBestiaryCreditId(id);
+            Dictionary<string, int> dic = Main.BestiaryTracker.Kills._killCountsByNpcId;
+            if (dic.ContainsKey(key))
+            {
+                if (dic[key] < 50)
+                {
+                    dic[key] = 50;
+                    return true;
+                }
+            }
+            else
+            {
+                dic.Add(key, 50);
+                return true;
+            }
+            return false;
+        }
+        private static bool UnlockSight(int id)
+        {
+            string key = GetBestiaryCreditId(id);
+            if (!Main.BestiaryTracker.Sights._wasNearPlayer.Contains(key))
+            {
+                Main.BestiaryTracker.Sights._wasNearPlayer.Add(key);
+                return true;
+            }
+            return false;
+        }
+        private static bool UnlockChat(int id)
+        {
+            string key = GetBestiaryCreditId(id);
+            if (!Main.BestiaryTracker.Chats._chattedWithPlayer.Contains(key))
+            {
+                Main.BestiaryTracker.Chats._chattedWithPlayer.Add(key);
+                return true;
+            }
+            return false;
         }
 
 
@@ -125,21 +212,38 @@ namespace WorldModify
             });
         }
 
+        // 备份现有的记录
         private static void Backup()
         {
-            // 备份现有的记录
             StringBuilder str = new StringBuilder();
+            int id;
             foreach (var obj in Main.BestiaryTracker.Kills._killCountsByNpcId)
             {
-                str.Append($"{obj.Key},{obj.Value}\n");
+                // 1.4.4.x 已经没有这个名字
+                if (obj.Key == "DeerclopsLeg") continue;
+                id = GetNPCId(obj.Key);
+                if (id == 0) continue;
+                if (id == 195) // 迷失女孩
+                {
+                    if (!Main.BestiaryTracker.Kills._killCountsByNpcId.ContainsKey("Nymph"))
+                        str.Append($"{196},{obj.Value},{Lang.GetNPCName(id)}\n");
+                }
+                else if (id == 196) //宁芙
+                {
+                    if (!Main.BestiaryTracker.Kills._killCountsByNpcId.ContainsKey("LostGirl"))
+                        str.Append($"{195},{obj.Value},{Lang.GetNPCName(id)}\n");
+                }
+                str.Append($"{id},{obj.Value},{Lang.GetNPCName(id)}\n");
             }
             foreach (string s in Main.BestiaryTracker.Sights._wasNearPlayer)
             {
-                str.Append($"{s}\n");
+                id = GetNPCId(s);
+                str.Append($"{GetNPCId(s)},{Lang.GetNPCName(id)}\n");
             }
             foreach (string s in Main.BestiaryTracker.Chats._chattedWithPlayer)
             {
-                str.Append($"{s}\n");
+                id = GetNPCId(s);
+                str.Append($"{GetNPCId(s)},{Lang.GetNPCName(id)}\n");
             }
             utils.SaveAndBack(SaveFile, str.ToString());
         }
@@ -155,34 +259,42 @@ namespace WorldModify
             await Task.Run(() =>
             {
                 op.SendInfoMessage("正在导入，请稍等……");
-                int count = 0;
+                if (kills.Count == 0) ReadEnmeyAndCritter();
 
+                int count = 0;
+                string key = "";
                 foreach (string s in File.ReadAllLines(SaveFile))
                 {
                     string[] arr = s.Split(',');
-                    string key = arr[0];
+                    if (!int.TryParse(arr[0], out int id)) continue;
+
+                    int num = 0;
                     if (arr.Length > 1)
                     {
-                        if (!killedKeys.Contains(key) || !int.TryParse(arr[1], out int num))
+                        if (kills.Contains(id) && int.TryParse(arr[1], out num))
+                        {
+                            key = GetBestiaryCreditId(id);
+                            if (Main.BestiaryTracker.Kills._killCountsByNpcId.ContainsKey(key))
+                                Main.BestiaryTracker.Kills._killCountsByNpcId[key] = num;
+                            else
+                                Main.BestiaryTracker.Kills._killCountsByNpcId.Add(key, num);
+                            count++;
                             continue;
-
-                        if (Main.BestiaryTracker.Kills._killCountsByNpcId.ContainsKey(key))
-                            Main.BestiaryTracker.Kills._killCountsByNpcId[key] = num;
-                        else
-                            Main.BestiaryTracker.Kills._killCountsByNpcId.Add(key, num);
-                        count++;
-                        continue;
+                        }
                     }
 
-                    if (sightKeys.Contains(key))
+                    if (sights.Contains(id))
                     {
+                        key = GetBestiaryCreditId(id);
                         if (!Main.BestiaryTracker.Sights._wasNearPlayer.Contains(key))
                             Main.BestiaryTracker.Sights._wasNearPlayer.Add(key);
                         count++;
                         continue;
                     }
-                    if (chatKeys.Contains(key))
+
+                    if (chats.Contains(id))
                     {
+                        key = GetBestiaryCreditId(id);
                         if (!Main.BestiaryTracker.Chats._chattedWithPlayer.Contains(key))
                             Main.BestiaryTracker.Chats._chattedWithPlayer.Add(key);
                         count++;
@@ -190,8 +302,59 @@ namespace WorldModify
                     }
                 }
 
-                op.SendSuccessMessage($"已处理 {count} 个怪物图鉴");
+                BestiaryUnlockProgressReport result = Main.GetBestiaryProgressReport();
+                string percent = Terraria.Utils.PrettifyPercentDisplay(result.CompletionPercent, "P2");
+                op.SendSuccessMessage($"已处理 {count} 条数据。怪物图鉴进度： {percent} {result.CompletionAmountTotal}/{result.EntriesTotal}");
             });
+        }
+
+        private static string GetBestiaryCreditId(int netID)
+        {
+            return ContentSamples.NpcBestiaryCreditIdsByNpcNetIds[netID];
+        }
+        private static int GetNPCId(string key)
+        {
+            return ContentSamples.NpcNetIdsByPersistentIds[key];
+        }
+
+
+        // 出处：
+        // Terraria.GameContent.Bestiary\BestiaryDatabaseNPCsPopulator.cs
+        // AddEmptyEntries_CrittersAndEnemies_Automated();
+        private static void ReadEnmeyAndCritter()
+        {
+            HashSet<int> exclusions = GetExclusions();
+            foreach (KeyValuePair<int, NPC> item in ContentSamples.NpcsByNetId)
+            {
+                if (!exclusions.Contains(item.Key) && !item.Value.isLikeATownNPC)
+                {
+                    if (item.Value.CountsAsACritter)
+                    {
+                        sights.Add(item.Key);
+                    }
+                    else
+                    {
+                        kills.Add(item.Key);
+                    }
+                }
+            }
+        }
+        private static HashSet<int> GetExclusions()
+        {
+            HashSet<int> hashSet = new HashSet<int>();
+            List<int> list = new List<int>();
+            foreach (KeyValuePair<int, NPCID.Sets.NPCBestiaryDrawModifiers> item in NPCID.Sets.NPCBestiaryDrawOffset)
+            {
+                if (item.Value.Hide)
+                {
+                    list.Add(item.Key);
+                }
+            }
+            foreach (int item2 in list)
+            {
+                hashSet.Add(item2);
+            }
+            return hashSet;
         }
 
     }

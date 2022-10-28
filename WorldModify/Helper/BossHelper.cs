@@ -690,6 +690,5 @@ namespace WorldModify
                 string.Format("事件：{0}", string.Join(", ", li3))
             };
         }
-        public static void Clear() { }
     }
 }

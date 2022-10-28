@@ -1,4 +1,5 @@
 using Microsoft.Xna.Framework;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 using Terraria;
 using Terraria.ID;
@@ -15,6 +16,8 @@ namespace WorldModify
         {
             NULL,
             Block,  // 填充图格
+            Wall,  // 填充墙体
+
             Dirt,   // 填充土块
             Mud,    // 填充泥块
             Water,  // 填水
@@ -23,152 +26,223 @@ namespace WorldModify
             Shimmer,   // 填充微光
         };
 
+
         public static void Manage(CommandArgs args)
         {
+            args.Parameters.RemoveAt(0);
             TSPlayer op = args.Player;
-            Rectangle selection = SelectionTool.GetSelection(op.Index);
-            if (args.Parameters.Count == 0)
+            void Help()
             {
-                op.SendInfoMessage($"需要提供填充方案，输入 /igen fill help 帮助！");
+                if (!PaginationTools.TryParsePageNumber(args.Parameters, 1, op, out int pageNumber))
+                    return;
+
+                List<string> lines = new()
+                {
+                    "/igen f <id>，填充指定图格",
+                    "/igen f wall <id>，填充指定墙体",
+                    "/igen f dirt，填充土块",
+                    "/igen f mud，填充泥块",
+
+                    "/igen f water，填充水",
+                    "/igen f honey，填充蜂蜜",
+                    "/igen f lava，填充岩浆",
+                    "/igen f shimmer，填充微光",
+                };
+
+                PaginationTools.SendPage(op, pageNumber, lines, new PaginationTools.Settings
+                {
+                    HeaderFormat = "/igen fill 指令用法 ({0}/{1})：",
+                    FooterFormat = "输入 /igen f help {{0}} 查看更多".SFormat(Commands.Specifier)
+                });
+            }
+            if (args.Parameters.Count == 0 || args.Parameters[0].ToLowerInvariant() == "help")
+            {
+                Help();
                 return;
             }
 
+            int id = 0;
             Type type = Type.NULL;
-            switch (args.Parameters[0].ToLowerInvariant())
+            string kw = args.Parameters[0].ToLowerInvariant();
+            switch (kw)
             {
-                case "help":
-                    op.SendInfoMessage("/igen f dirt，填充土块");
-                    op.SendInfoMessage("/igen f mud，填充泥块");
-                    op.SendInfoMessage("/igen f water，填充水");
-                    op.SendInfoMessage("/igen f honey，填充蜂蜜");
-                    op.SendInfoMessage("/igen f lava，填充岩浆");
-                    op.SendInfoMessage("/igen f shimmer，填充微光");
-                    op.SendInfoMessage("/igen f <图格id>，填充指定图格");
-                    return;
-
                 case "dirt": type = Type.Dirt; break;
                 case "mud": type = Type.Mud; break;
                 case "water": type = Type.Water; break;
                 case "honey": type = Type.Honey; break;
                 case "lava": type = Type.Lava; break;
                 case "shimmer": type = Type.Shimmer; break;
+
+                case "wall":
+                case "w":
+                    if (args.Parameters.Count < 2)
+                    {
+                        op.SendErrorMessage("需要输入墙体ID，/igen f wall <id>");
+                        return;
+                    }
+                    if (!int.TryParse(args.Parameters[1], out id))
+                    {
+                        op.SendErrorMessage($"输入的墙体ID无效，有效值 1~{WallID.Count - 1}");
+                        return;
+                    }
+                    type = Type.Wall;
+                    break;
+
+                default:
+                    if (int.TryParse(kw, out id))
+                    {
+                        if (!RandomTool.matchBlockID.Contains(id))
+                        {
+                            op.SendErrorMessage("输入的图格ID无效！目前仅支持填充一些方块");
+                            return;
+                        }
+
+                        //TileObjectData tileData = TileObjectData.GetTileData(id, 0);
+                        //utils.Log($"tileData:{tileData.Width}");
+                        //Point p = TileHelper.GetTileWH(id);
+                        //if (p.X>1 ||p.Y>1)
+                        //{
+                        //    op.SendErrorMessage("仅支持填充1x1的图格，不支持填充家具等！");
+                        //    return;
+                        //}
+                        type = Type.Block;
+                    }
+                    else
+                    {
+                        Help();
+                    }
+                    break;
             }
             if (type != Type.NULL)
             {
-                if (ReGenHelper.NeedWaitTask(op)) return;
-                Action(op, type, selection);
+                Rectangle selection = SelectionTool.GetSelection(op.Index);
+                Action(op, type, selection, id);
             }
         }
 
 
-        private static async void Action(TSPlayer op, Type type, Rectangle rect)
+        private static async void Action(TSPlayer op, Type type, Rectangle rect, int id = -1)
         {
-            if (rect.Width == 0 && rect.Height == 0) rect = utils.GetScreen(op);
-            bool needAll = rect.Width == Main.maxTilesX && rect.Height == Main.maxTilesY;
-
-
             int secondLast = utils.GetUnixTimestamp;
             string GetOpString()
             {
-                switch (type)
+                return type switch
                 {
-                    case Type.Dirt: return "填充土块";
-                    case Type.Mud: return "填充泥块";
-                    case Type.Water: return "注水";
-                    case Type.Honey: return "注入蜂蜜";
-                    case Type.Lava: return "注入岩浆";
-                    case Type.Shimmer: return "注入微光";
-                    default: return "图格修改";
-                }
+                    Type.Block => "填充方块",
+                    Type.Wall => "填充墙体",
+
+                    Type.Dirt => "填充土块",
+                    Type.Mud => "填充泥块",
+                    Type.Water => "注水",
+                    Type.Honey => "注入蜂蜜",
+                    Type.Lava => "注入岩浆",
+                    Type.Shimmer => "注入微光",
+                    _ => "填充图格",
+                };
             }
             string opString = GetOpString();
 
 
             await Task.Run(() =>
             {
-                if (needAll) op.SendSuccessMessage($"{opString} 全图开始");
                 for (int x = rect.X; x < rect.Right; x++)
                 {
                     for (int y = rect.Y; y < rect.Bottom; y++)
                     {
+                        ITile tile = Main.tile[x, y];
+                        if (tile.active())
+                            continue;
+
                         switch (type)
                         {
+                            case Type.Block:
+                            case Type.Wall:
                             case Type.Dirt:
                             case Type.Mud:
                             case Type.Water:
                             case Type.Honey:
                             case Type.Lava:
                             case Type.Shimmer:
-                                Fill(x, y, type);
+                                Fill(x, y, type, id);
                                 break;
                         }
-
                     }
                 }
             }).ContinueWith((d) =>
             {
-                if (needAll)
-                {
-                    ReGenHelper.FinishGen(true);
-                    op.SendSuccessMessage($"{opString} 全图结束（用时 {utils.GetUnixTimestamp - secondLast}s）");
-                }
-                else
-                {
-                    ReGenHelper.FinishGen();
-                    op.SendSuccessMessage($"{opString} 结束");
-                }
+                TileHelper.GenAfter();
+                int second = utils.GetUnixTimestamp - secondLast;
+                op.SendSuccessMessage($"{opString} 结束（用时 {second}s）");
             });
         }
 
-        private static void Fill(int x, int y, Type type)
+        private static void Fill(int x, int y, Type type, int id = -1)
         {
-
             ITile tile = Main.tile[x, y];
-            if (tile.active())
-                return;
 
+            bool isBlock = false;
+            bool isLiquid = false;
             switch (type)
             {
+                case Type.Block:
+                    if (id != -1)
+                    {
+                        tile.type = (ushort)id;
+                        isBlock = true;
+                    }
+                    break;
+
+                case Type.Wall:
+                    if (id != -1)
+                        tile.wall = (ushort)id;
+                    break;
+
                 case Type.Dirt:
                     tile.type = TileID.Dirt;
-                    tile.active(active: true);
-                    NetMessage.SendTileSquare(-1, x, y);
+                    isBlock = true;
                     break;
 
                 case Type.Mud:
                     tile.type = TileID.Mud;
-                    tile.active(active: true);
-                    NetMessage.SendTileSquare(-1, x, y);
+                    isBlock = true;
                     break;
 
                 case Type.Water:
                     tile.honey(honey: false);
                     tile.lava(lava: false);
-                    tile.liquid = byte.MaxValue;
-                    WorldGen.SquareTileFrame(x, y);
-                    NetMessage.SendTileSquare(-1, x, y);
+                    isLiquid = true;
                     break;
 
                 case Type.Honey:
                     tile.honey(honey: true);
-                    tile.liquid = byte.MaxValue;
-                    WorldGen.SquareTileFrame(x, y);
-                    NetMessage.SendTileSquare(-1, x, y);
+                    isLiquid = true;
                     break;
 
                 case Type.Lava:
                     tile.lava(lava: true);
-                    tile.liquid = byte.MaxValue;
-                    WorldGen.SquareTileFrame(x, y);
-                    NetMessage.SendTileSquare(-1, x, y);
+                    isLiquid = true;
                     break;
 
                 case Type.Shimmer:
                     tile.shimmer(shimmer: true);
-                    tile.liquid = byte.MaxValue;
-                    WorldGen.SquareTileFrame(x, y);
-                    NetMessage.SendTileSquare(-1, x, y);
+                    isLiquid = true;
                     break;
+            }
+            if (isBlock)
+            {
+                tile.active(active: true);
+                //WorldGen.SquareTileFrame(x, y);
+                //NetMessage.SendTileSquare(-1, x, y);
+                //NetMessage.SendTileSquare(-1, x, y);
+                //NetMessage.SendTileSquare(-1, x, y);
+                //NetMessage.SendTileSquare(-1, x, y);
+                //NetMessage.SendTileSquare(-1, x, y);
+            }
+            else if (isLiquid)
+            {
+                tile.liquid = byte.MaxValue;
+                //WorldGen.SquareTileFrame(x, y);
+                //NetMessage.SendTileSquare(-1, x, y);
             }
         }
     }

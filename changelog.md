@@ -1,7 +1,52 @@
 
 
 # 更新日志
-## 20220522 （v1.4)
+## 20221013 （v1.4未发布)
+支持解锁1.4.4新增加的8种城镇史莱姆
+`/npc info`，该指令现在只用于查询城镇NPC情况，要查询NPC详情，请使用 `/npc find` 指令。
+`/npc clear`，支持使用 NPC ID，`/npc clear enemy`将清除所有敌怪。
+`/npc tphere`，支持使用 NPC ID。
+`/npc <NPC ID>`, 支持使用NPC ID来标记NPC解救进度
+`/npc list`, 现在会显示NPC ID。
+新增 `/npc find <NPC名 / NPC ID>` 指令
+新增 `/npc mq` 指令，用于召唤美杜莎boss
+
+~~`/boss <NPC ID>`, 支持使用NPC ID来标记BOSS击败进度~~
+
+## 20221009 （v1.4未发布)
+怪物图鉴
+支持解锁截止到1.4.4.5的540条图鉴条目。
+重新筛查解锁数目，并使用npcid作为解锁条件，插件文件大小从 204kb 缩减至 187kb。
+导出和备份到本地的记录，现在会记录npcid和npc的名称。
+
+
+输入 `/wm bestiary` 指令不再直接解锁全怪物图鉴，而是显示指令用法。
+输入 `/wm bestiary unlock` 指令解锁全怪物图鉴。
+
+输入 `/wm research` 指令不再直接解锁全物品研究，而是显示指令用法。
+输入 `/wm research unlock` 指令解锁全物品研究。
+
+
+## 20221009 （v1.4未发布)
+修改
+`/wm find` 指令，支持查找 墓碑、梳妆台 和 最脏的块。
+
+新增
+`/wm remix` 指令，开关 Remix 彩蛋种子。
+`/wm "no traps"` 指令，开关 No traps 彩蛋种子。
+`/wm zenith` 指令，开关 天顶剑 彩蛋种子。
+`/wm clear` 指令，全图清理图格，清理时不产生物品:
+  - `/wm clear help` 指令，查看帮助；
+  - `/wm clear tomb` 指令，全图清理墓碑；
+  - `/wm clear dress` 指令，全图清理梳妆台；
+  - `/cleartomb` 指令，给普通用户使用的全图清理墓碑指令。
+"/wm moondial" 指令，查看和控制附魔月晷：
+    - /wm moondial <on|off> 开关附魔月晷；
+    - /wm moondial <天数> 设置附魔月晷冷却天数。
+
+
+
+## 20220522 （v1.4未发布)
 改进
 `/wm research` 指令，输入 `/wm re help` 获取帮助，全解锁时会自动备份，且支持从csv文件导入，解锁时不会卡服务器；
 `/wm bestiary` 指令，输入 `/wm be help` 获取帮助，全解锁时会自动备份，且支持从csv文件导入；

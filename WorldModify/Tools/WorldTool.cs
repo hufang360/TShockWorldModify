@@ -20,6 +20,7 @@ namespace WorldModify
                 op.SendErrorMessage("彩蛋特性：种子名中间输入英文逗号，例如 2020,ftw");
                 return;
             }
+            if (TileHelper.NeedWaitTask(op)) return;
             string seedStr = args.Parameters.Count > 1 ? args.Parameters[1] : "";
             string evilStr = args.Parameters.Count > 2 ? args.Parameters[2] : "";
             string sizeStr = args.Parameters.Count > 3 ? args.Parameters[3] : "";
@@ -62,8 +63,6 @@ namespace WorldModify
         /// <param name="eggStr"></param>
         private static async void GenWorld(TSPlayer op, string seedStr = "", int size = 0, int evil = -1, string eggStr = "")
         {
-            if (ReGenHelper.NeedWaitTask(op)) return;
-
             BackupHelper.Backup(op, "GenWorld");
             if (!op.RealPlayer)
             {
@@ -126,7 +125,6 @@ namespace WorldModify
                 op.SendErrorMessage($"[i:3061]世界正在重建（{WorldGen.currentWorldSeed}）");
             TSPlayer.All.SendErrorMessage($"[i:3061]世界正在重建（{WorldGen.currentWorldSeed}）");
             await AsyncGenerateWorld(Main.ActiveWorldFileData.Seed);
-            ReGenHelper.isTaskRunning = false;
 
             // 创建完成
             int second = utils.GetUnixTimestamp - secondLast;
@@ -158,15 +156,19 @@ namespace WorldModify
                     plr.Teleport(Main.spawnTileX * 16, (Main.spawnTileY * 16) - 48);
                 }
             }
-            ReGenHelper.FinishGen();
-            ReGenHelper.InformPlayers();
         }
 
         private static Task AsyncGenerateWorld(int seed)
         {
-            ReGenHelper.isTaskRunning = true;
+            TileHelper.isTaskRunning = true;
             WorldGen.clearWorld();
-            return Task.Run(() => WorldGen.GenerateWorld(seed)).ContinueWith((d) => ReGenHelper.FinishGen());
+            return Task.Run(() =>
+            {
+                WorldGen.GenerateWorld(seed);
+            }).ContinueWith((d) =>
+            {
+                TileHelper.GenAfter();
+            });
         }
 
 

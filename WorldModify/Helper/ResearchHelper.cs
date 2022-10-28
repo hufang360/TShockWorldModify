@@ -3,11 +3,13 @@ using System;
 using System.Collections.Generic;
 using System.Data;
 using System.IO;
+using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Terraria;
 using Terraria.GameContent.Creative;
 using Terraria.GameContent.NetModules;
+using Terraria.ID;
 using Terraria.Net;
 using TShockAPI;
 using TShockAPI.DB;
@@ -22,21 +24,35 @@ namespace WorldModify
 
         public static void Manage(CommandArgs args)
         {
+            args.Parameters.RemoveAt(0);
             TSPlayer op = args.Player;
+            void HelpTxt()
+            {
+                op.SendInfoMessage("/wm research 指令用法：");
+                op.SendInfoMessage("/wm re unlock, 解锁 全物品研究");
+                op.SendInfoMessage("/wm re <id/名称>, 研究单个物品");
+                op.SendInfoMessage("/wm re import, 导入 物品研究");
+                op.SendInfoMessage("/wm re reset, 重置 物品研究");
+                op.SendInfoMessage("/wm re clear, 清空 物品研究（所有地图）");
+                op.SendInfoMessage("/wm re backup，备份 物品研究 到 csv文件，解锁和清空前会自动备份");
+            }
             if (args.Parameters.Count == 0)
             {
-                if (isTasking)
-                {
-                    op.SendSuccessMessage("有任务正在运行，请稍后再试！");
-                    return;
-                }
-                UnlockAll(op);
+                HelpTxt();
                 return;
             }
 
-            isTasking = true;
             switch (args.Parameters[0].ToLower())
             {
+                case "unlock":
+                    if (isTasking)
+                    {
+                        op.SendSuccessMessage("有任务正在运行，请稍后再试！");
+                        return;
+                    }
+                    UnlockAll(op);
+                    break;
+
                 case "reset":
                     Reset(op);
                     break;
@@ -55,18 +71,54 @@ namespace WorldModify
                     break;
 
                 case "help":
-                    op.SendInfoMessage("/wm re, 解锁 全物品研究");
-                    op.SendInfoMessage("/wm re import, 导入 物品研究");
-                    op.SendInfoMessage("/wm re reset, 清空 当前世界 的 物品研究");
-                    op.SendInfoMessage("/wm re clear, 清空 历史世界 的 物品研究");
-                    op.SendInfoMessage("/wm re backup，备份 物品研究 到 csv文件，解锁和清空前会自动备份");
+                    HelpTxt();
                     break;
 
                 default:
-                    op.SendSuccessMessage("语法错误，输入 /wm re help 查看用法！");
+                    // 解锁单条
+                    if (int.TryParse(args.Parameters[0], out int id))
+                    {
+                        if (id > 0 && id < ItemID.Count)
+                        {
+                            UnlockOne(id, op);
+                        }
+                        else
+                        {
+                            op.SendErrorMessage($"物品id 只能在 1~{ItemID.Count} 范围内");
+                        }
+                    }
+                    else
+                    {
+                        List<Item> items = TShock.Utils.GetItemByName(args.Parameters[0]);
+                        if (items.Count == 0)
+                        {
+                            args.Player.SendErrorMessage("无效的物品名!");
+                        }
+                        else if (items.Count > 1)
+                        {
+                            args.Player.SendMultipleMatchError(items.Select(i => $"{i.Name}({i.netID})"));
+                        }
+                        else
+                        {
+                            UnlockOne(items[0].netID, op);
+                        }
+                    }
                     break;
             }
-            isTasking = false;
+        }
+
+        private static void UnlockOne(int id, TSPlayer op)
+        {
+            if (!CreativeItemSacrificesCatalog.Instance.SacrificeCountNeededByItemId.ContainsKey(id))
+            {
+                op.SendErrorMessage($"id={id}的物品无法研究。");
+                return;
+            }
+            int needNum = CreativeItemSacrificesCatalog.Instance.SacrificeCountNeededByItemId[id];
+            TShock.ResearchDatastore.SacrificeItem(id, needNum, op);
+            var response = NetCreativeUnlocksModule.SerializeItemSacrifice(id, needNum);
+            NetManager.Instance.Broadcast(response);
+            op.SendErrorMessage($"{Lang.GetItemName(id)} 已研究。id:{id} 研究数:{needNum}");
         }
 
         // 解锁全部
@@ -74,6 +126,7 @@ namespace WorldModify
         {
             await Task.Run(() =>
             {
+                isTasking = true;
                 Backup();
                 op.SendInfoMessage("正在解锁，请稍等……");
                 Dictionary<int, int> dic = CreativeItemSacrificesCatalog.Instance.SacrificeCountNeededByItemId;
@@ -84,16 +137,17 @@ namespace WorldModify
                     NetManager.Instance.Broadcast(response);
                 }
                 op.SendSuccessMessage($"已解锁 {dic.Count} 个物品研究");
+                isTasking = false;
             });
         }
 
         private static void Backup()
         {
             // 将研究进度保存到csv文件
-            StringBuilder str = new StringBuilder();
+            StringBuilder str = new();
             foreach (var obj in TShock.ResearchDatastore.GetSacrificedItems())
             {
-                str.Append($"{obj.Key},{obj.Value}\n");
+                str.Append($"{obj.Key},{obj.Value},{Lang.GetItemName(obj.Key)}\n");
             }
             utils.SaveAndBack(SaveFile, str.ToString());
         }
@@ -197,7 +251,5 @@ namespace WorldModify
             return count;
             // op.SendSuccessMessage("研究数据仅保存在服务器上，每张地图的研究数据是分开的");
         }
-
-        public static void Clear() { }
     }
 }

@@ -8,8 +8,9 @@ namespace WorldModify
     class SelectionTool
     {
         private static TempPointData[] TempPoints = new TempPointData[Main.maxPlayers];
-        public static void RectMange(CommandArgs args)
+        public static void Mange(CommandArgs args)
         {
+            args.Parameters.RemoveAt(0);
             TSPlayer op = args.Player;
             Rectangle rect = GetSelection(op.Index);
             if (args.Parameters.Count == 0)
@@ -65,7 +66,13 @@ namespace WorldModify
 
         public static Rectangle GetSelection(int index)
         {
-            return index == -1 || TempPoints[index] == null ? new Rectangle() : utils.CloneRect(TempPoints[index].rect);
+            if (index == -1)
+                return utils.GetBaseArea();
+
+            if (TempPoints[index] == null)
+                return utils.GetScreen(TShock.Players[index]);
+            else
+                return utils.CloneRect(TempPoints[index].rect);
         }
 
         private static TempPointData GetPointData(int index)

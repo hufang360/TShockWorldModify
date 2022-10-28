@@ -1,6 +1,6 @@
 {
   "replace": [
-    { "before": { "id": 0 }, "after": { "id": 53 }, "comment":"水 → 沙块"},
+    { "before": { "id": 0 }, "after": { "id": 53 }, "comment":"土块 → 沙块"},
     { "before": { "id": 2 }, "after": { "id": 53 }, "comment":"草块 → 沙块"},
     { "before": { "id": 199 }, "after": { "id": 53 }, "comment":"猩红草 → 沙块"},
     { "before": { "id": 23 }, "after": { "id": 53 }, "comment":"腐化草 → 沙块"},

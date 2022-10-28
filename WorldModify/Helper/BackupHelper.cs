@@ -17,8 +17,10 @@ namespace WorldModify
             Thread t = new Thread(() =>
             {
                 DoBackup(op, notes);
-            });
-            t.Name = "[wm]Backup Thread";
+            })
+            {
+                Name = "[wm]Backup Thread"
+            };
             t.Start();
         }
 
