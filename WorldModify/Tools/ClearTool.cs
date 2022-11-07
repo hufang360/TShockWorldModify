@@ -16,9 +16,11 @@ namespace WorldModify
         enum Type
         {
             None,
+
             All,
+            AllBlock,
             Block,
-            Match,
+            AllWall,
             Wall,
 
             Liquid,
@@ -27,14 +29,39 @@ namespace WorldModify
             Honey,
             Shimmer,
 
-            Wire,
+            AllWire,
             Wire1,
             Wire2,
             Wire3,
             Wire4,
         };
+        static string Desc(Type type)
+        {
+            return type switch
+            {
+                Type.All => "所有",
 
-        public async static void Manage(CommandArgs args)
+                Type.AllBlock => "所有方块",
+                Type.Block => "指定方块",
+                Type.AllWall => "所有墙体",
+                Type.Wall => "指定墙体",
+
+                Type.AllWire => "所有电线",
+                Type.Wire1 => "红电线",
+                Type.Wire2 => "蓝电线",
+                Type.Wire3 => "绿电线",
+                Type.Wire4 => "黄电线",
+
+                Type.Liquid => "所有液体",
+                Type.Water => "水",
+                Type.Lava => "岩浆",
+                Type.Honey => "蜂蜜",
+                Type.Shimmer => "微光",
+                _ => "图格",
+            };
+        }
+
+        public static void Manage(CommandArgs args)
         {
             args.Parameters.RemoveAt(0);
             TSPlayer op = args.Player;
@@ -45,32 +72,24 @@ namespace WorldModify
 
                 List<string> lines = new()
                 {
-                    "/igen c <id>，清除 指定方块",
-                    "/igen c block，清除 所有方块",
                     "/igen c all，清除 所有",
+
                     "/igen c wall，清除 所有墙体",
+                    "/igen c wall <id/中文名称>，清除 指定墙体",
+                    "/igen c block，清除 所有方块",
+                    "/igen c <id>，清除 指定方块",
 
                     "/igen c liquid，清除 所有液体",
                     "/igen c wire，清除 所有电线",
+                    "/igen c <water/lava/honey/shimmer>，清除 水/岩浆/蜂蜜/微光",
+                    "/igen c <red/blue/green/yellow>，清除 红/蓝/绿/黄 电线",
 
-                    "/igen c water，清除 水",
-                    "/igen c honey，清除 蜂蜜",
-                    "/igen c lava，清除 岩浆",
-                    "/igen c shimmer，清除 微光",
-
-                    "/igen c redwire，清除 红电线",
-                    "/igen c bluewire，清除 蓝电线",
-                    "/igen c greenwire，清除 绿电线",
-                    "/igen c yellowwire，清除 黄电线",
                 };
                 PaginationTools.SendPage(op, pageNumber, lines, new PaginationTools.Settings
                 {
-                    HeaderFormat = "/igen clear 指令用法 ({0}/{1})：",
+                    HeaderFormat = "[c/96FF0A:/igen c]lear 指令用法 ({0}/{1})：",
                     FooterFormat = "输入 /igen c help {{0}} 查看更多".SFormat(Commands.Specifier)
                 });
-
-                //op.SendInfoMessage("/igen c wall [墙id]，清除 墙");
-                //op.SendInfoMessage("/igen c wire [red/blue/]，清除 电线");
             }
             if (args.Parameters.Count == 0)
             {
@@ -79,37 +98,68 @@ namespace WorldModify
             }
 
             Type type = Type.None;
-            int tileID = 0;
+            int id = -1;
+            string name = "";
             switch (args.Parameters[0].ToLowerInvariant())
             {
                 case "help": Help(); return;
 
                 case "all": type = Type.All; break;
-                case "block": type = Type.Block; break;
-                case "wall": type = Type.Wall; break;
+                case "block": type = Type.AllBlock; break;
 
-                case "wire": type = Type.Wire; break;
-                case "redwire": case "rw": type = Type.Wire1; break;
-                case "bluewire": case "bw": type = Type.Wire2; break;
-                case "greenwire": case "gw": type = Type.Wire3; break;
-                case "yellowwire": case "yw": type = Type.Wire4; break;
+                // 墙
+                case "wall":
+                case "墙":
+                    if (args.Parameters.Count > 1)
+                    {
+                        // 指定墙
+                        var wp = ResHelper.GetWallByIDOrName(args.Parameters[1]);
+                        if (wp == null)
+                        {
+                            op.SendErrorMessage("墙的 id/中文名称 错误");
+                            return;
+                        }
+                        else
+                        {
+                            type = Type.Wall;
+                            id = wp.id;
+                            name = wp.name;
+                        }
+                    }
+                    else
+                    {
+                        // 所有墙体
+                        type = Type.AllWall;
+                    }
 
-                case "liquid": type = Type.Liquid; break;
-                case "water": type = Type.Water; break;
-                case "lava": type = Type.Lava; break;
-                case "honey": type = Type.Honey; break;
-                case "shimmer": type = Type.Shimmer; break;
+                    break;
+
+                // 电线
+                case "wire": case "电线": type = Type.AllWire; break;
+                case "red": case "红": type = Type.Wire1; break;
+                case "blue": case "蓝": type = Type.Wire2; break;
+                case "green": case "绿": type = Type.Wire3; break;
+                case "yellow": case "黄": type = Type.Wire4; break;
+
+                // 液体
+                case "liquid": case "液体": type = Type.Liquid; break;
+                case "water": case "水": type = Type.Water; break;
+                case "lava": case "岩浆": type = Type.Lava; break;
+                case "honey": case "蜂蜜": type = Type.Honey; break;
+                case "shimmer": case "微光": type = Type.Shimmer; break;
 
                 default:
-                    if (int.TryParse(args.Parameters[0], out tileID))
+                    if (int.TryParse(args.Parameters[0], out id))
                     {
-                        if (tileID >= 0 && tileID < TileID.Count)
+                        // 指定图格
+                        if (id >= 0 && id < TileID.Count)
                         {
-                            type = Type.Match;
+                            type = Type.Block;
                         }
                         else
                         {
                             op.SendErrorMessage($"图格id，有效值为 0~{TileID.Count - 1}");
+                            return;
                         }
                     }
                     else
@@ -121,40 +171,16 @@ namespace WorldModify
 
             if (type != Type.None)
             {
-                await Action(op, type, SelectionTool.GetSelection(op.Index), new int[] { tileID });
+                Action(op, type, id, name);
             }
         }
 
-
-        static Task Action(TSPlayer op, Type type, Rectangle rect, int[] plist)
+        static async void Action(TSPlayer op, Type type, int id, string name)
         {
-            int secondLast = utils.GetUnixTimestamp;
-            string GetOpString()
-            {
-                return type switch
-                {
-                    Type.Match => "指定图格",
-                    Type.All => "所有",
-                    Type.Block => "所有方块",
-                    Type.Wall => "所有墙体",
-                    Type.Wire => "所有电线",
-                    Type.Liquid => "所有液体",
-
-                    Type.Wire1 => "红电线",
-                    Type.Wire2 => "蓝电线",
-                    Type.Wire3 => "绿电线",
-                    Type.Wire4 => "黄电线",
-
-                    Type.Water => "水",
-                    Type.Lava => "岩浆",
-                    Type.Honey => "蜂蜜",
-                    Type.Shimmer => "微光",
-                    _ => "图格",
-                };
-            }
-            string opString = $"清除{GetOpString()}";
-
-            return Task.Run(() =>
+            Rectangle rect = SelectionTool.GetSelection(op.Index);
+            int secondLast = Utils.GetUnixTimestamp;
+            int count = 0;
+            await Task.Run(() =>
             {
                 for (int x = rect.X; x < rect.Right; x++)
                 {
@@ -163,24 +189,86 @@ namespace WorldModify
                         ITile tile = Main.tile[x, y];
                         switch (type)
                         {
-                            case Type.All: tile.ClearEverything(); break;
+                            // 所有
+                            case Type.All:
+                                if (tile.active() || tile.wall > 0 || tile.liquid == byte.MaxValue)
+                                {
+                                    count++;
+                                }
+                                tile.ClearEverything();
+                                break;
 
-                            case Type.Block: tile.ClearTile(); break;
-                            case Type.Match: if (tile.type == plist[0]) tile.ClearTile(); break;
+                            // 图格
+                            case Type.AllBlock:
+                                if (tile.active())
+                                {
+                                    count++;
+                                    tile.ClearTile();
+                                }
+                                break;
+                            case Type.Block:
+                                if (tile.type == id)
+                                {
+                                    count++;
+                                    tile.ClearTile();
+                                }
+                                break;
 
-                            case Type.Wall: tile.wall = 0; break;
+                            // 墙
+                            case Type.AllWall:
+                                if (tile.wall > 0)
+                                {
+                                    count++;
+                                    tile.wall = 0;
+                                }
+                                break;
+                            case Type.Wall:
+                                if (tile.wall == id)
+                                {
+                                    count++;
+                                    tile.wall = 0;
+                                }
+                                break;
 
                             // 电线
-                            case Type.Wire:
-                                tile.wire(wire: false);
-                                tile.wire2(wire2: false);
-                                tile.wire3(wire3: false);
-                                tile.wire4(wire4: false);
+                            case Type.AllWire:
+                                if (tile.wire() || tile.wire2() || tile.wire3() || tile.wire4())
+                                {
+                                    count++;
+                                }
+                                tile.wire(false);
+                                tile.wire2(false);
+                                tile.wire3(false);
+                                tile.wire4(false);
                                 break;
-                            case Type.Wire1: tile.wire(wire: false); break;
-                            case Type.Wire2: tile.wire2(wire2: false); break;
-                            case Type.Wire3: tile.wire3(wire3: false); break;
-                            case Type.Wire4: tile.wire4(wire4: false); break;
+                            case Type.Wire1:
+                                if (tile.wire())
+                                {
+                                    count++;
+                                    tile.wire(false);
+                                }
+                                break;
+                            case Type.Wire2:
+                                if (tile.wire2())
+                                {
+                                    count++;
+                                    tile.wire2(false);
+                                }
+                                break;
+                            case Type.Wire3:
+                                if (tile.wire3())
+                                {
+                                    count++;
+                                    tile.wire3(false);
+                                }
+                                break;
+                            case Type.Wire4:
+                                if (tile.wire4())
+                                {
+                                    count++;
+                                    tile.wire4(false);
+                                }
+                                break;
 
                             // 液体
                             case Type.Liquid:
@@ -188,7 +276,11 @@ namespace WorldModify
                             case Type.Lava:
                             case Type.Honey:
                             case Type.Shimmer:
-                                ClearLiquid(x, y, type);
+                                if (tile.liquid == byte.MaxValue)
+                                {
+                                    count++;
+                                    ClearLiquid(x, y, type);
+                                }
                                 break;
                         }
 
@@ -197,8 +289,9 @@ namespace WorldModify
             }).ContinueWith((d) =>
             {
                 TileHelper.GenAfter();
-                int second = utils.GetUnixTimestamp - secondLast;
-                op.SendSuccessMessage($"{opString} 结束（用时 {second}秒）");
+                int second = Utils.GetUnixTimestamp - secondLast;
+                if (string.IsNullOrEmpty(name)) name = Desc(type);
+                op.SendSuccessMessage($"已清除 {count}格 {name}，用时{second}秒");
             });
         }
 
@@ -207,7 +300,7 @@ namespace WorldModify
         static void ClearLiquid(int x, int y, Type type)
         {
             ITile tile = Main.tile[x, y];
-            if (tile.liquid > 0)
+            if (tile.liquid == byte.MaxValue)
             {
                 bool flag = false;
                 switch (type)

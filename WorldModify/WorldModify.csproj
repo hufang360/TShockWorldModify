@@ -28,8 +28,10 @@
     <PackageLicenseExpression></PackageLicenseExpression>
     <Authors>hufang360</Authors>
     <Description></Description>
-    <PackageId>WorldModify</PackageId>
-    <AssemblyName>WorldModify</AssemblyName> <!-- package name for nuget -->
+    <PackageId></PackageId>
+    <AssemblyName>WorldModify</AssemblyName>
+    <ProduceReferenceAssembly>False</ProduceReferenceAssembly>
+    <RunAnalyzersDuringBuild>False</RunAnalyzersDuringBuild> <!-- package name for nuget -->
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
@@ -44,12 +46,21 @@
 
   <ItemGroup>
     <None Remove="res\retile.json" />
+    <None Remove="res\Tile.csv" />
     <None Remove="res\TileFrame.csv" />
+    <None Remove="res\Wall.csv" />
   </ItemGroup>
 
   <ItemGroup>
     <EmbeddedResource Include="res\retile.json" />
-    <EmbeddedResource Include="res\TileFrame.csv" />
+    <EmbeddedResource Include="res\Tile.csv" />
+    <EmbeddedResource Include="res\TileFrame.csv">
+      <CustomToolNamespace></CustomToolNamespace>
+    </EmbeddedResource>
+    <EmbeddedResource Include="res\Wall.csv">
+      <CustomToolNamespace></CustomToolNamespace>
+      <Generator></Generator>
+    </EmbeddedResource>
   </ItemGroup>
 
   <ItemGroup>

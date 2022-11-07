@@ -245,7 +245,7 @@ namespace WorldModify
                 id = GetNPCId(s);
                 str.Append($"{GetNPCId(s)},{Lang.GetNPCName(id)}\n");
             }
-            utils.SaveAndBack(SaveFile, str.ToString());
+            Utils.SafeSave(SaveFile, str.ToString());
         }
 
 

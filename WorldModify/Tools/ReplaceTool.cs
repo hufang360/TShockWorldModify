@@ -88,7 +88,7 @@ namespace WorldModify
                             return;
                         }
 
-                        if (!RandomTool.matchBlockID.Contains(beforeID) || !RandomTool.matchBlockID.Contains(afterID))
+                        if (!IDSet.matchBlockID.Contains(beforeID) || !IDSet.matchBlockID.Contains(afterID))
                         {
                             op.SendErrorMessage("不支持的方块id");
                             return;
@@ -138,7 +138,7 @@ namespace WorldModify
 
         static Task Action(TSPlayer op, Type type, Rectangle rect, string[] plist)
         {
-            int secondLast = utils.GetUnixTimestamp;
+            int secondLast = Utils.GetUnixTimestamp;
             string GetOpString()
             {
                 return type switch
@@ -202,7 +202,7 @@ namespace WorldModify
             }).ContinueWith((d) =>
             {
                 TileHelper.FinishGen();
-                op.SendSuccessMessage($"{opString} 结束（用时 {utils.GetUnixTimestamp - secondLast}s）");
+                op.SendSuccessMessage($"{opString} 结束（用时 {Utils.GetUnixTimestamp - secondLast}s）");
             });
         }
 

@@ -67,12 +67,12 @@ namespace WorldModify
         public static Rectangle GetSelection(int index)
         {
             if (index == -1)
-                return utils.GetBaseArea();
+                return Utils.GetBaseArea();
 
             if (TempPoints[index] == null)
-                return utils.GetScreen(TShock.Players[index]);
+                return Utils.GetScreen(TShock.Players[index]);
             else
-                return utils.CloneRect(TempPoints[index].rect);
+                return Utils.CloneRect(TempPoints[index].rect);
         }
 
         private static TempPointData GetPointData(int index)

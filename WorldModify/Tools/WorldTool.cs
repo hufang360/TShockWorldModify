@@ -70,7 +70,7 @@ namespace WorldModify
                 op.SendErrorMessage($"[i:556]世界正在解体~");
             }
             TSPlayer.All.SendErrorMessage("[i:556]世界正在解体~");
-            int secondLast = utils.GetUnixTimestamp;
+            int secondLast = Utils.GetUnixTimestamp;
 
             // 设置创建参数
             ProcessSeeds(seedStr);
@@ -127,7 +127,7 @@ namespace WorldModify
             await AsyncGenerateWorld(Main.ActiveWorldFileData.Seed);
 
             // 创建完成
-            int second = utils.GetUnixTimestamp - secondLast;
+            int second = Utils.GetUnixTimestamp - secondLast;
             string text = $"[i:3061]世界重建完成 （用时 {second}s, {WorldGen.currentWorldSeed}）；-）";
             TSPlayer.All.SendSuccessMessage(text);
             if (!op.RealPlayer) op.SendErrorMessage(text);
@@ -144,7 +144,7 @@ namespace WorldModify
                         }
                     }
                 }
-                utils.Log("服务器已关闭：重建后的地图大小和之前不一样，为了稳定起见，请重新开服");
+                Utils.Log("服务器已关闭：重建后的地图大小和之前不一样，为了稳定起见，请重新开服");
                 TShock.Utils.StopServer(true, "服务器已关闭：地图大小和创建前不一样");
             }
 

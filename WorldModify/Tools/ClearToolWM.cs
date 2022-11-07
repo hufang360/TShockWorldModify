@@ -80,9 +80,9 @@ namespace WorldModify
             }
 
             FindTool.ResetSkip();
-            int secondLast = utils.GetUnixTimestamp;
+            int secondLast = Utils.GetUnixTimestamp;
             string opString = GetOpString();
-            Rectangle rect = utils.GetWorldArea();
+            Rectangle rect = Utils.GetWorldArea();
             bool flag = false;
             int count = 0;
             await Task.Run(() =>
@@ -104,7 +104,7 @@ namespace WorldModify
             }).ContinueWith((d) =>
             {
                 TileHelper.FinishGen();
-                op.SendSuccessMessage($"全图共清理了{count}个{opString}（用时 {utils.GetUnixTimestamp - secondLast}秒）");
+                op.SendSuccessMessage($"全图共清理了{count}个{opString}（用时 {Utils.GetUnixTimestamp - secondLast}秒）");
             });
         }
 

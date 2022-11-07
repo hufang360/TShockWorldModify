@@ -1,0 +1,694 @@
+id,name,w,h,color
+0,Dirt Block,1,1,#FF976B4B
+1,Stone Block,1,1,#FF808080
+2,Grass Block,1,1,#FF1CD85E
+3,Forest Short Plants,1,1,#FF1BC56D
+4,Torches,1,1,#FFFDDD03
+5,Trees,1,1,#FF976B4B
+6,Iron Ore,1,1,#FF8C6550
+7,Copper Ore,1,1,#FF964316
+8,Gold Ore,1,1,#FFB9A417
+9,Silver Ore,1,1,#FFB9C2C3
+10,Doors (Closed),1,3,#FF77694F
+11,Doors (Open),2,3,#FF77694F
+12,Crystal Heart,2,2,#FFAE1845
+13,Placed Bottles,1,1,#FF85D5F7
+14,Tables,3,2,#FFBF8E6F
+15,Chairs,1,2,#FFBF8E6F
+16,Anvils,2,1,#FF8C8274
+17,Furnace,3,2,#FF909490
+18,Work Benches,2,1,#FFBF8E6F
+19,Platforms,1,1,#FFBF8E6F
+20,Saplings,1,2,#FFA37451
+21,Chests,2,2,#FFE9CF5E
+22,Demonite Ore,1,1,#FF625FA7
+23,Corrupt Grass Block,1,1,#FF8D89DF
+24,Corruption Short Plants,1,1,#FF7A74DA
+25,Ebonstone Block,1,1,#FF6D5A80
+26,Altars,3,2,#FF77657D
+27,Sunflower,2,4,#FFE2C431
+28,Pots,2,2,#FF974F50
+29,Piggy Bank,2,1,#FFAF6980
+30,Wood,1,1,#FFAA7854
+31,Orb Heart,2,2,#FF8D78A8
+32,Corruption Thorns,1,1,#FF9787B7
+33,Candles,1,1,#FFFDDD03
+34,Chandeliers,3,3,#FFEBA687
+35,Jack 'O Lantern,2,2,#FFC5D8DB
+36,Presents,1,1,#FFE6595C
+37,Meteorite Ore,1,1,#FF685654
+38,Gray Brick,1,1,#FF909090
+39,Red Brick,1,1,#FFB53E3B
+40,Clay Block,1,1,#FF925144
+41,Blue Brick,1,1,#FF42546D
+42,Lanterns,1,2,#FFFBEB7F
+43,Green Brick,1,1,#FF54643F
+44,Pink Brick,1,1,#FF6B4463
+45,Gold Brick,1,1,#FFB9A417
+46,Silver Brick,1,1,#FFB9C2C3
+47,Copper Brick,1,1,#FF964316
+48,Spike,1,1,#FF808080
+49,Water Candle,1,1,#FF2B8FFF
+50,Books,1,1,#FFAA3072
+51,Cobweb,1,1,#FFC0CACB
+52,Vines,1,1,#FF17B14C
+53,Sand Block,1,1,#FFFFDA38
+54,Glass Block,1,1,#FFC8F6FE
+55,Sign,2,2,#FFBF8E6F
+56,Obsidian Block,1,1,#FF2B2854
+57,Ash Block,1,1,#FF44444C
+58,Hellstone Ore,1,1,#FF8E4242
+59,Mud Block,1,1,#FF5C4449
+60,Jungle Grass Block,1,1,#FF8FD71D
+61,Jungle Short Plants,1,1,#FF87C41A
+62,Jungle Vines,1,1,#FF79B018
+63,Sapphire Stone Block,1,1,#FF6E8CB6
+64,Ruby Stone Block,1,1,#FFC46072
+65,Emerald Stone Block,1,1,#FF389661
+66,Topaz Stone Block,1,1,#FFA0763A
+67,Amethyst Stone Block,1,1,#FF8C3AA6
+68,Diamond Stone Block,1,1,#FF7DBFC5
+69,Jungle Thorns,1,1,#FFBE965C
+70,Mushroom Grass Block,1,1,#FF5D7FFF
+71,Mushroom Plant,1,1,#FFB6AF82
+72,Giant Glowing Mushroom (Underground),1,1,#FFB6AF82
+73,Forest Tall Plants,1,1,#FF1BC56D
+74,Jungle Tall Plants,1,1,#FF60C51B
+75,Obsidian Brick,1,1,#FF242424
+76,Hellstone Brick,1,1,#FF8E4242
+77,Hellforge,3,2,#FFEE5546
+78,Clay Pot,1,1,#FF796E61
+79,Beds,4,2,#FFBF8E6F
+80,Cactus Plant,1,1,#FF497811
+81,Coral,1,1,#FFF585BF
+82,Herbs (Sprout),1,1,#FFFF7800
+83,Herbs (Mature),1,1,#FFFF7800
+84,Herbs (Bloom),1,1,#FFFF7800
+85,Tombstones,2,2,#FFC0C0C0
+86,Loom,3,2,#FFBF8E6F
+87,Pianos,3,2,#FFBF8E6F
+88,Dressers,3,2,#FFBF8E6F
+89,Benches,3,2,#FFBF8E6F
+90,Bathtubs,4,2,#FF909490
+91,Banners,1,3,#FF0D5882
+92,Lamp Post,1,6,#FFD5E5ED
+93,Lamps,1,3,#FFFDDD03
+94,Keg,2,2,#FFBF8E6F
+95,Chinese Lantern,2,2,#FFFFA21F
+96,Cooking Pots,2,2,#FF909490
+97,Safe,2,2,#FF909490
+98,Skull Lantern,2,2,#FFFDDD03
+99,Trash Can,2,2,#FF909490
+100,Candelabras,2,2,#FFFDDD03
+101,Bookcases,3,4,#FFBF8E6F
+102,Throne,3,4,#FFE5D449
+103,Bowls,2,1,#FF8D624D
+104,Clocks,2,5,#FFBF8E6F
+105,Statues,2,3,#FF909490
+106,Sawmill,3,3,#FFBF8E6F
+107,Cobalt Ore,1,1,#FF0B508F
+108,Mythril Ore,1,1,#FF5BA9A9
+109,Hallowed Grass Block,1,1,#FF4EC1E3
+110,Hallow Short Plants,1,1,#FF30BA87
+111,Adamantite Ore,1,1,#FF801A34
+112,Ebonsand Block,1,1,#FF67627A
+113,Hallow Tall Plants,1,1,#FF30D0EA
+114,Tinkerer's Workshop,3,2,#FFBF8E6F
+115,Hallowed Vines,1,1,#FF21ABCF
+116,Pearlsand Block,1,1,#FFEEE1DA
+117,Pearlstone Block,1,1,#FFB5ACBE
+118,Pearlstone Brick,1,1,#FFEEE1DA
+119,Iridescent Brick,1,1,#FF6B5C6C
+120,Mudstone Brick,1,1,#FF5C4449
+121,Cobalt Brick,1,1,#FF0B508F
+122,Mythril Brick,1,1,#FF5BA9A9
+123,Silt Block,1,1,#FF6A6B76
+124,Wooden Beam,1,1,#FF493324
+125,Crystal Ball,2,2,#FF8DAFFF
+126,Disco Ball,2,2,#FF9FD1E5
+127,Ice (Ice Rod),1,1,#FF80CCE6
+128,Mannequin (Legacy),2,3,#FFBF8E6F
+129,Crystal Shard,1,1,#FFFF75E0
+130,Active Stone Block,1,1,#FFA0A0A0
+131,Inactive Stone Block,1,1,#FF343434
+132,Lever,2,2,#FF909490
+133,Forges,3,2,#FFE73538
+134,Anvils (Hardmode),2,1,#FFA6BB99
+135,Pressure Plates,1,1,#FFFD7272
+136,Switch,1,1,#FFD5CBCC
+137,Traps,1,1,#FF909490
+138,Boulder,2,2,#FF606060
+139,Music Boxes,2,2,#FFBF8E6F
+140,Demonite Brick,1,1,#FF625FA7
+141,Explosives,1,1,#FFC03B3B
+142,Inlet Pump,2,2,#FF909490
+143,Outlet Pump,2,2,#FF909490
+144,Timers,1,1,#FF909490
+145,Red Candy Cane Block,1,1,#FFC01E1E
+146,Green Candy Cane Block,1,1,#FF2BC01E
+147,Snow Block,1,1,#FFD3ECF1
+148,Snow Brick,1,1,#FFB5D3D2
+149,Holiday Lights,1,1,#FFDC3232
+150,Adamantite Beam,1,1,#FF801A34
+151,Sandstone Brick,1,1,#FFBEAB5E
+152,Ebonstone Brick,1,1,#FF8085B8
+153,Red Stucco,1,1,#FFEF8D7E
+154,Yellow Stucco,1,1,#FFBEAB5E
+155,Green Stucco,1,1,#FF83A2A1
+156,Gray Stucco,1,1,#FFAAAB9D
+157,Ebonwood,1,1,#FF68647E
+158,Rich Mahogany,1,1,#FF915155
+159,Pearlwood,1,1,#FF948562
+160,Rainbow Brick,1,1,#FF0000C8
+161,Ice Block,1,1,#FF90C3E8
+162,Thin Ice Block,1,1,#FFB8DBF0
+163,Purple Ice Block,1,1,#FFAE91D6
+164,Pink Ice Block,1,1,#FFDAB6CC
+165,Cave Decos,1,1,#FF646464
+166,Tin Ore,1,1,#FF817D5D
+167,Lead Ore,1,1,#FF3E5272
+168,Tungsten Ore,1,1,#FF849D7F
+169,Platinum Ore,1,1,#FF98ABC6
+170,Pine Tree Block,1,1,#FFE4DBA2
+171,Christmas Tree,4,8,#FF218755
+172,Sinks,2,2,#FFB5C2D9
+173,Platinum Candelabra,2,2,#FFFDDD03
+174,Platinum Candle,1,1,#FFFDDD03
+175,Tin Brick,1,1,#FF817D5D
+176,Tungsten Brick,1,1,#FF849D7F
+177,Platinum Brick,1,1,#FF98ABC6
+178,Gems,1,1,#FFFF00FF
+179,Green Moss Block,1,1,#FF318672
+180,Yellow Moss Block,1,1,#FF7E8631
+181,Red Moss Block,1,1,#FF863B31
+182,Blue Moss Block,1,1,#FF2B568C
+183,Purple Moss Block,1,1,#FF793186
+184,Moss Plants,1,1,#FF646464
+185,Small Decos,1,1,#FF959573
+186,Decos (3x2),3,2,#FFFF00FF
+187,Decos (3x2) (Group 2),3,2,#FFFF00FF
+188,Cactus Block,1,1,#FF497811
+189,Cloud Block,1,1,#FFDFFFFF
+190,Glowing Mushroom Block,1,1,#FFB6AF82
+191,Living Wood Block,1,1,#FF976B4B
+192,Living Leaf Block,1,1,#FF1AC454
+193,Slime Block,1,1,#FF3879FF
+194,Bone Block,1,1,#FF9D9D6B
+195,Flesh Block,1,1,#FF861622
+196,Rain Cloud Block,1,1,#FF9390B2
+197,Frozen Slime Block,1,1,#FF61C8E1
+198,Asphalt Block,1,1,#FF3E3D34
+199,Crimson Grass Block,1,1,#FFD05050
+200,Red Ice Block,1,1,#FFD89890
+201,Crimson Short Plants,1,1,#FFCB3D40
+202,Sunplate Block,1,1,#FFD5B21C
+203,Crimstone Block,1,1,#FF802C2D
+204,Crimtane Ore,1,1,#FF7D3741
+205,Crimson Vines,1,1,#FFBA3234
+206,Ice Brick,1,1,#FF7CAFC9
+207,Water Fountains,2,4,#FF909490
+208,Shadewood,1,1,#FF586976
+209,Cannons,4,3,#FF909490
+210,Land Mine,1,1,#FFC03B3B
+211,Chlorophyte Ore,1,1,#FFBFE973
+212,Snowball Launcher,3,3,#FF909490
+213,Rope,1,1,#FF897843
+214,Chain,1,1,#FF676767
+215,Campfires,3,2,#FFFE7902
+216,Rockets,1,2,#FFBF8E6F
+217,Blend-O-Matic,3,2,#FF909490
+218,Meat Grinder,3,2,#FF909490
+219,Extractinator,3,3,#FF909490
+220,Solidifier,3,3,#FF909490
+221,Palladium Ore,1,1,#FFEF5A32
+222,Orichalcum Ore,1,1,#FFE760E4
+223,Titanium Ore,1,1,#FF395565
+224,Slush Block,1,1,#FF6B848B
+225,Hive Block,1,1,#FFE37D16
+226,Lihzahrd Brick,1,1,#FF8D3800
+227,Dye Plants,1,1,#FFFFFFFF
+228,Dye Vat,3,3,#FF909490
+229,Honey Block,1,1,#FFFF9C0C
+230,Crispy Honey Block,1,1,#FF834F0D
+231,Larva,3,3,#FFE0C265
+232,Wooden Spike,1,1,#FF915155
+233,Jungle Large Plants,1,1,#FFFF00FF
+234,Crimsand Block,1,1,#FF352C29
+235,Teleporter,3,1,#FFD6B82E
+236,Life Fruit Plant,2,2,#FF95E857
+237,Lihzahrd Altar,3,2,#FFFFF133
+238,Plantera's Bulb,2,2,#FFE180CE
+239,Ore Bars,1,1,#FFE0C265
+240,Wall Hangings 3x3,3,3,#FF63321E
+241,Catacombs,4,3,#FF4D4A48
+242,Paintings 6x4,6,4,#FF63321E
+243,Imbuing Station,3,3,#FF8CB3FE
+244,Bubble Machine,3,2,#FFC8F5FD
+245,Paintings 2x3,2,3,#FF63321E
+246,Paintings 3x2,3,2,#FF63321E
+247,Autohammer,3,3,#FF8C9696
+248,Palladium Column,1,1,#FFDB4726
+249,Bubblegum Block,1,1,#FFF934F3
+250,Titanstone Block,1,1,#FF4C4A53
+251,Pumpkin Block,1,1,#FFEB9617
+252,Hay Block,1,1,#FF99832C
+253,Spooky Wood,1,1,#FF393061
+254,Pumpkin Plant,2,2,#FFF89E5C
+255,Amethyst Gemspark Block (Offline),1,1,#FF6B319A
+256,Topaz Gemspark Block (Offline),1,1,#FF9A9431
+257,Sapphire Gemspark Block (Offline),1,1,#FF31319A
+258,Emerald Gemspark Block (Offline),1,1,#FF319A44
+259,Ruby Gemspark Block (Offline),1,1,#FF9A314D
+260,Diamond Gemspark Block (Offline),1,1,#FF555976
+261,Amber Gemspark Block (Offline),1,1,#FF9A5331
+262,Amethyst Gemspark Block,1,1,#FFDD4FFF
+263,Topaz Gemspark Block,1,1,#FFFAFF4F
+264,Sapphire Gemspark Block,1,1,#FF4F66FF
+265,Emerald Gemspark Block,1,1,#FF4FFF59
+266,Ruby Gemspark Block,1,1,#FFFF4F4F
+267,Diamond Gemspark Block,1,1,#FFF0F0F7
+268,Amber Gemspark Block,1,1,#FFFF914F
+269,Womannequin (Legacy),2,3,#FFBF8E6F
+270,Firefly in a Bottle,1,2,#FF7AD9E8
+271,Lightning Bug in a Bottle,1,2,#FF7AD9E8
+272,Cog Block,1,1,#FF797765
+273,Stone Slab,1,1,#FF808080
+274,Sandstone Slab,1,1,#FFBEAB5E
+275,Bunny Cage,6,3,#FF7AD9E8
+276,Squirrel Cage,6,3,#FF7AD9E8
+277,Mallard Duck Cage,6,3,#FF7AD9E8
+278,Duck Cage,6,3,#FF7AD9E8
+279,Bird Cage,6,3,#FF7AD9E8
+280,Blue Jay Cage,6,3,#FF7AD9E8
+281,Cardinal Cage,6,3,#FF7AD9E8
+282,Fish Bowl,2,2,#FF7AD9E8
+283,Heavy Work Bench,3,3,#FF808080
+284,Copper Plating,1,1,#FF964316
+285,Snail Cage,3,2,#FF7AD9E8
+286,Glowing Snail Cage,3,2,#FF7AD9E8
+287,Ammo Box,2,2,#FF4F8011
+288,Monarch Butterfly Jar,2,2,#FF7AD9E8
+289,Purple Emperor Butterfly Jar,2,2,#FF7AD9E8
+290,Red Admiral Butterfly Jar,2,2,#FF7AD9E8
+291,Ulysses Butterfly Jar,2,2,#FF7AD9E8
+292,Sulphur Butterfly Jar,2,2,#FF7AD9E8
+293,Tree Nymph Butterfly Jar,2,2,#FF7AD9E8
+294,Zebra Swallowtail Butterfly Jar,2,2,#FF7AD9E8
+295,Julia Butterfly Jar,2,2,#FF7AD9E8
+296,Scorpion Cage,6,3,#FF7AD9E8
+297,Black Scorpion Cage,6,3,#FF7AD9E8
+298,Frog Cage,3,2,#FF7AD9E8
+299,Mouse Cage,3,2,#FF7AD9E8
+300,Bone Welder,3,3,#FF909490
+301,Flesh Cloning Vat,3,3,#FF909490
+302,Glass Kiln,3,3,#FF909490
+303,Lihzahrd Furnace,3,3,#FF909490
+304,Living Loom,3,3,#FF909490
+305,Sky Mill,3,3,#FF909490
+306,Ice Machine,3,3,#FF909490
+307,Steampunk Boiler,3,3,#FF909490
+308,Honey Dispenser,3,3,#FF909490
+309,Penguin Cage,6,3,#FF7AD9E8
+310,Worm Cage,3,2,#FF7AD9E8
+311,Dynasty Wood,1,1,#FF753D19
+312,Red Dynasty Shingles,1,1,#FFCC5D49
+313,Blue Dynasty Shingles,1,1,#FF57969A
+314,Minecart Track,1,1,#FFB5A47D
+315,Coralstone Block,1,1,#FFEB7250
+316,Blue Jellyfish Jar,2,2,#FF7AD9E8
+317,Green Jellyfish Jar,2,2,#FF7AD9E8
+318,Pink Jellyfish Jar,2,2,#FF7AD9E8
+319,Ship in a Bottle,2,2,#FF604430
+320,Seaweed Planter,2,3,#FFCBB997
+321,Boreal Wood,1,1,#FF604D40
+322,Palm Wood,1,1,#FFC6AA68
+323,Palm Trees,1,1,#FFB68D56
+324,Seashells,1,1,#FFE4D5AD
+325,Tin Plating,1,1,#FF817D5D
+326,Waterfall Block,1,1,#FF093DBF
+327,Lavafall Block,1,1,#FFFD2003
+328,Confetti Block,1,1,#FFC8F6FE
+329,Midnight Confetti Block,1,1,#FF0F0F0F
+330,Copper Coin Pile,1,1,#FFE2764C
+331,Silver Coin Pile,1,1,#FFA1ACAD
+332,Gold Coin Pile,1,1,#FFCCB548
+333,Platinum Coin Pile,1,1,#FFBEBEB2
+334,Weapon Rack (Legacy - DO NOT USE),3,3,#FFBF8E6F
+335,Fireworks Box,2,2,#FFD9AE89
+336,Living Fire Block,1,1,#FFFD3E03
+337,Text Statues,2,3,#FF909490
+338,Firework Fountain,1,2,#FF55FFA0
+339,Grasshopper Cage,3,2,#FF7AD9E8
+340,Living Cursed Fire Block,1,1,#FF60F802
+341,Living Demon Fire Block,1,1,#FF694ACA
+342,Living Frost Fire Block,1,1,#FF1DF0FF
+343,Living Ichor Fire Block,1,1,#FFFECA50
+344,Living Ultrabright Fire Block,1,1,#FF83FCF5
+345,Honeyfall Block,1,1,#FFFF9C0C
+346,Chlorophyte Brick,1,1,#FF95D459
+347,Crimtane Brick,1,1,#FFEC4A4F
+348,Shroomite Plating,1,1,#FF2C1AE9
+349,Mushroom Statue,2,3,#FF909490
+350,Martian Conduit Plating,1,1,#FF37619B
+351,Smoke Block,1,1,#FF1F1F1F
+352,Crimtane Thorns,1,1,#FFEE615E
+353,Vine Rope,1,1,#FF1CD85E
+354,Bewitching Table,3,3,#FF8D6B59
+355,Alchemy Table,3,3,#FF8D6B59
+356,Enchanted Sundial,2,3,#FFE9CB18
+357,Smooth Marble Block,1,1,#FFA8B2CC
+358,Gold Bird Cage,6,3,#FF7AD9E8
+359,Gold Bunny Cage,6,3,#FF7AD9E8
+360,Gold Butterfly Cage,2,2,#FF7AD9E8
+361,Gold Frog Cage,3,2,#FF7AD9E8
+362,Gold Grasshopper Cage,3,2,#FF7AD9E8
+363,Gold Mouse Cage,3,2,#FF7AD9E8
+364,Gold Worm Cage,3,2,#FF7AD9E8
+365,Silk Rope,1,1,#FF9288CD
+366,Web Rope,1,1,#FFDFE8E9
+367,Marble Block,1,1,#FFA8B2CC
+368,Granite Block,1,1,#FF322E68
+369,Smooth Granite Block,1,1,#FF322E68
+370,Meteorite Brick,1,1,#FF7F74C2
+371,Pink Slime Block,1,1,#FFF965BD
+372,Peace Candle,1,1,#FFFC80C9
+373,Water Drip,1,1,#FF093DBF
+374,Lava Drip,1,1,#FFFD2003
+375,Honey Drip,1,1,#FFFF9C0C
+376,Fishing Crates,2,2,#FFA0785C
+377,Sharpening Station,3,2,#FFBF8E6F
+378,Target Dummy,2,3,#FFA07864
+379,Bubble,1,1,#FFFBD1F0
+380,Planter Boxes,1,1,#FFBF8E6F
+381,Lava Moss,1,1,#FFFE7902
+382,Flower Vines,1,1,#FF1CD85E
+383,Living Mahogany Block,1,1,#FFDD8890
+384,Living Mahogany Leaves Block,1,1,#FF83CE0C
+385,Crystal Block,1,1,#FF571590
+386,Trap Door (Open),2,2,#FF7F5C45
+387,Trap Door (Closed),2,1,#FF7F5C45
+388,Tall Gate (Closed),1,5,#FF7F5C45
+389,Tall Gate (Open),1,5,#FF7F5C45
+390,Lava Lamp,1,2,#FFFD2003
+391,Cage Enchanted Nightcrawler,3,2,#FF7AD9E8
+392,Buggy Cage,3,2,#FF7AD9E8
+393,Grubby Cage,3,2,#FF7AD9E8
+394,Sluggy Cage,3,2,#FF7AD9E8
+395,Item Frame,2,2,#FFBF8E6F
+396,Sandstone Block,1,1,#FFC67C4E
+397,Hardened Sand Block,1,1,#FFD4C064
+398,Corrupt Hardened Sand Block,1,1,#FF64527E
+399,Crimson Hardened Sand Block,1,1,#FF4D4C42
+400,Corrupt Sandstone Block,1,1,#FF604475
+401,Crimson Sandstone Block,1,1,#FF443C33
+402,Hallow Hardened Sand Block,1,1,#FFAEA8BA
+403,Hallow Sandstone Block,1,1,#FFCD98BA
+404,Desert Fossil Block,1,1,#FF8C543C
+405,Fireplace,3,2,#FF8C8C8C
+406,Chimney,3,3,#FF787878
+407,Sturdy Fossil Block,1,1,#FFFFE384
+408,Luminite Ore,1,1,#FF555352
+409,Luminite Brick,1,1,#FF555352
+410,Lunar Monoliths,2,3,#FF4B8BA6
+411,Detonator,2,2,#FFE32E2E
+412,Lunar Crafting Station,3,3,#FF4B8BA6
+413,Red Squirrel Cage,6,3,#FF7AD9E8
+414,Gold Squirrel Cage,6,3,#FF7AD9E8
+415,Solar Fragment Block,1,1,#FFF94B07
+416,Vortex Fragment Block,1,1,#FF00A0AA
+417,Nebula Fragment Block,1,1,#FFA057EA
+418,Stardust Fragment Block,1,1,#FF16ADFE
+419,Logic Lamp,1,1,#FF757d97
+420,Logic Gates,1,1,#FFFFFFFF
+421,Conveyor Belt (CW),1,1,#FF494646
+422,Conveyor Belt (CCW),1,1,#FF494646
+423,Logic Sensor,1,1,#FFFFFFFF
+424,Junction Box,1,1,#FF929bbb
+425,Announcement Box,2,2,#FFaec3d7
+426,Red Team Block,1,1,#FF4d0b23
+427,Red Team Platform,1,1,#FF771634
+428,Weighted Pressure Plates,1,1,#FFFFFFFF
+429,Wire Bulb,1,1,#FF3f3f3f
+430,Green Team Block,1,1,#FF17774f
+431,Blue Team Block,1,1,#FF173677
+432,Yellow Team Block,1,1,#FF774417
+433,Pink Team Block,1,1,#FF4a1777
+434,White Team Block,1,1,#FF4e526d
+435,Green Team Platform,1,1,#FF27a860
+436,Blue Team Platform,1,1,#FF275ea8
+437,Yellow Team Platform,1,1,#FFa87927
+438,Pink Team Platform,1,1,#FF6f27a8
+439,White Team Platform,1,1,#FF9694ae
+440,Gem Locks,3,3,#FFFFFFFF
+441,Trapped Chests,2,2,#FFFFFFFF
+442,Teal Pressure Pad,1,1,#FF0390c9
+443,Geyser,2,1,#FF7b7b7b
+444,Bee Hive,2,2,#FFbfb07c
+445,Pixel Box,1,1,#FF373749
+446,Silly Pink Balloon Block,1,1,#FFFF4298
+447,Silly Purple Balloon Block,1,1,#FFB384FF
+448,Silly Green Balloon Block,1,1,#FF00CEB4
+449,Blue Streamer,1,1,#FF5bbaf0
+450,Green Streamer,1,1,#FF5cf05b
+451,Pink Streamer,1,1,#FFf05b93
+452,Silly Balloon Machine,3,2,#FFff96b5
+453,Silly Tied Balloon,1,3,#FFFFFFFF
+454,Pigronata,4,3,#FFae10b0
+455,Party Center,3,3,#FF30ff6e
+456,Silly Tied Bundle of Balloons,2,3,#FFb384ff
+457,Party Presents,2,2,#FFFFFFFF
+458,Sandfall Block,1,1,#FFd3c66f
+459,Snowfall Block,1,1,#FFbedfe8
+460,Snow Cloud Block,1,1,#FF8da3b5
+461,Sand Drip,1,1,#FFFFDE64
+462,Desert Spirit Lamp,2,1,#FFE7B21C
+463,Defender's Forge,3,4,#FF9BD6F0
+464,War Table,5,4,#FFE9B780
+465,War Table Banner,2,3,#FF3354C3
+466,Elder Cystal Stand,5,4,#FFCD9949
+467,Chests (Group 2),2,2,#FFE9CF5E
+468,Trapped Chests (Group 2),2,2,#FFFFFFFF
+469,Tables (Group 2),3,2,#FFBF8E6F
+470,Mannequins,2,3,#FF7B5B44
+471,Weapon Rack,3,3,#FF6F513A
+472,Iron Brick,1,1,#FF8D796F
+473,Lead Brick,1,1,#FF42505E
+474,Lesion Block,1,1,#FF755E60
+475,Hat Rack,3,4,#FF6B4F3B
+476,Golf Cup,1,1,#FF85909A
+477,Mowed Grass Block,1,1,#FF607044
+478,Crimstone Brick,1,1,#FFA55557
+479,Smooth Sandstone Block,1,1,#FFBC7347
+480,Blood Moon Monolith,2,3,#FF827C7F
+481,Cracked Blue Brick,1,1,#FF383E50
+482,Cracked Green Brick,1,1,#FF3E4D47
+483,Cracked Pink Brick,1,1,#FF7A405F
+484,Rolling Cactus,2,2,#FF737E3D
+485,Antlion Larva,2,2,#FFA17956
+486,Drum Set,3,2,#FF7A775C
+487,Picnic Tables,4,2,#FF8D5A57
+488,Fallen Log,3,2,#FF72654F
+489,Pin Wheel,2,3,#FF545A83
+490,Weather Vane,2,2,#FF808789
+491,Void Vault,3,3,#FF8149B1
+492,Hallowed Mowed Grass Block,1,1,#FF686C63
+493,Pin Flags,1,2,#FF8855A1
+494,Golf Tee,1,1,#FFA5A4B6
+495,Shell Pile Block,1,1,#FFAF976E
+496,Anti-Portal Block,1,1,#FF655A54
+497,Toilets,1,2,#FF356D40
+498,Spider Nest Block,1,1,#FF8E614D
+499,Decay Chamber,3,3,#FF8F9475
+500,Solar Brick,1,1,#FF7B463E
+501,Vortex Brick,1,1,#FF6B6772
+502,Nebula Brick,1,1,#FF7995AB
+503,Stardust Brick,1,1,#FFBC8C53
+504,Mystic Snake Rope,1,1,#FF5C4B76
+505,Gold Fish Bowl,2,2,#FF73898C
+506,Bast Statue,2,3,#FF291C13
+507,Gold Starry Block,1,1,#FF66503D
+508,Blue Starry Block,1,1,#FF1F3862
+509,Void Monolith,2,3,#FF36363A
+510,Arrow Sign,2,2,#FF73533C
+511,Painted Arrow Sign,2,2,#FF875E63
+512,Green Moss Brick,1,1,#FF537069
+513,Brown Moss Brick,1,1,#FF6C6E57
+514,Red Moss Brick,1,1,#FF7E7063
+515,Blue Moss Brick,1,1,#FF4C6470
+516,Purple Moss Brick,1,1,#FF6A5278
+517,Lava Moss Brick,1,1,#FFA1704F
+518,Lily Pads,1,1,#FF6C5F84
+519,Cattails,1,1,#FF7F7F99
+520,Plate,1,1,#FF87929C
+521,Black Dragonfly Jar,2,2,#FF496A6E
+522,Blue Dragonfly Jar,2,2,#FF49727D
+523,Green Dragonfly Jar,2,2,#FF477874
+524,Orange Dragonfly Jar,2,2,#FF5E7167
+525,Red Dragonfly Jar,2,2,#FF576870
+526,Yellow Dragonfly Jar,2,2,#FF516D5F
+527,Gold Dragonfly Jar,2,2,#FF627C5A
+528,Mushroom Vines,1,1,#FF827E5D
+529,Sea Oats,1,2,#FF675874
+530,Oasis Plants,1,1,#FF5B546C
+531,Boulder Statue,2,3,#FF6B6B6B
+532,Maggot Cage,3,2,#FF59756E
+533,Rat Cage,3,2,#FF697476
+534,Krypton Moss Block,1,1,#FF81A05F
+535,Krypton Moss Brick,1,1,#FF68904E
+536,Xenon Moss Block,1,1,#FF589498
+537,Xenon Moss Brick,1,1,#FF41838D
+538,Ladybug Cage,3,2,#FF555F60
+539,Argon Moss Block,1,1,#FF9A6387
+540,Argon Moss Brick,1,1,#FF8E4B7C
+541,Echo Block,1,1,#FF326BC5
+542,Owl Cage,6,3,#FF6A7867
+543,Pupfish Bowl,2,2,#FF509DB7
+544,Gold Ladybug Cage,3,2,#FF657D60
+545,Lawn Flamingo,2,3,#FFAE4C67
+546,Grate Block,1,1,#FF87695E
+547,Potted Trees,2,5,#FF505D21
+548,Potted Trees (Group 2),3,6,#FF866036
+549,Seaweed,1,1,#FF385806
+550,Turtle Cage,6,3,#FF476B65
+551,Jungle Turtle Cage,6,3,#FF42735F
+552,Sandcastle Bucket,3,2,#FF888042
+553,Grebe Cage,6,3,#FF616B64
+554,Seagull Cage,6,3,#FF6F817B
+555,Water Strider Cage,3,2,#FF497B90
+556,Gold Water Strider Cage,3,2,#FF6A886F
+557,Grate Block closed,1,1,#FF624840
+558,Seahorse Cage,6,3,#FF657F89
+559,Gold Seahorse Cage,6,3,#FF71927E
+560,Golf Trophies,2,3,#FF907F3B
+561,Marble Column,1,1,#FF6E7482
+562,Bamboo Block,1,1,#FF737A2D
+563,Large Bamboo Block,1,1,#FF737A2D
+564,Plasma Lamp,2,2,#FF575C70
+565,Fog Machine,2,2,#FF628195
+566,Amber Stone Block,1,1,#FFA88A64
+567,Garden Gnome,1,2,#FF938381
+568,Pink Fairy Jar,2,2,#FF7E88A0
+569,Green Fairy Jar,2,2,#FF7798A4
+570,Blue Fairy Jar,2,2,#FF7594A7
+571,Bamboo,1,1,#FF638017
+572,Souls in a Bottle,1,2,#FF827995
+573,Tattered Wood Sign,2,2,#FF5E4736
+574,Boreal Beam,1,1,#FF44372F
+575,Rich Mahogany Beam,1,1,#FF60393C
+576,Granite Column,1,1,#FF242659
+577,Sandstone Column,1,1,#FF885635
+578,Mushroom Beam,1,1,#FF575340
+579,Rock Golem Head,1,1,#FF557D64
+580,Hell Butterfly Jar,2,2,#FF6E5D5D
+581,Lavafly in a Bottle,1,2,#FF747179
+582,Magma Snail Cage,3,2,#FF6A6769
+583,Topaz Tree,1,1,#FF717171
+584,Amethyst Tree,1,1,#FF717171
+585,Sapphire Tree,1,1,#FF717171
+586,Emerald Tree,1,1,#FF717171
+587,Ruby Tree,1,1,#FF717171
+588,Diamond Tree,1,1,#FF717171
+589,Amber Tree,1,1,#FF717171
+590,Gem Saplings,1,2,#FF8E714F
+591,Hanging Pots,2,3,#FF915438
+592,Hanging Brazier,2,3,#FFA57345
+593,Mini Volcano,1,1,#FF684C43
+594,Large Volcano,2,2,#FF745540
+595,Sakura Sapling,1,2,#FF935E68
+596,Vanity Tree Sakura,1,1,#FF6E5B4D
+597,Pylons,3,4,#FF787F4B
+598,Lava Serpent Bowl,2,2,#FF92726F
+599,Amethyst Bunny Cage,6,3,#FF7886A1
+600,Topaz Bunny Cage,6,3,#FF7B8E85
+601,Sapphire Bunny Cage,6,3,#FF638B9C
+602,Emerald Bunny Cage,6,3,#FF628F90
+603,Ruby Bunny Cage,6,3,#FF7B838A
+604,Diamond Bunny Cage,6,3,#FF73909F
+605,Amber Bunny Cage,6,3,#FF7A8B84
+606,Amethyst Squirrel Cage,6,3,#FF7F8CA5
+607,Topaz Squirrel Cage,6,3,#FF839587
+608,Sapphire Squirrel Cage,6,3,#FF6B93A5
+609,Emerald Squirrel Cage,6,3,#FF6D9990
+610,Ruby Squirrel Cage,6,3,#FF84888C
+611,Diamond Squirrel Cage,6,3,#FF73939E
+612,Amber Squirrel Cage,6,3,#FF838C82
+613,Potted Lava Plants,3,5,#FF885D34
+614,Potted Ember Tendrils,3,6,#FF724D31
+615,Yellow Willow Sapling,1,2,#FF966C4A
+616,Vanity Tree Yellow Willow,1,1,#FF854F4D
+617,Relic Base,3,4,#FF7E6C2C
+618,Stone Accent Slab,1,1,#FF828282
+619,Truffle Worm Cage,3,2,#FF557381
+620,Prismatic Lacewing Jar,2,2,#FF485563
+621,Slice of Cake,2,2,#FF8E6A67
+622,Teapot,2,2,#FF918D6A
+623,Potted Crystal Plants,2,5,#FFB2919E
+624,Abigail's Flower,1,1,#FFBC5543
+625,Neon Moss Block,1,1,#FF906094
+626,Neon Moss Brick,1,1,#FF86598D
+627,Helium Moss Block,1,1,#FF969696
+628,Helium Moss Brick,1,1,#FF858585
+629,Stinkbug Cage,3,2,#FF4C6C60
+630,Stinkbug Blocker,1,1,#FF555E36
+631,Ghostly Stinkbug Blocker,1,1,#FF449DB6
+632,Scarlet Macaw Cage,6,3,#FF6D7B71
+633,Ash Grass Block,1,1,#FF66474A
+634,Ash Tree,1,1,#FF7D5453
+635,Ash Wood,1,1,#FF5F525C
+636,Corrupt Vines,1,1,#FF746CA3
+637,Ash Short Plants,1,1,#FF884338
+638,Ash Vines,1,1,#FF844A3C
+639,Mana Crystal,2,2,#FF5357A1
+640,Blue Macaw Cage,6,3,#FF678478
+641,Reef Block,1,1,#FFCD7987
+642,Chlorophyte Extractinator,3,3,#FF6E8B81
+643,Toucan Cage,6,3,#FF767A6E
+644,Yellow Cockatiel Cage,6,3,#FF757D67
+645,Gray Cockatiel Cage,6,3,#FF6A7D6E
+646,Shadow Candle,1,1,#FF54544D
+647,Large Rubble (3x2),3,2,#FF828268
+648,Large Rubble (3x2) (Group 2),3,2,#FF5F7A40
+649,Medium Rubble (2x1),2,1,#FF5C5C5C
+650,Small Rubble (1x1),1,1,#FF646464
+651,Large Rubble (3x2) (Group 3),3,2,#FF578807
+652,Medium Rubble (2x2),2,2,#FF4A810A
+653,Pots (Rubblemaker),2,2,#FF533830
+654,TNT Barrel,2,2,#FF8F6768
+655,Plantera Thorns,1,1,#FFA85386
+656,Glow Tulip,2,2,#FF3995B3
+657,Echo Chamber,2,3,#FF3D3F4B
+658,Aether Monolith,2,3,#FFAB8DCE
+659,Aetherium Block,1,1,#FFC7C9CB
+660,Faeling in a Bottle,1,2,#FF5F688E
+661,Corrupt Jungle Grass Block,1,1,#FF5D4F67
+662,Crimson Jungle Grass Block,1,1,#FF80546B
+663,Enchanted Moondial,2,3,#FF546086
+664,Bouncy Boulder,2,2,#FFBB5D9C
+665,Life Crystal Boulder,2,2,#FF95425C
+666,Poo Block,1,1,#FF76412B
+667,Aetherium Brick,1,1,#FFC4D0DA
+668,The Dirtiest Block,1,1,#FF91674D
+669,Lunar Rust Brick,1,1,#FF8D8696
+670,Dark Celestial Brick,1,1,#FF728494
+671,Astra Brick,1,1,#FF4F88B0
+672,Cosmic Ember Brick,1,1,#FF838672
+673,Cryocore Brick,1,1,#FF5991A6
+674,Mercury Brick,1,1,#FF8C9395
+675,Star Royale Brick,1,1,#FF7C84A8
+676,Heavenforge Brick,1,1,#FF798095
+677,Ancient Blue Brick,1,1,#FF5456A1
+678,Ancient Green Brick,1,1,#FF418535
+679,Ancient Pink Brick,1,1,#FF813260
+680,Ancient Gold Brick,1,1,#FF9B8B43
+681,Ancient Silver Brick,1,1,#FF798587
+682,Ancient Copper Brick,1,1,#FF9E6141
+683,Ancient Obsidian Brick,1,1,#FF4A4677
+684,Ancient Hellstone Brick,1,1,#FF914B43
+685,Ancient Cobalt Brick,1,1,#FF235E7F
+686,Ancient Mythril Brick,1,1,#FF718962
+687,Lava Moss Brick,1,1,#FF902505
+688,Argon Moss Brick,1,1,#FF810E5D
+689,Krypton Moss Brick,1,1,#FF1C7C3E
+690,Xenon Moss Brick,1,1,#FF0B5F83
+691,Neon Moss Brick,1,1,#FF50116B
+692,Helium Moss Brick,1,1,#FF434343

@@ -37,7 +37,7 @@ namespace WorldModify
                     Alllists.AppendLine(string.Join(",", lists));
                 }
 
-                File.WriteAllText(SaveFile, Alllists.ToString());
+                Utils.Save(SaveFile, Alllists.ToString());
                 op.SendInfoMessage($"ÒÑ±£´æ{SaveFile}");
             }
             else

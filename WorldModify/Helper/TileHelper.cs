@@ -1,5 +1,6 @@
 ﻿using Microsoft.Xna.Framework;
 using Terraria;
+using Terraria.Map;
 using Terraria.ObjectData;
 using TShockAPI;
 
@@ -16,7 +17,7 @@ namespace WorldModify
         /// <summary>
         /// 开始创建
         /// </summary>
-        public static void StartGen() { isTaskRunning=true; }
+        public static void StartGen() { isTaskRunning = true; }
 
         /// <summary>
         /// 完成创建
@@ -147,11 +148,24 @@ namespace WorldModify
             tile.halfBrick(false);
         }
 
-        public static Point GetTileWH(int id, int style = 0)
+        public static void Initialize()
         {
-            utils.Log($"GetTileWH:{id}");
-            TileObjectData tileData = TileObjectData.GetTileData(id, style);
-            return new Point(tileData.Width, tileData.Height);
+            if (MapHelper.tileLookup == null)
+            {
+                bool status = Main.dedServ;
+                Main.dedServ = false;
+                MapHelper.Initialize();
+                Main.dedServ = status;
+
+                // dedServ为假时，不执行 Main 会执行 MapHelper.Initialize();
+                // 执行 MapHelper.Initialize(); 时会执行 Lang.BuildMapAtlas();
+                // 但是执行 Lang.BuildMapAtlas(); 遇到dedServ为真时，会不执行
+            }
+        }
+
+        public static string GetTileName(int type, int style)
+        {
+            return Lang._mapLegendCache[MapHelper.TileToLookup(type, style)].Value;
         }
 
     }

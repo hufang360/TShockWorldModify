@@ -14,7 +14,8 @@ namespace WorldModify
     {
         enum Type
         {
-            NULL,
+            None,
+
             Block,  // 填充图格
             Wall,  // 填充墙体
 
@@ -25,7 +26,22 @@ namespace WorldModify
             Lava,   // 填充岩浆
             Shimmer,   // 填充微光
         };
+        static string TypeDesc(Type type)
+        {
+            return type switch
+            {
+                Type.Block => "方块",
+                Type.Wall => "墙体",
 
+                Type.Dirt => "土块",
+                Type.Mud => "泥块",
+                Type.Water => "水",
+                Type.Honey => "蜂蜜",
+                Type.Lava => "岩浆",
+                Type.Shimmer => "微光",
+                _ => "图格",
+            };
+        }
 
         public static void Manage(CommandArgs args)
         {
@@ -39,7 +55,7 @@ namespace WorldModify
                 List<string> lines = new()
                 {
                     "/igen f <id>，填充指定图格",
-                    "/igen f wall <id>，填充指定墙体",
+                    "/igen f wall <墙的 id/中文名称>，填充指定墙体",
                     "/igen f dirt，填充土块",
                     "/igen f mud，填充泥块",
 
@@ -61,37 +77,70 @@ namespace WorldModify
                 return;
             }
 
-            int id = 0;
-            Type type = Type.NULL;
+            Type type = Type.None;
+            int id = -1;
+            string name = "";
             string kw = args.Parameters[0].ToLowerInvariant();
             switch (kw)
             {
-                case "dirt": type = Type.Dirt; break;
-                case "mud": type = Type.Mud; break;
-                case "water": type = Type.Water; break;
-                case "honey": type = Type.Honey; break;
-                case "lava": type = Type.Lava; break;
-                case "shimmer": type = Type.Shimmer; break;
+                case "dirt":
+                case "土":
+                case "土块":
+                    type = Type.Dirt;
+                    break;
+
+                case "mud":
+                case "泥":
+                case "泥块":
+                    type = Type.Mud;
+                    break;
+
+                case "water":
+                case "水":
+                    type = Type.Water;
+                    break;
+
+                case "honey":
+                case "蜂蜜":
+                    type = Type.Honey;
+                    break;
+
+                case "lava":
+                case "岩浆":
+                    type = Type.Lava;
+                    break;
+
+                case "shimmer":
+                case "微光":
+                    type = Type.Shimmer; break;
 
                 case "wall":
                 case "w":
+                case "墙体":
+                case "墙":
                     if (args.Parameters.Count < 2)
                     {
-                        op.SendErrorMessage("需要输入墙体ID，/igen f wall <id>");
+                        op.SendErrorMessage("需要输入墙体ID，/igen f wall <墙的 id/中文名称>");
                         return;
                     }
-                    if (!int.TryParse(args.Parameters[1], out id))
+                    var wp = ResHelper.GetWallByIDOrName(args.Parameters[1]);
+                    if (wp == null)
                     {
-                        op.SendErrorMessage($"输入的墙体ID无效，有效值 1~{WallID.Count - 1}");
+                        op.SendErrorMessage("墙的 id/中文名称 错误");
                         return;
                     }
-                    type = Type.Wall;
+                    else
+                    {
+                        type = Type.Wall;
+                        id = wp.id;
+                        name = wp.name;
+                    }
                     break;
 
                 default:
                     if (int.TryParse(kw, out id))
                     {
-                        if (!RandomTool.matchBlockID.Contains(id))
+                        if (!IDSet.matchBlockID.Contains(id))
                         {
                             op.SendErrorMessage("输入的图格ID无效！目前仅支持填充一些方块");
                             return;
@@ -113,57 +162,57 @@ namespace WorldModify
                     }
                     break;
             }
-            if (type != Type.NULL)
+            if (type != Type.None)
             {
-                Rectangle selection = SelectionTool.GetSelection(op.Index);
-                Action(op, type, selection, id);
+                Action(op, type, id, name);
             }
         }
 
-
-        private static async void Action(TSPlayer op, Type type, Rectangle rect, int id = -1)
+        static async void Action(TSPlayer op, Type type, int id, string name)
         {
-            int secondLast = utils.GetUnixTimestamp;
-            string GetOpString()
-            {
-                return type switch
-                {
-                    Type.Block => "填充方块",
-                    Type.Wall => "填充墙体",
-
-                    Type.Dirt => "填充土块",
-                    Type.Mud => "填充泥块",
-                    Type.Water => "注水",
-                    Type.Honey => "注入蜂蜜",
-                    Type.Lava => "注入岩浆",
-                    Type.Shimmer => "注入微光",
-                    _ => "填充图格",
-                };
-            }
-            string opString = GetOpString();
-
-
+            Rectangle rect = SelectionTool.GetSelection(op.Index);
+            int secondLast = Utils.GetUnixTimestamp;
+            int count = 0;
             await Task.Run(() =>
             {
                 for (int x = rect.X; x < rect.Right; x++)
                 {
                     for (int y = rect.Y; y < rect.Bottom; y++)
                     {
-                        ITile tile = Main.tile[x, y];
-                        if (tile.active())
-                            continue;
 
+                        ITile tile = Main.tile[x, y];
                         switch (type)
                         {
+                            // 图格
                             case Type.Block:
-                            case Type.Wall:
                             case Type.Dirt:
                             case Type.Mud:
+                                if (!tile.active() && tile.liquid == 0)
+                                {
+                                    count++;
+                                    Fill(x, y, type, id);
+                                }
+                                break;
+
+                            // 墙
+                            case Type.Wall:
+                                if (tile.wall == 0)
+                                {
+                                    count++;
+                                    tile.wall = (ushort)id;
+                                }
+                                break;
+                            
+                            // 液体
                             case Type.Water:
                             case Type.Honey:
                             case Type.Lava:
                             case Type.Shimmer:
-                                Fill(x, y, type, id);
+                                if (tile.liquid == 0)
+                                {
+                                    count++;
+                                    FillLiquid(x, y, type);
+                                }
                                 break;
                         }
                     }
@@ -171,65 +220,28 @@ namespace WorldModify
             }).ContinueWith((d) =>
             {
                 TileHelper.GenAfter();
-                int second = utils.GetUnixTimestamp - secondLast;
-                op.SendSuccessMessage($"{opString} 结束（用时 {second}s）");
+                int second = Utils.GetUnixTimestamp - secondLast;
+                if (string.IsNullOrEmpty(name)) name = TypeDesc(type);
+                op.SendSuccessMessage($"已填充 {count}格 {name}，用时{second}秒");
             });
         }
 
-        private static void Fill(int x, int y, Type type, int id = -1)
+        /// <summary>
+        /// 填充图格
+        /// </summary>
+        private static void Fill(int x, int y, Type type, int replaceID = -1)
         {
             ITile tile = Main.tile[x, y];
-
-            bool isBlock = false;
-            bool isLiquid = false;
+            int id = -1;
             switch (type)
             {
-                case Type.Block:
-                    if (id != -1)
-                    {
-                        tile.type = (ushort)id;
-                        isBlock = true;
-                    }
-                    break;
-
-                case Type.Wall:
-                    if (id != -1)
-                        tile.wall = (ushort)id;
-                    break;
-
-                case Type.Dirt:
-                    tile.type = TileID.Dirt;
-                    isBlock = true;
-                    break;
-
-                case Type.Mud:
-                    tile.type = TileID.Mud;
-                    isBlock = true;
-                    break;
-
-                case Type.Water:
-                    tile.honey(honey: false);
-                    tile.lava(lava: false);
-                    isLiquid = true;
-                    break;
-
-                case Type.Honey:
-                    tile.honey(honey: true);
-                    isLiquid = true;
-                    break;
-
-                case Type.Lava:
-                    tile.lava(lava: true);
-                    isLiquid = true;
-                    break;
-
-                case Type.Shimmer:
-                    tile.shimmer(shimmer: true);
-                    isLiquid = true;
-                    break;
+                case Type.Block: if (replaceID != -1) id = replaceID; break;
+                case Type.Dirt: id = TileID.Dirt; break;
+                case Type.Mud: id = TileID.Mud; break;
             }
-            if (isBlock)
+            if (id != -1)
             {
+                tile.type = (ushort)id;
                 tile.active(active: true);
                 //WorldGen.SquareTileFrame(x, y);
                 //NetMessage.SendTileSquare(-1, x, y);
@@ -238,12 +250,33 @@ namespace WorldModify
                 //NetMessage.SendTileSquare(-1, x, y);
                 //NetMessage.SendTileSquare(-1, x, y);
             }
-            else if (isLiquid)
+        }
+
+        /// <summary>
+        /// 填充液体
+        /// </summary>
+        private static void FillLiquid(int x, int y, Type type)
+        {
+            ITile tile = Main.tile[x, y];
+            if (tile.active() || tile.liquid != byte.MaxValue) return;
+
+            int id = -1;
+            switch (type)
+            {
+                // Tile.Liquid_Water
+                case Type.Water: id = 0; break;
+                case Type.Lava: id = 1; break;
+                case Type.Honey: id = 2; break;
+                case Type.Shimmer: id = 3; break;
+            }
+            if (id != -1)
             {
                 tile.liquid = byte.MaxValue;
+                tile.liquidType(id);
                 //WorldGen.SquareTileFrame(x, y);
                 //NetMessage.SendTileSquare(-1, x, y);
             }
         }
+
     }
 }

@@ -149,7 +149,7 @@ namespace WorldModify
             {
                 str.Append($"{obj.Key},{obj.Value},{Lang.GetItemName(obj.Key)}\n");
             }
-            utils.SaveAndBack(SaveFile, str.ToString());
+            Utils.SafeSave(SaveFile, str.ToString());
         }
 
         // 批量导入

@@ -121,14 +121,20 @@ namespace WorldModify
 
             if (type != Type.None)
             {
-                await Action(op, type, SelectionTool.GetSelection(op.Index), new int[] { tileID });
+                Rectangle rect = SelectionTool.GetSelection(op.Index);
+                if (rect.Width * rect.Height > 122*68)
+                {
+                    op.SendInfoMessage("此操作容易造成服务器卡顿，请将选区设置在一屏内！");
+                    return;
+                }
+                await Action(op, type, rect, new int[] { tileID });
             }
         }
 
 
         static Task Action(TSPlayer op, Type type, Rectangle rect, int[] plist)
         {
-            int secondLast = utils.GetUnixTimestamp;
+            int secondLast = Utils.GetUnixTimestamp;
             string GetOpString()
             {
                 return type switch
@@ -196,7 +202,7 @@ namespace WorldModify
             }).ContinueWith((d) =>
             {
                 TileHelper.GenAfter();
-                int second = utils.GetUnixTimestamp - secondLast;
+                int second = Utils.GetUnixTimestamp - secondLast;
                 op.SendSuccessMessage($"{opString} 结束（用时 {second}秒）");
             });
         }

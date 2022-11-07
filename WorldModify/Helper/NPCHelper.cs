@@ -129,7 +129,7 @@ namespace WorldModify
             };
             foreach (int id in ids)
             {
-                li1.Add(utils.CFlag(npcIds.Contains(id), NPCIDHelper.GetNameByID(id)));
+                li1.Add(Utils.CFlag(npcIds.Contains(id), NPCIDHelper.GetNameByID(id)));
             }
 
             ids = new int[] {
@@ -146,7 +146,7 @@ namespace WorldModify
             };
             foreach (int id in ids)
             {
-                li2.Add(utils.CFlag(npcIds.Contains(id), NPCIDHelper.GetNameByID(id)));
+                li2.Add(Utils.CFlag(npcIds.Contains(id), NPCIDHelper.GetNameByID(id)));
             }
 
 
@@ -162,7 +162,7 @@ namespace WorldModify
             };
             foreach (int id in ids)
             {
-                li3.Add(utils.CFlag(npcIds.Contains(id), NPCIDHelper.GetNameByID(id)));
+                li3.Add(Utils.CFlag(npcIds.Contains(id), NPCIDHelper.GetNameByID(id)));
             }
 
             ids = new int[] {
@@ -175,7 +175,7 @@ namespace WorldModify
             };
             foreach (int id in ids)
             {
-                li4.Add(utils.CFlag(npcIds.Contains(id), NPCIDHelper.GetNameByID(id)));
+                li4.Add(Utils.CFlag(npcIds.Contains(id), NPCIDHelper.GetNameByID(id)));
             }
 
             ids = new int[] {
@@ -190,7 +190,7 @@ namespace WorldModify
             };
             foreach (int id in ids)
             {
-                li5.Add(utils.CFlag(npcIds.Contains(id), NPCIDHelper.GetNameByID(id)));
+                li5.Add(Utils.CFlag(npcIds.Contains(id), NPCIDHelper.GetNameByID(id)));
             }
 
             List<string> texts = new List<string>()
@@ -319,7 +319,7 @@ namespace WorldModify
 
                     op.SendSuccessMessage($"名称：{npcs[0].FullName}（id={npcs[0].netID}）" +
                         $"\n数量：{total}" +
-                        $"\n坐标：{utils.PointToLocationDesc(npc)}   {utils.PointToLocationDesc(x, y)}" +
+                        $"\n坐标：{Utils.PointToLocationDesc(npc)}   {Utils.PointToLocationDesc(x, y)}" +
                         $"\n输入 /tppos {(int)npc.position.X / 16} {(int)npc.position.Y / 16} 进行传送");
                 }
                 else
@@ -560,17 +560,25 @@ namespace WorldModify
         private static void ClearNPC(CommandArgs args)
         {
             args.Parameters.RemoveAt(0);
-            if (args.Parameters.Count == 0 || args.Parameters[0].ToLowerInvariant() == "help")
+            void Help()
             {
                 args.Player.SendInfoMessage("/npc clear 指令用法：");
                 args.Player.SendInfoMessage("/npc clear <id/名称>, 清除指定NPC");
                 args.Player.SendInfoMessage("/npc clear enemy, 清除所有敌怪，保留友善NPC");
+            }
+            if (args.Parameters.Count == 0)
+            {
+                Help();
                 return;
             }
 
             // 清除指定NPC/敌怪
             switch (args.Parameters[0].ToLowerInvariant())
             {
+                case "help":
+                    Help();
+                    break;
+
                 case "enemy":
                     int cleared = 0;
                     for (int i = 0; i < Main.maxNPCs; i++)
@@ -587,7 +595,7 @@ namespace WorldModify
                     break;
 
                 default:
-                    var npcs = TShock.Utils.GetNPCByIdOrName(args.Parameters[1]);
+                    var npcs = TShock.Utils.GetNPCByIdOrName(args.Parameters[0]);
                     if (npcs.Count == 0)
                         args.Player.SendErrorMessage("找不到对应的 NPC");
                     else if (npcs.Count > 1)

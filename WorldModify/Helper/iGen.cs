@@ -20,30 +20,31 @@ namespace WorldModify
             TSPlayer op = args.Player;
             void Help()
             {
-                if (!PaginationTools.TryParsePageNumber(args.Parameters, 1, op, out int pageNumber))
-                    return;
+                if (!PaginationTools.TryParsePageNumber(args.Parameters, 1, op, out int pageNumber)) return;
 
                 List<string> lines = new()
                 {
-                    "/igen room [数量]，玻璃小房间（默认生成3个）",
+                    "/igen room [数量]，小房间（默认生成3个）",
                     "/igen hotel，NPC小旅馆",
                     "/igen hell，地狱直通车",
-                    "/igen pond [1/2/3/4]，玻璃鱼池（1=水，2=蜂蜜，3=岩浆，4=微光）",
+                    "/igen pond [水/蜂蜜/岩浆/微光]，鱼池",
 
                     "/igen dirt，填土",
-                    "/igen random，全图随机",
+                    "/igen place help，放置",
                     "/igen sm [宽] [高]，盾构机（默认 宽61 高34）",
                     "/igen dig [宽] [高]，钻井机（默认 宽3 高34）",
-
-                    "/igen world help，重建世界",
-                    "/igen place help，放置",
-                    "",
-                    "",
 
                     "/igen selection help，选区工具",
                     "/igen replace help，替换工具",
                     "/igen fill help，填充工具",
-                    "/igen clear help，擦除工具",
+                    "/igen clear help，清除工具",
+
+                    "/igen count help，统计工具",
+
+                    "/igen world help，重建世界",
+                    "/igen random，全图随机",
+                    "",
+                    "",
                 };
                 PaginationTools.SendPage(op, pageNumber, lines, new PaginationTools.Settings
                 {
@@ -59,7 +60,7 @@ namespace WorldModify
                 return;
             }
 
-            bool NeedInGame() { return utils.NeedInGame(op); }
+            bool NeedInGame() { return Utils.NeedInGame(op); }
             bool NeedWaitTask() { return TileHelper.NeedWaitTask(op); }
 
             bool isRight;
@@ -127,25 +128,20 @@ namespace WorldModify
                 #region 鱼池
                 case "pond":
                     if (NeedInGame() || NeedWaitTask()) return;
-                    int type = 1;
+                    int type = 0;
                     if (args.Parameters.Count > 1)
                     {
-                        if (!int.TryParse(args.Parameters[1], out type))
+                        switch (args.Parameters[1].ToLowerInvariant())
                         {
-                            switch (args.Parameters[1].ToLowerInvariant())
-                            {
-                                case "water": type = 1; break;
-                                case "honey": type = 2; break;
-                                case "lava": type = 3; break;
-                                case "shimmer": type = 4; break;
+                            case "水": case "water": type = 0; break;
+                            case "岩浆": case "lava": type = 1; break;
+                            case "蜂蜜": case "honey": type = 2; break;
+                            case "微光": case "shimmer": type = 3; break;
 
-                                default:
-                                    op.SendErrorMessage("鱼池风格不对，1=水，2=蜂蜜，3=岩浆，4=微光");
-                                    return;
-                            }
+                            default:
+                                op.SendErrorMessage("鱼池风格不对");
+                                return;
                         }
-                        if (type > 4 || type == 0)
-                            type = 1;
                     }
                     await AsyncGenPond(op, op.TileX, op.TileY + 3, type);
                     return;
@@ -179,8 +175,8 @@ namespace WorldModify
                     isRight = op.TPlayer.direction != -1;
                     w = 3;
                     h = 34;
-                    if (utils.TryParseInt(args.Parameters, 1, out num)) w = Math.Max(3, num);
-                    if (utils.TryParseInt(args.Parameters, 2, out num)) h = Math.Max(34, num);
+                    if (Utils.TryParseInt(args.Parameters, 1, out num)) w = Math.Max(3, num);
+                    if (Utils.TryParseInt(args.Parameters, 2, out num)) h = Math.Max(34, num);
                     await AsyncDigArea(op, op.TileX, op.TileY + 3, w, h, isRight);
                     return;
                 #endregion
@@ -196,18 +192,11 @@ namespace WorldModify
 
                 #region 全图随机
                 case "random":
+                    if (NeedWaitTask()) return;
                     if (args.Parameters.Count > 1 && args.Parameters[1].ToLowerInvariant() == "true")
                         RandomTool.RandomAll(args);
                     else
                         op.SendErrorMessage("本操作比较危险，将对全图的图格和背景墙进行随机，如确定此操作，请输入 /igen random true");
-                    break;
-                #endregion
-
-
-                #region 打洞
-                case "hole":
-                    if (NeedInGame()) return;
-                    ClearTool.Hole(op);
                     break;
                 #endregion
 
@@ -217,6 +206,14 @@ namespace WorldModify
                     await AsyncPlaceDirt(op, op.TileX, op.TileY + 3);
                     return;
                 #endregion
+
+                #region 打洞
+                case "hole":
+                    if (NeedInGame() || NeedWaitTask()) return;
+                    ClearTool.Hole(op);
+                    break;
+                #endregion
+
 
                 #region 放置
                 case "place":
@@ -261,6 +258,11 @@ namespace WorldModify
                     if (NeedInGame() || NeedWaitTask()) return;
                     BrokenTool.Manage(args);
                     break;
+
+                // 统计
+                case "count":
+                    CountTool.Manage(args);
+                    break;
                 #endregion
 
                 #region 未完成
@@ -298,7 +300,7 @@ namespace WorldModify
         /// </summary>
         static Task AsyncGenHotel(TSPlayer op, int posX, int posY, int total = 1, bool isRight = true, bool needCenter = false)
         {
-            int secondLast = utils.GetUnixTimestamp;
+            int secondLast = Utils.GetUnixTimestamp;
             return Task.Run(() =>
             {
                 int w = 5;
@@ -326,7 +328,7 @@ namespace WorldModify
             }).ContinueWith((d) =>
             {
                 TileHelper.GenAfter();
-                int second = utils.GetUnixTimestamp - secondLast;
+                int second = Utils.GetUnixTimestamp - secondLast;
                 op.SendSuccessMessage($"已生成 NPC小旅馆（共{total}间 用时 {second}s）");
             });
         }
@@ -336,7 +338,7 @@ namespace WorldModify
         /// </summary>
         static Task AsyncGenRoom(TSPlayer op, int posX, int posY, int total = 1, bool isRight = true, bool needCenter = false)
         {
-            int secondLast = utils.GetUnixTimestamp;
+            int secondLast = Utils.GetUnixTimestamp;
             return Task.Run(() =>
             {
                 int w = 5;
@@ -352,7 +354,7 @@ namespace WorldModify
             }).ContinueWith((d) =>
             {
                 TileHelper.GenAfter();
-                int second = utils.GetUnixTimestamp - secondLast;
+                int second = Utils.GetUnixTimestamp - secondLast;
                 op.SendSuccessMessage($"已生成 {total} 个小房间 （用时 {second}s）");
             });
         }
@@ -431,20 +433,20 @@ namespace WorldModify
         #region 鱼池
         static Task AsyncGenPond(TSPlayer op, int posX, int posY, int style)
         {
-            int secondLast = utils.GetUnixTimestamp;
+            int secondLast = Utils.GetUnixTimestamp;
             return Task.Run(() =>
             {
                 GenPond(posX, posY, style);
             }).ContinueWith((d) =>
             {
                 TileHelper.GenAfter();
-                int second = utils.GetUnixTimestamp - secondLast;
+                int second = Utils.GetUnixTimestamp - secondLast;
                 string desc;
                 switch (style)
                 {
+                    case 1: desc = "岩浆"; break;
                     case 2: desc = "蜂蜜"; break;
-                    case 3: desc = "岩浆"; break;
-                    case 4: desc = "微光"; break;
+                    case 3: desc = "微光"; break;
                     default: desc = "普通"; break;
                 }
                 op.SendSuccessMessage($"已生成 {desc}鱼池（用时 {second}s）");
@@ -456,9 +458,9 @@ namespace WorldModify
             switch (style)
             {
                 default: th.SetGlass(); break;
+                case 1: th.SetObsidian(); break;
                 case 2: th.SetHoney(); break;
-                case 3: th.SetObsidian(); break;
-                case 4: th.SetGray(); break;
+                case 3: th.SetGray(); break;
             }
 
             ushort tileID = th.tile;
@@ -510,7 +512,7 @@ namespace WorldModify
         #region 地狱直通车
         static Task AsyncGenHellevator(TSPlayer op, int posX, int posY)
         {
-            int secondLast = utils.GetUnixTimestamp;
+            int secondLast = Utils.GetUnixTimestamp;
             int height = 0;
             return Task.Run(() =>
             {
@@ -518,7 +520,7 @@ namespace WorldModify
             }).ContinueWith((d) =>
             {
                 TileHelper.GenAfter();
-                int second = utils.GetUnixTimestamp - secondLast;
+                int second = Utils.GetUnixTimestamp - secondLast;
                 op.SendSuccessMessage($"已生成 地狱直通车（高{height}格  用时 {second}s）");
             });
         }
@@ -583,27 +585,27 @@ namespace WorldModify
         #region 填土
         static Task AsyncPlaceDirt(TSPlayer op, int posX, int posY)
         {
-            int secondLast = utils.GetUnixTimestamp;
+            int secondLast = Utils.GetUnixTimestamp;
             return Task.Run(() =>
             {
                 PlaceDirt(posX, posY);
             }).ContinueWith((d) =>
             {
                 TileHelper.GenAfter();
-                int second = utils.GetUnixTimestamp - secondLast;
+                int second = Utils.GetUnixTimestamp - secondLast;
                 op.SendSuccessMessage($"填土完成（用时 {second}s）");
             });
         }
         static void PlaceDirt(int posX, int posY)
         {
             int Width = 121;
-            int height = 68;
+            int height = 33;
             int Xstart = posX - 60;
             int Ystart = posY;
 
             Parallel.For(Xstart, Xstart + Width, (cx) =>
             {
-                Parallel.For(Ystart - height, Ystart, (cy) =>
+                Parallel.For(Ystart - height - 2, Ystart, (cy) =>
                 {
                     Main.tile[cx, cy].ClearEverything();
                 });
@@ -626,14 +628,14 @@ namespace WorldModify
         #region 盾构机
         static Task AsyncGenShieldMachine(TSPlayer op, int posX, int posY, int w, int h, bool isRight = true)
         {
-            int secondLast = utils.GetUnixTimestamp;
+            int secondLast = Utils.GetUnixTimestamp;
             return Task.Run(() =>
             {
                 GenShieldMachine(posX, posY, w, h, isRight);
             }).ContinueWith((d) =>
             {
                 TileHelper.GenAfter();
-                int second = utils.GetUnixTimestamp - secondLast;
+                int second = Utils.GetUnixTimestamp - secondLast;
                 op.SendSuccessMessage($"盾构完成 （{w}x{h}格 用时 {second}s）");
             });
         }
@@ -670,14 +672,14 @@ namespace WorldModify
         #region 挖掘机
         static Task AsyncDigArea(TSPlayer op, int posX, int posY, int w, int h, bool isRight = true, bool isHell = false)
         {
-            int secondLast = utils.GetUnixTimestamp;
+            int secondLast = Utils.GetUnixTimestamp;
             return Task.Run(() =>
             {
                 DigArea(posX, posY, w, h, isRight, isHell);
             }).ContinueWith((d) =>
             {
                 TileHelper.GenAfter();
-                int second = utils.GetUnixTimestamp - secondLast;
+                int second = Utils.GetUnixTimestamp - secondLast;
                 op.SendSuccessMessage($"挖掘完成 （{w}x{h}格 用时 {second}s）");
             });
         }
@@ -736,7 +738,7 @@ namespace WorldModify
         /// <param name="op"></param>
         public static void CharPaint(TSPlayer op)
         {
-            string[] chars = File.ReadAllLines(Path.Combine(utils.SaveDir, "raw_0.txt"));
+            string[] chars = File.ReadAllLines(Path.Combine(Utils.SaveDir, "raw_0.txt"));
             int x = op.TileX - 61;
             int y = op.TileY - 30;
             int col;

@@ -15,15 +15,14 @@ namespace WorldModify
                 return false;
 
             // 读取内嵌配置文件
-            string text = utils.FromEmbeddedPath("WorldModify.res.retile.json");
-            utils.CreateSaveDir();
+            string text = Utils.FromEmbeddedPath("retile.json");
             // 将内嵌配置文件拷出
-            File.WriteAllText(SaveFile, text);
+            Utils.Save(SaveFile, text);
             return true;
         }
         public static void Init() { Reload(); }
         public static void Reload() { _config = RetileConfig.Load(SaveFile); }
-        public static void Save() { File.WriteAllText(SaveFile, JsonConvert.SerializeObject(_config, Formatting.Indented)); }
+        public static void Save() { Utils.Save(SaveFile, JsonConvert.SerializeObject(_config, Formatting.Indented)); }
         public static RetileConfig Con { get { return _config; } }
     }
 
@@ -41,10 +40,9 @@ namespace WorldModify
             else
             {
                 // 读取内嵌配置文件
-                text = utils.FromEmbeddedPath("WorldModify.res.retile.json");
-                utils.CreateSaveDir();
+                text = Utils.FromEmbeddedPath("retile.json");
                 // 将内嵌配置文件拷出
-                File.WriteAllText(path, text);
+                Utils.Save(path, text);
             }
 
             return JsonConvert.DeserializeObject<RetileConfig>(text, new JsonSerializerSettings()

@@ -44,13 +44,12 @@ namespace WorldModify
             Commands.ChatCommands.Add(new Command("relive", NPCHelper.Relive, "relive") { HelpText = "复活NPC" });
             Commands.ChatCommands.Add(new Command("cleartomb", ClearToolWM.ClearTomb, "cleartomb", "ct") { HelpText = "清理墓碑" });
 
-            utils.SaveDir = SaveDir;
-            BackupHelper.BackupPath = Path.Combine(SaveDir, "backups");
-
-            RetileTool.SaveFile = Path.Combine(SaveDir, "retile.json");
-            ReportTool.SaveFile = Path.Combine(SaveDir, "report.json");
-            ResearchHelper.SaveFile = Path.Combine(SaveDir, "research.csv");
-            BestiaryHelper.SaveFile = Path.Combine(SaveDir, "bestiary.csv");
+            Utils.SaveDir = SaveDir;
+            BackupHelper.BackupPath = Utils.CombinePath("backups");
+            RetileTool.SaveFile = Utils.CombinePath("retile.json");
+            ReportTool.SaveFile = Utils.CombinePath("report.json");
+            ResearchHelper.SaveFile = Utils.CombinePath("research.csv");
+            BestiaryHelper.SaveFile = Utils.CombinePath("bestiary.csv");
         }
 
 
@@ -81,9 +80,9 @@ namespace WorldModify
                     "/wm seed [种子]，查看/修改 世界种子",
 
                     "/wm id [id]，查看/修改 世界ID",
-                    "/wm uuid [uuid字符|new]，查看/修改 世界uuid",
-                    "/wm sundial <on/off | 天数>，查看/开关附魔日晷，修改 冷却天数",
-                    "/wm moondial <on/off | 天数>，查看/开关附魔月晷，修改 冷却天数",
+                    "/wm uuid [uuid字符 / new]，查看/修改 世界uuid",
+                    "/wm sundial [on / off / 天数]，查看/开关 附魔日晷 / 修改 冷却天数",
+                    "/wm moondial [on / off / 天数]，查看/开关 附魔月晷 / 修改 冷却天数",
 
                     "/wm spawn，查看 出生点",
                     "/wm dungeon，查看 地牢点",
@@ -101,7 +100,8 @@ namespace WorldModify
                     "/boss help，boss管理",
 
                     "/npc help，npc管理",
-                    "/igen help，建造世界"
+                    "/igen help，建造世界",
+                    "/wm docs，生成参考文档"
                 };
 
                 PaginationTools.SendPage(op, pageNumber, lines, new PaginationTools.Settings
@@ -227,7 +227,7 @@ namespace WorldModify
                     }
                     else
                     {
-                        if (utils.ToGuid(uuid))
+                        if (Utils.StringToGuid(uuid))
                         {
                             Main.ActiveWorldFileData.UniqueId = new Guid(uuid);
                             TSPlayer.All.SendData(PacketTypes.WorldInfo);
@@ -259,7 +259,7 @@ namespace WorldModify
                     switch (args.Parameters[1].ToLowerInvariant())
                     {
                         case "on":
-                            if (!Main.IsFastForwardingTime())
+                            if (!Main.fastForwardTimeToDawn)
                             {
                                 Main.fastForwardTimeToDawn = true;
                                 TSPlayer.All.SendData(PacketTypes.WorldInfo);
@@ -271,7 +271,7 @@ namespace WorldModify
                             }
                             break;
                         case "off":
-                            if (Main.IsFastForwardingTime())
+                            if (Main.fastForwardTimeToDawn)
                             {
                                 Main.fastForwardTimeToDawn = false;
                                 TSPlayer.All.SendData(PacketTypes.WorldInfo);
@@ -313,7 +313,7 @@ namespace WorldModify
                     switch (args.Parameters[1].ToLowerInvariant())
                     {
                         case "on":
-                            if (!Main.IsFastForwardingTime())
+                            if (!Main.fastForwardTimeToDusk)
                             {
                                 Main.fastForwardTimeToDusk = true;
                                 TSPlayer.All.SendData(PacketTypes.WorldInfo);
@@ -325,7 +325,7 @@ namespace WorldModify
                             }
                             break;
                         case "off":
-                            if (Main.IsFastForwardingTime())
+                            if (Main.fastForwardTimeToDusk)
                             {
                                 Main.fastForwardTimeToDusk = false;
                                 TSPlayer.All.SendData(PacketTypes.WorldInfo);
@@ -416,7 +416,7 @@ namespace WorldModify
                 case "drunk":
                     Main.drunkWorld = !Main.drunkWorld;
                     TSPlayer.All.SendData(PacketTypes.WorldInfo);
-                    op.SendSuccessMessage($"{utils.BFlag(Main.drunkWorld)} 05162020 秘密世界（醉酒世界 / DrunkWorld）");
+                    op.SendSuccessMessage($"{Utils.BFlag(Main.drunkWorld)} 05162020 秘密世界（醉酒世界 / DrunkWorld）");
                     break;
 
 
@@ -430,7 +430,7 @@ namespace WorldModify
                 case "celebrationmk10":
                     Main.tenthAnniversaryWorld = !Main.tenthAnniversaryWorld;
                     TSPlayer.All.SendData(PacketTypes.WorldInfo);
-                    op.SendSuccessMessage($"{utils.BFlag(Main.tenthAnniversaryWorld)} 10周年庆典 秘密世界（05162021）");
+                    op.SendSuccessMessage($"{Utils.BFlag(Main.tenthAnniversaryWorld)} 10周年庆典 秘密世界（05162021）");
                     break;
 
                 // ftw（for the worthy）
@@ -438,14 +438,14 @@ namespace WorldModify
                 case "for the worthy":
                     Main.getGoodWorld = !Main.getGoodWorld;
                     TSPlayer.All.SendData(PacketTypes.WorldInfo);
-                    op.SendSuccessMessage($"{utils.BFlag(Main.getGoodWorld)} for the worthy 秘密世界");
+                    op.SendSuccessMessage($"{Utils.BFlag(Main.getGoodWorld)} for the worthy 秘密世界");
                     break;
 
                 // not the bees
                 case "ntb":
                     Main.notTheBeesWorld = !Main.notTheBeesWorld;
                     TSPlayer.All.SendData(PacketTypes.WorldInfo);
-                    op.SendSuccessMessage($"{utils.BFlag(Main.notTheBeesWorld)} not the bees 秘密世界");
+                    op.SendSuccessMessage($"{Utils.BFlag(Main.notTheBeesWorld)} not the bees 秘密世界");
                     break;
 
                 //  饥荒联动
@@ -454,7 +454,7 @@ namespace WorldModify
                 case "constant":
                     Main.dontStarveWorld = !Main.dontStarveWorld;
                     TSPlayer.All.SendData(PacketTypes.WorldInfo);
-                    op.SendSuccessMessage($"{utils.BFlag(Main.dontStarveWorld)} 永恒领域 秘密世界（饥荒联动）");
+                    op.SendSuccessMessage($"{Utils.BFlag(Main.dontStarveWorld)} 永恒领域 秘密世界（饥荒联动）");
                     break;
 
 
@@ -462,7 +462,7 @@ namespace WorldModify
                 case "remix":
                     Main.remixWorld = !Main.remixWorld;
                     TSPlayer.All.SendData(PacketTypes.WorldInfo);
-                    op.SendSuccessMessage($"{utils.BFlag(Main.remixWorld)} Remix 秘密世界（don't dig up）");
+                    op.SendSuccessMessage($"{Utils.BFlag(Main.remixWorld)} Remix 秘密世界（don't dig up）");
                     break;
 
                 //  noTraps 种子
@@ -470,7 +470,7 @@ namespace WorldModify
                 case "no traps":
                     Main.noTrapsWorld = !Main.noTrapsWorld;
                     TSPlayer.All.SendData(PacketTypes.WorldInfo);
-                    op.SendSuccessMessage($"{utils.BFlag(Main.noTrapsWorld)} No Traps 秘密世界");
+                    op.SendSuccessMessage($"{Utils.BFlag(Main.noTrapsWorld)} No Traps 秘密世界");
                     break;
 
                 //  天顶种子
@@ -479,7 +479,7 @@ namespace WorldModify
                 case "everything":
                     Main.zenithWorld = !Main.zenithWorld;
                     TSPlayer.All.SendData(PacketTypes.WorldInfo);
-                    op.SendSuccessMessage($"{utils.BFlag(Main.zenithWorld)} 天顶 秘密世界（getfixedboi）");
+                    op.SendSuccessMessage($"{Utils.BFlag(Main.zenithWorld)} 天顶 秘密世界（getfixedboi）");
                     break;
                 #endregion
 
@@ -522,6 +522,19 @@ namespace WorldModify
                     //ShowAll(op);
                     break;
 
+                // 生成参考文档
+                case "docs":
+                case "refer":
+                case "dump":
+                    DocsHelper.DumpDatas(op);
+                    break;
+
+                // 解析并导出xml数据
+                case "xml":
+                    ResHelper.DumpXML();
+                    break;
+
+
                 // 测试 debug用
                 case "debug":
                     TShock.Config.Settings.DebugLogs = !TShock.Config.Settings.DebugLogs;
@@ -547,7 +560,7 @@ namespace WorldModify
         {
             TSPlayer op = args.Player;
 
-            List<string> lines = new List<string> {
+            List<string> lines = new() {
                 $"名称：{Main.worldName}",
                 $"大小：{GetWorldSize()}",
                 $"难度：{_worldModes.Keys.ElementAt(Main.GameMode)}",
@@ -566,10 +579,13 @@ namespace WorldModify
                 lines.Add(text);
             lines.Add(GetCorruptionDescription(isSuperAdmin));
 
-            lines.Add($"增强：" +
-                $"{utils.CFlag(NPC.combatBookWasUsed, "[i:4382]先进战斗技术")}, " +
-                $"{utils.CFlag(NPC.combatBookVolumeTwoWasUsed, "[i:5336]先进战斗技术：卷二")}, " +
-                $"{utils.CFlag(NPC.peddlersSatchelWasUsed, "[i:5343]商贩背包")}");
+
+            HashSet<string> texts = new();
+            if (NPC.combatBookWasUsed) texts.Add("[i:4382]");
+            if (NPC.combatBookVolumeTwoWasUsed) texts.Add("[i:5336]");
+            if (NPC.peddlersSatchelWasUsed) texts.Add("[i:5343]");
+            if (texts.Any())
+                lines.Add($"增强：{string.Join(",", texts)}");
 
             // 时间
             //if (isSuperAdmin)
@@ -582,22 +598,30 @@ namespace WorldModify
             //    lines.Add(string.Format("时间：{0}:{1:D2}", (int)Math.Floor(time), (int)Math.Floor((time % 1.0) * 60.0)));
             //}
 
-            // 附魔日晷
-            text = GetSundial();
-            if (!string.IsNullOrEmpty(text))
-                lines.Add(GetSundial());
+            // 附魔日晷 / 月晷
+            texts.Clear();
+            if (Main.fastForwardTimeToDawn) texts.Add("日晷生效中");
+            if (Main.sundialCooldown > 0) texts.Add($"日晷冷却：{Main.sundialCooldown}天");
+            if (Main.fastForwardTimeToDusk) texts.Add("月晷生效中");
+            if (Main.moondialCooldown > 0) texts.Add($"月晷冷却：{Main.moondialCooldown}天");
+            if (texts.Any())
+                lines.Add($"时间：{string.Join(", ", texts)}");
 
             if (isSuperAdmin)
             {
-                lines.Add($"月相：{MoonHelper.MoonPhaseDesc}（{MoonHelper.MoonTypeDesc}）");
+                texts.Clear();
+                texts.Add(MoonHelper.MoonPhaseDesc);
+                texts.Add(MoonHelper.MoonTypeDesc);
+                if (Main.bloodMoon) texts.Add("血月");
+                if (Main.eclipse) texts.Add("日食");
+                lines.Add($"月相：{string.Join(", ", texts)}");
 
-
-                List<string> texts = new List<string>();
-                if (Main.raining) texts.Add("[i:1601]雨天");
-                if (Main.IsItStorming) texts.Add("[i:4357]雷雨天");
-                if (Main.IsItAHappyWindyDay) texts.Add("[i:4082]大风天");
-                if (Sandstorm.Happening) texts.Add("[i:3796]沙尘暴");
-                lines.Add($"天气：[i:399]{Main.numClouds}  [i:4074]{Main.windSpeedCurrent}  {string.Join("  ", texts)}");
+                texts.Clear();
+                if (Main.raining) texts.Add("雨天");
+                if (Main.IsItStorming) texts.Add("雷雨天");
+                if (Main.IsItAHappyWindyDay) texts.Add("大风天");
+                if (Sandstorm.Happening) texts.Add("沙尘暴");
+                lines.Add($"天气：云量：{Main.numClouds}  风力：{Main.windSpeedCurrent}  {string.Join("  ", texts)}");
 
                 string percent;
                 if (TShock.ServerSideCharacterConfig.Settings.Enabled && Main.GameMode == 3)
@@ -612,8 +636,6 @@ namespace WorldModify
                 percent = Terraria.Utils.PrettifyPercentDisplay(result.CompletionPercent, "P2");
                 lines.Add($"图鉴：{percent}（{result.CompletionAmountTotal}/{result.EntriesTotal}）");
 
-                lines.Add($"杂项1：表层深度={Main.worldSurface}  洞穴深度={Main.rockLayer}  出生点={Main.spawnTileX},{Main.spawnTileY}  地牢点={Main.dungeonX},{Main.dungeonY}");
-
                 if (DD2Event.DownedInvasionT1)
                     text = "已通过 T1难度";
                 else if (DD2Event.DownedInvasionT2)
@@ -625,12 +647,10 @@ namespace WorldModify
                 if (!string.IsNullOrEmpty(text))
                     lines.Add($"撒旦军队：{text}");
 
-                // 日食、血月
                 // 哥布林军队、海盗入侵
                 // 撒旦军队
                 // 派对、雨、沙尘暴
                 // 史莱姆雨
-                // 大风天
                 // 南瓜月、雪人军团、霜月、火星暴乱
                 // 月亮事件
                 string textSize = $"（已清理{Main.invasionProgress}%波）（规模：{Main.invasionSize} ）";
@@ -656,40 +676,38 @@ namespace WorldModify
                         text = "";
                 }
                 if (!string.IsNullOrEmpty(text))
-                    lines.Add($"入侵：{string.Join(", ", text)}");
-
+                    lines.Add($"入侵：{text}");
 
                 // 杂项
                 texts.Clear();
-                if (BirthdayParty._wasCelebrating) texts.Add("[i:3747]派对");
-                if (LanternNight.LanternsUp) texts.Add("[i:4702]灯笼夜");
-                if (Star.starfallBoost > 3f) texts.Add("[i:75]流星雨");
-                if (Main.bloodMoon) texts.Add("[i:4271]血月");
-                if (Main.eclipse) texts.Add("[i:1609]日食");
-                if (Main.slimeRain) texts.Add("[i:4078]史莱姆雨");
-                if (texts.Count > 0)
+                if (BirthdayParty._wasCelebrating) texts.Add("派对");
+                if (LanternNight.LanternsUp) texts.Add("灯笼夜");
+                if (Star.starfallBoost > 3f) texts.Add("流星雨");
+                if (Main.slimeRain) texts.Add("史莱姆雨");
+                if (WorldGen.spawnMeteor) texts.Add("陨石");
+                if (texts.Any())
                     lines.Add($"事件：{string.Join(", ", texts)}");
 
                 texts.Clear();
-                if (WorldGen.spawnMeteor) texts.Add("陨石");
                 if (Main.xMas) texts.Add("圣诞节");
                 if (Main.halloween) texts.Add("万圣节");
-                if (texts.Count > 0)
-                    lines.Add($"杂项2：{string.Join(", ", texts)}");
+                if (texts.Any())
+                    lines.Add($"节日：{string.Join(", ", texts)}");
+
+                texts.Clear();
+                texts.Add($"表层深度：{Main.worldSurface}, 洞穴深度：{Main.rockLayer}, 出生点：{Main.spawnTileX},{Main.spawnTileY}, 地牢点：{Main.dungeonX},{Main.dungeonY}");
+                if (TShock.Config.Settings.RequireLogin) texts.Add("已开启需要登录");
+                if (TShock.ServerSideCharacterConfig.Settings.Enabled) texts.Add("已开启SSC");
+                lines.Add($"杂项：{string.Join(", ", texts)}");
             }
             op.SendInfoMessage(string.Join("\n", lines));
         }
-        private string GetWorldSize()
+        private static string GetWorldSize()
         {
-            bool b1 = Main.maxTilesX == 8400 && Main.maxTilesY == 2400;
-            bool b2 = Main.maxTilesX == 6400 && Main.maxTilesY == 1800;
-            bool b3 = Main.maxTilesX == 4200 && Main.maxTilesY == 1200;
-            string text = $"{utils.CFlag(b1, "小（4200x1200）")}, " +
-                $"{utils.CFlag(b2, "中（6400x1800）")}, " +
-                $"{utils.CFlag(b3, "大（8400x2400）")}";
-            if (!b1 && !b2 && !b3)
-                text += $", {utils.CFlag(false, "未知")}";
-            return text;
+            if (Main.maxTilesX == 8400 && Main.maxTilesY == 2400) return "小（4200x1200）";
+            else if (Main.maxTilesX == 6400 && Main.maxTilesY == 1800) return "中（6400x1800）";
+            else if (Main.maxTilesX == 4200 && Main.maxTilesY == 1200) return "大（8400x2400）";
+            else return "未知";
         }
         #endregion
 

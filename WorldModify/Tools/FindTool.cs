@@ -90,7 +90,7 @@ namespace WorldModify
             }
             Point16 p = found[0];
             op.SendInfoMessage($"{opName} 查找结果（{found.Count}）:" +
-                $"\n位于：{utils.PointToLocationDesc(p.X, p.Y)}（/tppos {p.X} {p.Y}）" +
+                $"\n位于：{Utils.PointToLocationDesc(p.X, p.Y)}（/tppos {p.X} {p.Y}）" +
                 $"\n所有坐标：{string.Join(", ", found.GetRange(0, Math.Min(20, found.Count)))}");
         }
 
