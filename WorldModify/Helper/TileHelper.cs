@@ -1,7 +1,5 @@
-﻿using Microsoft.Xna.Framework;
-using Terraria;
+﻿using Terraria;
 using Terraria.Map;
-using Terraria.ObjectData;
 using TShockAPI;
 
 namespace WorldModify

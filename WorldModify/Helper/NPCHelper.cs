@@ -42,7 +42,7 @@ namespace WorldModify
                 case "sm":
                 case "spawn":
                 case "spawnmob":
-                    List<string> newStrs = new List<string>();
+                    List<string> newStrs = new();
                     int count = 0;
                     foreach (int id in NPCIDHelper.smIDs)
                     {
@@ -91,8 +91,8 @@ namespace WorldModify
 
             int npcTotal = 0;
             int townTotal = 0;
-            List<int> npcIds = new List<int>();
-            List<string> npcNames = new List<string>();
+            List<int> npcIds = new();
+            List<string> npcNames = new();
             for (int i = 0; i < Main.maxNPCs; i++)
             {
                 if (!Main.npc[i].active)
@@ -111,11 +111,11 @@ namespace WorldModify
                 }
             }
 
-            List<string> li1 = new List<string>();
-            List<string> li2 = new List<string>();
-            List<string> li3 = new List<string>();
-            List<string> li4 = new List<string>();
-            List<string> li5 = new List<string>();
+            List<string> li1 = new();
+            List<string> li2 = new();
+            List<string> li3 = new();
+            List<string> li4 = new();
+            List<string> li5 = new();
 
             int[] ids = new int[] {
                 22, // 向导
@@ -193,7 +193,7 @@ namespace WorldModify
                 li5.Add(Utils.CFlag(npcIds.Contains(id), NPCIDHelper.GetNameByID(id)));
             }
 
-            List<string> texts = new List<string>()
+            List<string> texts = new()
             {
                 $"共{npcTotal}个NPC（含敌怪）, {townTotal}个城镇NPC。",
                 $"肉前：{string.Join(", ", li1)}",
@@ -346,7 +346,7 @@ namespace WorldModify
             {
                 case "list":
                     int[] li = new[] { 369, 107, 124, 353, 550, 588, 108, 441, 637, 638, 656, 670, 678, 679, 680, 681, 682, 683, 684 };
-                    List<string> texts = new List<string>();
+                    List<string> texts = new();
                     int count = 0;
                     foreach (int id in li)
                     {
@@ -614,7 +614,7 @@ namespace WorldModify
         private static void UniqueNPC(CommandArgs args)
         {
             // List<int> ids = new List<int>() {22,33};
-            List<int> founds = new List<int>();
+            List<int> founds = new();
             int cleared = 0;
             for (int i = 0; i < Main.maxNPCs; i++)
             {
@@ -661,10 +661,10 @@ namespace WorldModify
             }
 
             // 生成npc
-            List<string> names = new List<string>();
+            List<string> names = new();
             foreach (int npcID in found)
             {
-                NPC npc = new NPC();
+                NPC npc = new();
                 npc.SetDefaults(npcID);
                 TSPlayer.Server.SpawnNPC(npc.type, npc.FullName, 1, op.TileX, op.TileY, 5, 2);
 
@@ -701,7 +701,7 @@ namespace WorldModify
             List<int> found = new();
 
             // 怪物图鉴解锁情况
-            List<int> remains = new List<int>() {
+            List<int> remains = new() {
                 17, // 商人
                 18, // 护士
                 19, // 军火商

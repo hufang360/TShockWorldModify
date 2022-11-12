@@ -53,7 +53,8 @@ namespace WorldModify
             if (!PaginationTools.TryParsePageNumber(args.Parameters, 1, op, out int pageNumber))
                 return;
 
-            List<string> lines = new List<string> {
+            List<string> lines = new()
+            {
                 "史莱姆王, {0}ks, {0}\"king slime\", {0}king",
                 "克苏鲁之眼, {0}eoc, {0}\"eye of cthulhu\", {0}eye（时间会调到晚上）",
                 "克苏鲁之脑, {0}boc, {0}\"brain of cthulhu\", {0}brain（不在 猩红之地 会脱战）",
@@ -517,10 +518,10 @@ namespace WorldModify
 
         private static List<string> ShowBossInfo(bool isSuperAdmin = false)
         {
-            List<string> li = new List<string>();
-            List<string> li1 = new List<string>();
-            List<string> li2 = new List<string>();
-            List<string> li3 = new List<string>();
+            List<string> li = new();
+            List<string> li1 = new();
+            List<string> li2 = new();
+            List<string> li3 = new();
 
             li1.Add(Utils.CFlag(NPC.downedSlimeKing, "史莱姆王"));
             li1.Add(Utils.CFlag(NPC.downedBoss1, "克苏鲁之眼"));

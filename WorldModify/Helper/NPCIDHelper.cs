@@ -6,7 +6,7 @@ namespace WorldModify
 {
     class NPCIDHelper
     {
-        static Dictionary<int, string> _dics = new Dictionary<int, string>() {
+        static Dictionary<int, string> _dics = new() {
             {17, "商人"},
             {18, "护士"},
             {19, "军火商"},

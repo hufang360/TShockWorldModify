@@ -10,9 +10,12 @@ using TShockAPI;
 
 namespace WorldModify
 {
+    /// <summary>
+    /// 生成文档辅助
+    /// </summary>
     public class DocsHelper
     {
-        public static void DumpDatas(TSPlayer op)
+        public static void GenDocs(TSPlayer op)
         {
             // https://terraria.wiki.gg/zh/wiki/Category:Data_IDs
             // https://terraria.wiki.gg/zh/wiki/Item_IDs
@@ -28,19 +31,19 @@ namespace WorldModify
                 needRecover = false;
             }
 
-            List<string> paths = new List<string>() {
-                Utils.CombinePath("[wm]ItemList.txt"),
-                Utils.CombinePath("[wm]NPCList.txt"),
-                Utils.CombinePath("[wm]BuffList.txt"),
-                Utils.CombinePath("[wm]PrefixList.txt"),
-                Utils.CombinePath("[wm]ProjectileList.txt"),
-                Utils.CombinePath("[wm]WallList.txt"),
+            List<string> paths = new() {
+                Utils.CombinePath("[wm]物品清单.txt"),
+                Utils.CombinePath("[wm]修饰语清单.txt"),
+                Utils.CombinePath("[wm]NPC清单.txt"),
+                Utils.CombinePath("[wm]Buff清单.txt"),
+                Utils.CombinePath("[wm]射弹清单.txt"),
+                Utils.CombinePath("[wm]墙清单.txt"),
             };
 
             DumpItems(paths[0]);
-            DumpNPCs(paths[1]);
-            DumpBuffs(paths[2]);
-            DumpPrefixes(paths[3]);
+            DumpPrefixes(paths[1]);
+            DumpNPCs(paths[2]);
+            DumpBuffs(paths[3]);
             DumpProjectiles(paths[4]);
             DumpWalls(paths[5]);
 
@@ -49,19 +52,19 @@ namespace WorldModify
             if (needRecover)
                 LanguageManager.Instance.SetLanguage(culture);
         }
-        
+
         /// <summary>
         /// 转储 物品 数据
         /// </summary>
         private static void DumpItems(string path)
         {
-            Regex newLine = new Regex(@"\n");
-            StringBuilder buffer = new StringBuilder();
+            Regex newLine = new(@"\n");
+            StringBuilder buffer = new();
             buffer.AppendLine("id,名称,描述");
 
-            for (int i = 1; i < Main.maxItemTypes; i++)
+            for (int i = 1; i < ItemID.Count; i++)
             {
-                Item item = new Item();
+                Item item = new();
                 item.SetDefaults(i);
 
                 string tt = "";
@@ -75,18 +78,18 @@ namespace WorldModify
 
             File.WriteAllText(path, buffer.ToString());
         }
-        
+
         /// <summary>
         /// 转储 NPC 数据
         /// </summary>
         private static void DumpNPCs(string path)
         {
-            StringBuilder buffer = new StringBuilder();
+            StringBuilder buffer = new();
             buffer.AppendLine("id,名称");
 
-            for (int i = -65; i < Main.maxNPCTypes; i++)
+            for (int i = -65; i < NPCID.Count; i++)
             {
-                NPC npc = new NPC();
+                NPC npc = new();
                 npc.SetDefaults(i);
                 if (!string.IsNullOrEmpty(npc.FullName))
                 {
@@ -96,16 +99,16 @@ namespace WorldModify
 
             File.WriteAllText(path, buffer.ToString());
         }
-        
+
         /// <summary>
         /// 转储 buff 数据
         /// </summary>
         private static void DumpBuffs(string path)
         {
-            StringBuilder buffer = new StringBuilder();
+            StringBuilder buffer = new();
             buffer.AppendLine("id,名称,描述");
 
-            for (int i = 0; i < Main.maxBuffTypes; i++)
+            for (int i = 0; i < BuffID.Count; i++)
             {
                 if (!string.IsNullOrEmpty(Lang.GetBuffName(i)))
                 {
@@ -115,13 +118,13 @@ namespace WorldModify
 
             File.WriteAllText(path, buffer.ToString());
         }
-        
+
         /// <summary>
         /// 转储 词缀 数据
         /// </summary>
         private static void DumpPrefixes(string path)
         {
-            StringBuilder buffer = new StringBuilder();
+            StringBuilder buffer = new();
             buffer.AppendLine("id,名称");
             for (int i = 0; i < PrefixID.Count; i++)
             {
@@ -135,18 +138,18 @@ namespace WorldModify
 
             File.WriteAllText(path, buffer.ToString());
         }
-        
+
         /// <summary>
         /// 转储 射弹 数据
         /// </summary>
         private static void DumpProjectiles(string path)
         {
-            StringBuilder buffer = new StringBuilder();
+            StringBuilder buffer = new();
             buffer.AppendLine("id,射弹名称");
 
-            for (int i = 0; i < Main.maxProjectileTypes; i++)
+            for (int i = 0; i < ProjectileID.Count; i++)
             {
-                Projectile projectile = new Projectile();
+                Projectile projectile = new();
                 projectile.SetDefaults(i);
                 if (!string.IsNullOrEmpty(projectile.Name))
                 {
@@ -158,20 +161,21 @@ namespace WorldModify
         }
 
         /// <summary>
-        /// 转储 墙体 数据
+        /// 转储 墙 数据
         /// </summary>
         private static void DumpWalls(string path)
         {
-            StringBuilder text = new();
-            text.AppendLine("参考：https://terraria.wiki.gg/zh/wiki/Wall_IDs");
-            text.AppendLine("id,墙体名称,颜色");
+            StringBuilder buffer = new();
+            buffer.AppendLine("备注：本表的名称参照了wiki。");
+            buffer.AppendLine("参考：https://terraria.wiki.gg/zh/wiki/Wall_IDs");
+            buffer.AppendLine("id,墙体名称,颜色");
 
             ResHelper.LoadWall();
             foreach (var obj in ResHelper.Walls)
             {
-                text.AppendLine(obj.ToString());
+                buffer.AppendLine(obj.Value.ToString());
             }
-            File.WriteAllText(path, text.ToString());
+            File.WriteAllText(path, buffer.ToString());
         }
     }
 }

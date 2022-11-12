@@ -14,7 +14,7 @@ namespace WorldModify
 
         public static void Backup(TSPlayer op, string notes = "")
         {
-            Thread t = new Thread(() =>
+            Thread t = new(() =>
             {
                 DoBackup(op, notes);
             })

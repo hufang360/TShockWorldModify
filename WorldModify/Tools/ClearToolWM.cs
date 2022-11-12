@@ -113,7 +113,7 @@ namespace WorldModify
             int tileID = 85;
             ITile tile = Main.tile[x, y];
             if (!tile.active() || tile.type != tileID) return false;
-            FindData fd = new FindData(tileID, -1, 2, 2);
+            FindInfo fd = new(tileID, -1, 2, 2);
             if (FindTool.GetItem(x, y, fd))
             {
                 TileHelper.ClearTile(x, y, fd.w, fd.h);
@@ -126,7 +126,7 @@ namespace WorldModify
             int tileID = 88;
             ITile tile = Main.tile[x, y];
             if (!tile.active() || tile.type != tileID) return false;
-            FindData fd = new FindData(tileID, -1, 3, 2);
+            FindInfo fd = new(tileID, -1, 3, 2);
             if (FindTool.GetItem(x, y, fd))
             {
                 TileHelper.ClearTile(x, y, fd.w, fd.h);

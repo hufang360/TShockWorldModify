@@ -198,7 +198,7 @@ namespace WorldModify
                     );
                 var creator = new SqlTableCreator(db,
                     db.GetSqlType() == SqlType.Sqlite
-                        ? (IQueryBuilder)new SqliteQueryCreator()
+                        ? new SqliteQueryCreator()
                         : new MysqlQueryCreator());
                 try
                 {

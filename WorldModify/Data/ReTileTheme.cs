@@ -2,7 +2,7 @@
 
 namespace WorldModify
 {
-    class ReplacePlan
+    class ReTileTheme
     {
         public static List<ReTileInfo> GetDesert()
         {

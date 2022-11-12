@@ -324,7 +324,7 @@ namespace WorldModify
         /// </summary>
         public static void Hole(TSPlayer op)
         {
-            Rectangle rect = new Rectangle(op.TileX, op.TileY - 2, 2, 3);
+            Rectangle rect = new(op.TileX, op.TileY - 2, 2, 3);
             for (int x = rect.X; x < rect.Right; x++)
             {
                 for (int y = rect.Y; y < rect.Bottom; y++)

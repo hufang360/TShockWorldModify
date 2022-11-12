@@ -106,6 +106,7 @@ namespace WorldModify
 
                 // 墙
                 case "wall":
+                case "w":
                 case "墙":
                     if (args.Parameters.Count > 1)
                     {

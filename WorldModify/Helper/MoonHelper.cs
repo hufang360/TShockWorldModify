@@ -9,7 +9,7 @@ namespace WorldModify
 {
     public class MoonHelper
     {
-        static Dictionary<string, int> _moonPhases = new Dictionary<string, int>
+        static Dictionary<string, int> _moonPhases = new()
         {
             { "满月", 1 },
             { "亏凸月", 2 },
@@ -22,7 +22,7 @@ namespace WorldModify
         };
 
         // https://terraria.fandom.com/wiki/Moon_phase
-        static Dictionary<string, int> _moonTypes = new Dictionary<string, int>
+        static Dictionary<string, int> _moonTypes = new()
         {
             { "正常", 1 },
             { "火星样式", 2 },

@@ -32,7 +32,7 @@ namespace WorldModify
             {
                 if (int.TryParse(keyw, out int tileId))
                 {
-                    FindData fd = new FindData(tileId);
+                    FindInfo fd = new(tileId);
                     ListedExtra(op, keyw, fd);
                 }
                 else
@@ -42,32 +42,32 @@ namespace WorldModify
             }
         }
 
-        static readonly Dictionary<string, FindData> FindList = new()
+        static readonly Dictionary<string, FindInfo> FindList = new()
         {
-            {"附魔剑", new FindData(187,5, 3,2, 918) },
-            {"花苞", new FindData(238,-1, 2,2) },
+            {"附魔剑", new FindInfo(187,5, 3,2, 918) },
+            {"花苞", new FindInfo(238,-1, 2,2) },
 
-            {"暗影珠", new FindData(31,0, 2,2, 0) },
-            {"猩红之心", new FindData(31,1, 2,2, 36) },
+            {"暗影珠", new FindInfo(31,0, 2,2, 0) },
+            {"猩红之心", new FindInfo(31,1, 2,2, 36) },
 
-            {"生命水晶", new FindData(12,-1, 2,2) },
-            {"生命果", new FindData(236,-1, 2,2) },
+            {"生命水晶", new FindInfo(12,-1, 2,2) },
+            {"生命果", new FindInfo(236,-1, 2,2) },
 
-            {"幼虫", new FindData(231,-1, 3,3) },
-            {"丛林蜥蜴祭坛", new FindData(237,-1, 3,2) },
+            {"幼虫", new FindInfo(231,-1, 3,3) },
+            {"丛林蜥蜴祭坛", new FindInfo(237,-1, 3,2) },
 
-            {"地狱熔炉", new FindData(77,-1, 3,2) },
-            {"提炼机", new FindData(219,-1, 3,3) },
-            {"织布机", new FindData(86,-1, 3,2) },
+            {"地狱熔炉", new FindInfo(77,-1, 3,2) },
+            {"提炼机", new FindInfo(219,-1, 3,3) },
+            {"织布机", new FindInfo(86,-1, 3,2) },
 
-            {"恶魔祭坛", new FindData(26,0, 3,2) },
-            {"猩红祭坛", new FindData(26,1, 3,2) },
-            {"墓碑", new FindData(85,-1, 2,2) },
-            {"梳妆台", new FindData(88,-1, 3,2) },
-            {"最脏的块", new FindData(668,-1, 1,1) }
+            {"恶魔祭坛", new FindInfo(26,0, 3,2) },
+            {"猩红祭坛", new FindInfo(26,1, 3,2) },
+            {"墓碑", new FindInfo(85,-1, 2,2) },
+            {"梳妆台", new FindInfo(88,-1, 3,2) },
+            {"最脏的块", new FindInfo(668,-1, 1,1) }
         };
 
-        static void ListedExtra(TSPlayer op, string opName, FindData fd)
+        static void ListedExtra(TSPlayer op, string opName, FindInfo fd)
         {
             ResetSkip();
             List<Point16> found = new();
@@ -94,7 +94,7 @@ namespace WorldModify
                 $"\n所有坐标：{string.Join(", ", found.GetRange(0, Math.Min(20, found.Count)))}");
         }
 
-        public static bool GetItem(int tileX, int tileY, FindData fd)
+        public static bool GetItem(int tileX, int tileY, FindInfo fd)
         {
             ITile tile = Main.tile[tileX, tileY];
             int frameX = tile.frameX;
@@ -128,7 +128,7 @@ namespace WorldModify
             if (flag && flag2 && check(fd.w, fd.h)) return true;
             return false;
         }
-        private static List<Rectangle> skip = new List<Rectangle>();
+        private static List<Rectangle> skip = new();
         public static void ResetSkip() { skip.Clear(); }
         private static bool ContainsSkip(int x, int y)
         {

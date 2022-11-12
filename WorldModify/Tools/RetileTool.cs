@@ -28,7 +28,7 @@ namespace WorldModify
 
     class RetileConfig
     {
-        public List<ReTileInfo> replace = new List<ReTileInfo>();
+        public List<ReTileInfo> replace = new();
 
         public static RetileConfig Load(string path)
         {

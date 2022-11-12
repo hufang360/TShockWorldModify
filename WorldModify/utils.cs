@@ -82,7 +82,7 @@ namespace WorldModify
         {
             int sw = 122;
             int sh = 68;
-            Rectangle area = new Rectangle(Main.spawnTileX - sw / 2, Main.spawnTileY - sh / 2, sw, sh);
+            Rectangle area = new(Main.spawnTileX - sw / 2, Main.spawnTileY - sh / 2, sw, sh);
             return area.Contains(x, y);
         }
 
@@ -171,7 +171,7 @@ namespace WorldModify
         /// <returns></returns>
         public static bool StringToGuid(string str)
         {
-            Guid gv = new Guid();
+            Guid gv = new();
             try
             {
                 gv = new Guid(str);
@@ -342,7 +342,7 @@ namespace WorldModify
         private static int? GetTokenValue(JObject o, string tokenName)
         {
             JToken t;
-            return o.TryGetValue(tokenName, StringComparison.InvariantCultureIgnoreCase, out t) ? (int)t : (int?)null;
+            return o.TryGetValue(tokenName, StringComparison.InvariantCultureIgnoreCase, out t) ? (int)t : null;
         }
     }
     #endregion

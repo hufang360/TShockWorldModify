@@ -121,7 +121,7 @@ namespace WorldModify
                     tpd.TempPoints[0] = Point.Zero;
                     tpd.TempPoints[1] = Point.Zero;
 
-                    Rectangle rect = new Rectangle(x, y, width + 1, height + 1);
+                    Rectangle rect = new(x, y, width + 1, height + 1);
                     tpd.rect = rect;
                     op.SendSuccessMessage($"已将选区设置为 x={rect.X} y={rect.Y} 宽={rect.Width} 高={rect.Height}（仅本次开服有效）");
                 }
@@ -150,7 +150,7 @@ namespace WorldModify
         public int AwaitingTempPoint { get; set; }
 
         public Point[] TempPoints = new Point[2];
-        public Rectangle rect = new Rectangle();
+        public Rectangle rect = new();
     }
     #endregion
 }

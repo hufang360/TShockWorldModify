@@ -122,7 +122,7 @@ namespace WorldModify
             if (type != Type.None)
             {
                 Rectangle rect = SelectionTool.GetSelection(op.Index);
-                if (rect.Width * rect.Height > 122*68)
+                if (rect.Width * rect.Height > 122 * 68)
                 {
                     op.SendInfoMessage("此操作容易造成服务器卡顿，请将选区设置在一屏内！");
                     return;
@@ -236,7 +236,7 @@ namespace WorldModify
         /// </summary>
         public static void Hole(TSPlayer op)
         {
-            Rectangle rect = new Rectangle(op.TileX, op.TileY - 2, 2, 3);
+            Rectangle rect = new(op.TileX, op.TileY - 2, 2, 3);
             for (int x = rect.X; x < rect.Right; x++)
             {
                 for (int y = rect.Y; y < rect.Bottom; y++)

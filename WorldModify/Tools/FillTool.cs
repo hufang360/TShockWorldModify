@@ -140,11 +140,11 @@ namespace WorldModify
                 default:
                     if (int.TryParse(kw, out id))
                     {
-                        if (!IDSet.matchBlockID.Contains(id))
-                        {
-                            op.SendErrorMessage("输入的图格ID无效！目前仅支持填充一些方块");
-                            return;
-                        }
+                        //if (!IDSet.matchBlockID.Contains(id))
+                        //{
+                        //    op.SendErrorMessage("输入的图格ID无效！目前仅支持填充一些方块");
+                        //    return;
+                        //}
 
                         //TileObjectData tileData = TileObjectData.GetTileData(id, 0);
                         //utils.Log($"tileData:{tileData.Width}");
@@ -202,7 +202,7 @@ namespace WorldModify
                                     tile.wall = (ushort)id;
                                 }
                                 break;
-                            
+
                             // 液体
                             case Type.Water:
                             case Type.Honey:

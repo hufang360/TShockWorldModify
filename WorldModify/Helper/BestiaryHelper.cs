@@ -95,9 +95,9 @@ namespace WorldModify
         // 条目的NPCID参考：
         // Terraria.GameContent.Bestiary\BestiaryDatabaseNPCsPopulator.cs
         // AddTownNPCs_Manual();
-        static List<int> kills = new List<int>() { };
-        static List<int> sights = new List<int>() { };
-        static List<int> chats = new List<int>() { 369, 37, 22, 17, 20, 633, 368, 227, 38, 19, 207, 453, 229, 107, 18, 54, 550, 124, 637, 638, 228, 353, 441, 108, 160, 178, 656, 208, 588, 209, 663, 142, 678, 679, 680, 681, 682, 683, 684, 670 };
+        static List<int> kills = new() { };
+        static List<int> sights = new() { };
+        static List<int> chats = new() { 369, 37, 22, 17, 20, 633, 368, 227, 38, 19, 207, 453, 229, 107, 18, 54, 550, 124, 637, 638, 228, 353, 441, 108, 160, 178, 656, 208, 588, 209, 663, 142, 678, 679, 680, 681, 682, 683, 684, 670 };
 
         private static async void Unlock(TSPlayer op)
         {
@@ -215,7 +215,7 @@ namespace WorldModify
         // 备份现有的记录
         private static void Backup()
         {
-            StringBuilder str = new StringBuilder();
+            StringBuilder str = new();
             int id;
             foreach (var obj in Main.BestiaryTracker.Kills._killCountsByNpcId)
             {
@@ -341,8 +341,8 @@ namespace WorldModify
         }
         private static HashSet<int> GetExclusions()
         {
-            HashSet<int> hashSet = new HashSet<int>();
-            List<int> list = new List<int>();
+            HashSet<int> hashSet = new();
+            List<int> list = new();
             foreach (KeyValuePair<int, NPCID.Sets.NPCBestiaryDrawModifiers> item in NPCID.Sets.NPCBestiaryDrawOffset)
             {
                 if (item.Value.Hide)

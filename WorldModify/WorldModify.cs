@@ -63,7 +63,8 @@ namespace WorldModify
                 if (!PaginationTools.TryParsePageNumber(args.Parameters, 1, op, out int pageNumber))
                     return;
 
-                List<string> lines = new List<string> {
+                List<string> lines = new()
+                {
                     "/wm info，查看 世界信息",
                     "/wm name [世界名]，查看/修改 世界名字",
                     "/wm mode [难度]，查看/修改 世界难度",
@@ -516,23 +517,23 @@ namespace WorldModify
                     ClearToolWM.Manage(args);
                     break;
 
-                // 点亮全图
-                case "showall":
-                    op.SendInfoMessage("未实现！");
-                    //ShowAll(op);
-                    break;
+                //// 点亮全图
+                //case "showall":
+                //    op.SendInfoMessage("未实现！");
+                //    //ShowAll(op);
+                //    break;
 
                 // 生成参考文档
                 case "docs":
                 case "refer":
                 case "dump":
-                    DocsHelper.DumpDatas(op);
+                    DocsHelper.GenDocs(op);
                     break;
 
-                // 解析并导出xml数据
-                case "xml":
-                    ResHelper.DumpXML();
-                    break;
+                //// 解析并导出xml数据
+                //case "xml":
+                //    ResHelper.DumpXML();
+                //    break;
 
 
                 // 测试 debug用
@@ -544,7 +545,7 @@ namespace WorldModify
         }
 
         # region worldinfo
-        static readonly Dictionary<string, int> _worldModes = new Dictionary<string, int>
+        static readonly Dictionary<string, int> _worldModes = new()
         {
             { "经典", 1 },
             { "专家", 2 },
@@ -754,7 +755,7 @@ namespace WorldModify
         // 获取秘密世界种子状态描述
         private string GetSecretWorldDescription()
         {
-            List<string> ss = new List<string>();
+            List<string> ss = new();
 
             if (Main.getGoodWorld) ss.Add("for the worthy");
             if (Main.drunkWorld) ss.Add("05162020");

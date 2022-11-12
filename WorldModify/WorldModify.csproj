@@ -46,17 +46,11 @@
 
   <ItemGroup>
     <None Remove="res\retile.json" />
-    <None Remove="res\Tile.csv" />
-    <None Remove="res\TileFrame.csv" />
     <None Remove="res\Wall.csv" />
   </ItemGroup>
 
   <ItemGroup>
     <EmbeddedResource Include="res\retile.json" />
-    <EmbeddedResource Include="res\Tile.csv" />
-    <EmbeddedResource Include="res\TileFrame.csv">
-      <CustomToolNamespace></CustomToolNamespace>
-    </EmbeddedResource>
     <EmbeddedResource Include="res\Wall.csv">
       <CustomToolNamespace></CustomToolNamespace>
       <Generator></Generator>
@@ -69,7 +63,7 @@
 
   <ItemGroup>
     <Reference Include="ModFramework">
-      <HintPath>..\..\@lib\1.4.4.5\ModFramework.dll</HintPath>
+      <HintPath>..\..\@lib\1.4.4.8\ModFramework.dll</HintPath>
     </Reference>
     <Reference Include="MySql.Data">
       <HintPath>..\..\@lib\1.4.4.5\MySql.Data.dll</HintPath>
@@ -78,14 +72,20 @@
       <HintPath>..\..\@lib\1.4.4.5\Newtonsoft.Json.dll</HintPath>
     </Reference>
     <Reference Include="OTAPI">
-      <HintPath>..\..\@lib\1.4.4.5\OTAPI.dll</HintPath>
+      <HintPath>..\..\@lib\1.4.4.8\OTAPI.dll</HintPath>
     </Reference>
     <Reference Include="TerrariaServer">
-      <HintPath>..\..\@lib\1.4.4.5\TerrariaServer.dll</HintPath>
+      <HintPath>..\..\@lib\1.4.4.8\TerrariaServer.dll</HintPath>
     </Reference>
     <Reference Include="TShockAPI">
-      <HintPath>..\..\@lib\1.4.4.5\TShockAPI.dll</HintPath>
+      <HintPath>..\..\@lib\1.4.4.8\TShockAPI.dll</HintPath>
     </Reference>
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Update="res\TileFrame.csv">
+      <CustomToolNamespace></CustomToolNamespace>
+    </None>
   </ItemGroup>
 
 </Project>

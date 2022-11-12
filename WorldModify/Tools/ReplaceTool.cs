@@ -88,11 +88,11 @@ namespace WorldModify
                             return;
                         }
 
-                        if (!IDSet.matchBlockID.Contains(beforeID) || !IDSet.matchBlockID.Contains(afterID))
-                        {
-                            op.SendErrorMessage("不支持的方块id");
-                            return;
-                        }
+                        //if (!IDSet.matchBlockID.Contains(beforeID) || !IDSet.matchBlockID.Contains(afterID))
+                        //{
+                        //    op.SendErrorMessage("不支持的方块id");
+                        //    return;
+                        //}
 
                         type = Type.Replace;
                         plist = new string[] { beforeID.ToString(), afterID.ToString() };
@@ -161,7 +161,7 @@ namespace WorldModify
             }
             string opString = GetOpString();
 
-            List<ReTileInfo> replaceInfo = new List<ReTileInfo>();
+            List<ReTileInfo> replaceInfo = new();
             int beforeID = -1;
             int afterID = -1;
             switch (type)
@@ -171,7 +171,7 @@ namespace WorldModify
                     afterID = int.Parse(plist[1]);
                     break;
                 case Type.Config: replaceInfo = RetileTool.Con.replace; break;
-                case Type.Desert: replaceInfo = ReplacePlan.GetDesert(); break;
+                case Type.Desert: replaceInfo = ReTileTheme.GetDesert(); break;
             }
 
             return Task.Run(() =>

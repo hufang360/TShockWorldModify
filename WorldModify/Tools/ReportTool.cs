@@ -15,7 +15,7 @@ namespace WorldModify
         {
             args.Parameters.RemoveAt(0);
             TSPlayer op = args.Player;
-            StringBuilder Alllists = new StringBuilder();
+            StringBuilder Alllists = new();
             StringBuilder lists;
             if (args.Parameters.Count == 0)
             {
