@@ -13,7 +13,7 @@ namespace WorldModify
     {
         public static void Manage(TSPlayer op)
         {
-            string filename = Path.Combine(Utils.SaveDir, "1.png");
+            string filename = Path.Combine(Utils.WorkDir, "1.png");
             if (!File.Exists(filename))
             {
                 op.SendErrorMessage($"{filename} 文件不存在！");

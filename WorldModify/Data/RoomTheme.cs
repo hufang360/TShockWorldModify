@@ -71,6 +71,9 @@ namespace WorldModify
         public TileInfo bench = new(TileID.WorkBenches, 0);
         public TileInfo torch = new(TileID.Torches, 0);
 
+        /// <summary>
+        /// 玻璃主题
+        /// </summary>
         public void SetGlass()
         {
             tile = TileID.Glass;
@@ -81,6 +84,9 @@ namespace WorldModify
             torch.style = TorchID.White;
         }
 
+        /// <summary>
+        /// 灰砖主题
+        /// </summary>
         public void SetGray()
         {
             tile = TileID.GrayBrick;
@@ -88,23 +94,41 @@ namespace WorldModify
             platform.style = 43;
         }
 
+
+        /// <summary>
+        /// 石头主题
+        /// </summary>
+        public void SetStone()
+        {
+            tile = TileID.Stone;
+            wall = WallID.Stone;
+            platform.style = 43;
+        }
+
+        /// <summary>
+        /// 木材主题
+        /// </summary>
         public void SetWood()
         {
             tile = TileID.WoodBlock;
             wall = WallID.Wood;
         }
 
+        /// <summary>
+        /// 蜂蜜主题
+        /// </summary>
         public void SetHoney()
         {
-            // 蜂蜜主题
             tile = TileID.Hive;
             wall = WallID.Hive;
             platform.style = 24;
         }
 
+        /// <summary>
+        /// 黑曜石主题
+        /// </summary>
         public void SetObsidian()
         {
-            // 蜂蜜主题
             tile = TileID.ObsidianBrick;
             wall = WallID.ObsidianBrick;
             platform.style = 13;

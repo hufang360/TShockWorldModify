@@ -3,404 +3,472 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Terraria;
-using Terraria.ID;
 using TShockAPI;
+using WorldModify.Tools;
 
-namespace WorldModify
+namespace WorldModify;
+
+/// <summary>
+/// 替换工具
+/// </summary>
+class ReplaceTool
 {
-    /// <summary>
-    /// 替换工具
-    /// </summary>
-    class ReplaceTool
+    enum OPType
     {
-        enum Type
-        {
-            None,
-            Replace, // 替换
-            Random, // 随机方块
-            Config, // 按配置文件进行替换
+        None,
 
-            Block,   // 图格替换
-            Ice,    // 冰河化
-            Helt,   // 冰融化
-            Lava,    // 岩浆化
-            Truffle,  // 蘑菇化
-            Desert,  // 沙漠化
+        Block, // 替换
+        Wall, // 替换墙
+        Liquid, // 替换液体
+        Random, // 随机方块
+        Config, // 按配置文件进行替换
 
-            Purify, // 净化
-            Corruption, // 腐化
-            Crimson,   // 猩红化
-            Hallow,   // 神圣化
-        };
-        public static async void Manage(CommandArgs args)
+        Ice, Helt, Truffle, Desert,
+        Purify, Corruption, Crimson, Hallow,
+    };
+
+    static List<string> OPNames = new() {
+        "None",
+
+        "替换方块",
+        "替换墙",
+        "替换液体",
+        "随机图格",
+        "按配置替换",
+
+        "冰河化", "冰融化", "蘑菇化", "沙漠化",
+        "净化", "腐化", "猩红化", "神圣化",
+    };
+
+
+    public static void Manage(CommandArgs args)
+    {
+        args.Parameters.RemoveAt(0);
+        TSPlayer op = args.Player;
+        void Help()
         {
-            args.Parameters.RemoveAt(0);
-            TSPlayer op = args.Player;
-            void Help()
+            List<string> lines = new()
             {
-                if (!PaginationTools.TryParsePageNumber(args.Parameters, 1, op, out int pageNumber))
+                "/igen r <id/名称> <id/名称>，替换方块",
+                "/igen r <液体名称> <液体名称>，替换液体（水/water, 岩浆/lava, 蜂蜜/honey, 微光/shimmer）",
+                "/igen r wall <id/名称> <id/名称>，替换墙体",
+                "/igen r purify，净化",
+
+                "/igen r corruption，腐化",
+                "/igen r crimson，猩红化",
+                "/igen r hallow，神圣化",
+                "/igen r mushroom，蘑菇化",
+
+                "/igen r desert，沙漠化",
+                "/igen r ice，水 → 薄冰",
+                "/igen r melt，薄冰 → 水",
+                "/igen r random，随机",
+
+                "/igen r config，按配置替换",
+            };
+            Utils.Pagination(args, ref lines, "/igen replace");
+        }
+        if (args.Parameters.Count == 0 || args.Parameters[0].ToLowerInvariant() == "help")
+        {
+            Help();
+            return;
+        }
+
+        OPType type = OPType.None;
+        string kw = args.Parameters[0].ToLowerInvariant();
+        int beforeID = -1;
+        int afterID = -1;
+        string name = "";
+        switch (kw)
+        {
+            default:
+                // 替换方块
+                if (args.Parameters.Count < 2)
+                {
+                    args.Player.SendInfoMessage("请输入要替换的方块id/名称");
+                    Help();
                     return;
+                }
 
-                List<string> lines = new()
+                // 替换液体
+                beforeID = LiquidMan.GetLiquidID(args.Parameters[0].ToLowerInvariant());
+                if (beforeID != -1)
                 {
-                    "/igen r <id> <id>，图格替换",
-                    "/igen r ice，水 → 薄冰",
-                    "/igen r melt，薄冰 → 水",
-                    "/igen r lava，水 → 岩浆",
-
-                    "/igen r purify，净化",
-                    "/igen r corruption，腐化",
-                    "/igen r crimson，猩红化",
-                    "/igen r hallow，神圣化",
-
-                    "/igen r mushroom，蘑菇化",
-                    "/igen r desert，沙漠化",
-                    "/igen r random，随机",
-                    "/igen r config，按配置进行替换",
-                };
-
-                PaginationTools.SendPage(op, pageNumber, lines, new PaginationTools.Settings
-                {
-                    HeaderFormat = "/igen replace 指令用法 ({0}/{1})：",
-                    FooterFormat = "输入 /igen r help {{0}} 查看更多".SFormat(Commands.Specifier)
-                });
-            }
-            if (args.Parameters.Count == 0)
-            {
-                Help();
-                return;
-            }
-
-            Type type = Type.None;
-            string kw = args.Parameters[0].ToLowerInvariant();
-            string[] plist = System.Array.Empty<string>();
-            switch (kw)
-            {
-                case "help": Help(); break;
-
-                default:
-                    if (int.TryParse(kw, out int beforeID))
+                    afterID = LiquidMan.GetLiquidID(args.Parameters[1].ToLowerInvariant());
+                    if (afterID == -1)
                     {
-                        if (args.Parameters.Count < 2 || !int.TryParse(args.Parameters[1], out int afterID))
-                        {
-
-                            op.SendErrorMessage("指令用法：/igen r <目标方块id> <替换后的方块id>");
-                            return;
-                        }
-
-                        //if (!IDSet.matchBlockID.Contains(beforeID) || !IDSet.matchBlockID.Contains(afterID))
-                        //{
-                        //    op.SendErrorMessage("不支持的方块id");
-                        //    return;
-                        //}
-
-                        type = Type.Replace;
-                        plist = new string[] { beforeID.ToString(), afterID.ToString() };
-                    }
-                    else
-                    {
-                        Help();
-                    }
-                    break;
-
-                case "config":
-                case "con":
-                    bool flag = RetileTool.FirstCreate();
-                    if (flag)
-                    {
-                        op.SendErrorMessage($"{RetileTool.SaveFile} 已创建，按格式编辑后，再次执行本指令");
+                        op.SendErrorMessage("输入的第二个液体名称无效！");
                         return;
                     }
-                    else
-                    {
-                        RetileTool.Init();
-                        type = Type.Config;
-                    }
-                    break;
 
-                case "desert": type = Type.Desert; break;   // 沙漠化
-                case "ice": type = Type.Ice; break; // 冰河化
-                case "melt": case "mel": type = Type.Helt; break;    // 冰融化
-                case "lava": type = Type.Lava; break;   // 水 → 岩浆
-                case "purify": case "pur": type = Type.Purify; break;   // 净化
-                case "corruption": case "cor": type = Type.Corruption; break;    // 腐化
-                case "crimson": case "cri": type = Type.Crimson; break; // 猩红化
-                case "hallow": case "hal": type = Type.Hallow; break;   // 神圣化
-                case "mushroom": case "mus": type = Type.Truffle; break; // 蘑菇化
-                case "random": case "ran": type = Type.Random; break; // 随机化
-            }
-            if (type != Type.None)
-            {
-                Rectangle selection = SelectionTool.GetSelection(op.Index);
-                await Action(op, type, selection, plist);
-            }
+                    type = OPType.Liquid;
+                    name = $"将{LiquidMan.GetName((short)beforeID)}替换成{LiquidMan.GetName((short)afterID)}";
+                }
+                else
+                {
+                    var tileProp1 = TileHelper.GetTileByIDOrName(args.Parameters[0].ToLowerInvariant());
+                    if (tileProp1 == null)
+                    {
+                        args.Player.SendInfoMessage("输入的第一个方块id无效/名称不匹配！");
+                        return;
+                    }
+
+                    var tileProp2 = TileHelper.GetTileByIDOrName(args.Parameters[1].ToLowerInvariant());
+                    if (tileProp2 == null)
+                    {
+                        args.Player.SendInfoMessage("输入的第二个方块id无效/名称不匹配！");
+                        return;
+                    }
+
+                    type = OPType.Block;
+                    beforeID = tileProp1.id;
+                    afterID = tileProp2.id;
+                    name = $"将{tileProp1.Desc}替换成{tileProp2.Desc}";
+                }
+
+                if (beforeID == afterID)
+                {
+                    op.SendInfoMessage("要替换的目标相同，什么也没做~");
+                    return;
+                }
+                break;
+
+
+            case "wall":
+            case "w":
+            case "墙":
+                if (args.Parameters.Count < 3)
+                {
+                    op.SendErrorMessage("指令用法：/igen r wall <目标id> <替换后的id>");
+                    return;
+                }
+
+                var wp1 = TileHelper.GetWallByIDOrName(args.Parameters[1]);
+                if (wp1 == null)
+                {
+                    op.SendErrorMessage("输入的第一个id无效/名称不匹配！");
+                    return;
+                }
+
+                var wp2 = TileHelper.GetWallByIDOrName(args.Parameters[2]);
+                if (wp2 == null)
+                {
+                    op.SendErrorMessage("输入的第二个id无效/名称不匹配！");
+                    return;
+                }
+
+                type = OPType.Wall;
+                beforeID = wp1.id;
+                afterID = wp2.id;
+                name = $"将{wp1.Desc}替换成{wp2.Desc}";
+                if (beforeID == afterID)
+                {
+                    op.SendInfoMessage("要替换的目标相同，什么也没做~");
+                    return;
+                }
+                break;
+
+            case "liquid":
+            case "l":
+                if (args.Parameters.Count < 3)
+                {
+                    op.SendErrorMessage("指令用法：/igen r liquid <液体名称> <液体名称>");
+                    return;
+                }
+
+                beforeID = Tools.LiquidMan.GetLiquidID(args.Parameters[1].ToLowerInvariant());
+                afterID = Tools.LiquidMan.GetLiquidID(args.Parameters[2].ToLowerInvariant());
+                if (beforeID == -1)
+                {
+                    op.SendErrorMessage("输入的第一个液体名称无效！");
+                    return;
+                }
+
+                if (afterID == -1)
+                {
+                    op.SendErrorMessage("输入的第二个液体名称无效！");
+                    return;
+                }
+
+                type = OPType.Liquid;
+                name = $"将{Tools.LiquidMan.GetName((short)beforeID)}替换成{Tools.LiquidMan.GetName((short)afterID)}";
+                if (beforeID == afterID)
+                {
+                    op.SendInfoMessage("要替换的目标相同，什么也没做~");
+                    return;
+                }
+                break;
+
+            case "config":
+            case "con":
+                bool flag = RetileTool.FirstCreate();
+                if (flag)
+                {
+                    op.SendErrorMessage($"{RetileTool.SaveFile} 已创建，按格式编辑后，再次执行本指令");
+                    return;
+                }
+                else
+                {
+                    RetileTool.Init();
+                    type = OPType.Config;
+                }
+                break;
+
+            case "desert": type = OPType.Desert; break;   // 沙漠化
+            case "ice": type = OPType.Ice; break; // 冰河化
+            case "melt": case "mel": type = OPType.Helt; break;    // 冰融化
+            case "purify": case "pur": type = OPType.Purify; break;   // 净化
+            case "corruption": case "cor": type = OPType.Corruption; break;    // 腐化
+            case "crimson": case "cri": type = OPType.Crimson; break; // 猩红化
+            case "hallow": case "hal": type = OPType.Hallow; break;   // 神圣化
+            case "mushroom": case "mus": type = OPType.Truffle; break; // 蘑菇化
+            case "random": case "ran": type = OPType.Random; break; // 随机化
+        }
+        if (type != OPType.None)
+        {
+            if (TileHelper.IsPylon(op, beforeID)) return;
+            if (TileHelper.IsPylon(op, afterID)) return;
+            Action(op, type, beforeID, afterID, name);
+        }
+    }
+
+    static async void Action(TSPlayer op, OPType type, int beforeID = -1, int afterID = -1, string name = "")
+    {
+        Rectangle rect = SelectionTool.GetSelection(op.Index);
+        int secondLast = Utils.GetUnixTimestamp;
+        int count = 0;
+        List<ReTileInfo> replaceInfo = new();
+        switch (type)
+        {
+            case OPType.Config: replaceInfo = RetileTool.Con.replace; break;
+            case OPType.Desert: replaceInfo = ReTileTheme.GetDesert(); break;
         }
 
-        static Task Action(TSPlayer op, Type type, Rectangle rect, string[] plist)
+        await Task.Run(() =>
         {
-            int secondLast = Utils.GetUnixTimestamp;
-            string GetOpString()
+            for (int x = rect.X; x < rect.Right; x++)
             {
-                return type switch
+                for (int y = rect.Y; y < rect.Bottom; y++)
                 {
-                    Type.Config => "按配置替换",
-                    Type.Random => "随机图格",
+                    switch (type)
+                    {
+                        case OPType.Random:
+                            count += RandomTool.RandomTile(x, y);
+                            break;
 
-                    Type.Ice => "冰河化",
-                    Type.Helt => "冰融化",
-                    Type.Lava => "岩浆化",
-                    Type.Truffle => "蘑菇化",
-                    Type.Desert => "沙漠化",
+                        case OPType.Config:
+                        case OPType.Desert:
+                            count += ReplaceTile(x, y, replaceInfo);
+                            break;
 
-                    Type.Purify => "净化",
-                    Type.Corruption => "腐化",
-                    Type.Crimson => "猩红化",
-                    Type.Hallow => "神圣化",
-                    _ => "图格替换",
-                };
+                        case OPType.Block: count += ReplaceBlock(x, y, beforeID, afterID); break;
+                        case OPType.Wall: count += ReplaceWall(x, y, beforeID, afterID); break;
+                        case OPType.Liquid: count += LiquidMan.ReplaceLiquid(x, y, beforeID, afterID); break;
+
+                        case OPType.Ice: count += LiquidMan.IceAgeTile(x, y, true); break;
+                        case OPType.Helt: count += LiquidMan.IceMeltTile(x, y, true); break;
+
+                        case OPType.Purify: WorldGen.Convert(x, y, 0); break;
+                        case OPType.Corruption: WorldGen.Convert(x, y, 1); break;
+                        case OPType.Crimson: WorldGen.Convert(x, y, 4); break;
+                        case OPType.Hallow: WorldGen.Convert(x, y, 2); break;
+                        case OPType.Truffle: WorldGen.Convert(x, y, 3); break;
+                    }
+                }
             }
-            string opString = GetOpString();
+        }).ContinueWith((d) =>
+        {
+            // 未避免替换过程中出现额外的转换，待替换完成后再统一更新
+            if (type == OPType.Liquid)
+            {
+                TileHelper.InformPlayers();
+            }
 
-            List<ReTileInfo> replaceInfo = new();
-            int beforeID = -1;
-            int afterID = -1;
+            TileHelper.FinishGen();
+            int second = Utils.GetUnixTimestamp - secondLast;
+            if (string.IsNullOrEmpty(name)) name = OPNames[(int)type];
             switch (type)
             {
-                case Type.Replace:
-                    beforeID = int.Parse(plist[0]);
-                    afterID = int.Parse(plist[1]);
+                case OPType.Purify:
+                case OPType.Corruption:
+                case OPType.Crimson:
+                case OPType.Hallow:
+                case OPType.Truffle:
+                    op.SendSuccessMessage($"{name}完成，用时{second}秒。");
                     break;
-                case Type.Config: replaceInfo = RetileTool.Con.replace; break;
-                case Type.Desert: replaceInfo = ReTileTheme.GetDesert(); break;
+
+                default:
+                    op.SendSuccessMessage($"{name}完成，共{count}格，用时{second}秒。");
+                    break;
             }
+        });
+    }
 
-            return Task.Run(() =>
+    #region 替换图格
+    /// <summary>
+    /// 替换图格
+    /// </summary>
+    /// <returns>0表示未替换，1表示已替换</returns>
+    static int ReplaceTile(int x, int y, List<ReTileInfo> replaceInfo)
+    {
+        ITile tile = Main.tile[x, y];
+        IEnumerable<ReTileInfo> query;
+        bool flag = false;
+
+        // 方块
+        if (tile.active())
+        {
+            query = replaceInfo.Where(info => info.before.type == 0 && info.before.id == tile.type);
+            foreach (ReTileInfo info2 in query)
             {
-                for (int x = rect.X; x < rect.Right; x++)
-                {
-                    for (int y = rect.Y; y < rect.Bottom; y++)
-                    {
-                        switch (type)
-                        {
-                            case Type.Random: RandomTool.RandomTile(x, y); break;
-                            case Type.Replace: RelaceBlock(x, y, beforeID, afterID); break;
-                            case Type.Config: Replace(x, y, replaceInfo); break;
-                            case Type.Desert: Replace(x, y, replaceInfo); break;
-
-                            case Type.Ice: IceAgeTile(x, y); break;
-                            case Type.Helt: IceMeltTile(x, y); break;
-                            case Type.Lava: LavaLiquid(x, y); break;
-
-                            case Type.Purify: WorldGen.Convert(x, y, 0); break;
-                            case Type.Corruption: WorldGen.Convert(x, y, 1); break;
-                            case Type.Crimson: WorldGen.Convert(x, y, 4); break;
-                            case Type.Hallow: WorldGen.Convert(x, y, 2); break;
-                            case Type.Truffle: WorldGen.Convert(x, y, 3); break;
-                        }
-                    }
-                }
-            }).ContinueWith((d) =>
-            {
-                TileHelper.FinishGen();
-                op.SendSuccessMessage($"{opString} 结束（用时 {Utils.GetUnixTimestamp - secondLast}s）");
-            });
+                RelaceBlock(x, y, info2);
+                flag = true;
+            }
         }
 
-        #region 图格替换
-        static void Replace(int x, int y, List<ReTileInfo> replaceInfo)
+        // 墙
+        query = replaceInfo.Where(info => info.before.type == 1 && info.before.id == tile.wall);
+        foreach (ReTileInfo info in query)
         {
-            ITile tile = Main.tile[x, y];
-            IEnumerable<ReTileInfo> query;
-            bool flag = false;
-
-            // 方块
-            if (tile.active())
+            if (info.after.type == 1)
             {
-                query = replaceInfo.Where(info => info.before.type == 0 && info.before.id == tile.type);
-                foreach (ReTileInfo info2 in query)
-                {
-                    RelaceBlock(x, y, info2);
-                    flag = true;
-                }
+                tile.wall = (ushort)info.after.id;
+                NetMessage.SendTileSquare(-1, x, y);
+                flag = true;
             }
+        }
 
-            // 墙
-            query = replaceInfo.Where(info => info.before.type == 1 && info.before.id == tile.wall);
+        // 液体
+        if (tile.liquid > 0)
+        {
+            int liquidType = tile.liquidType() + 1;
+            query = replaceInfo.Where(info => info.before.type == 2 && info.before.id == liquidType);
             foreach (ReTileInfo info in query)
             {
-                if (info.after.type == 1)
+                // 液体替换成物块
+                if (info.after.type == 0)
                 {
-                    tile.wall = (ushort)info.after.id;
+                    if (tile.active())
+                    {
+                        // 有的宝箱会泡在水里，只把水清除即可
+                        tile.liquid = 0;
+                    }
+                    else
+                    {
+                        tile.type = (ushort)info.after.id;
+                        tile.active(true);
+                        tile.slope(0);
+                        tile.halfBrick(false);
+                        tile.liquid = 0;
+                    }
+                    NetMessage.SendTileSquare(-1, x, y);
                     flag = true;
                 }
             }
-
-            // 液体
-            if (tile.liquid > 0)
-            {
-                int liquidType = tile.liquidType() + 1;
-                query = replaceInfo.Where(info => info.before.type == 2 && info.before.id == liquidType);
-                foreach (ReTileInfo info in query)
-                {
-                    // 液体替换成物块
-                    if (info.after.type == 0)
-                    {
-                        if (tile.active())
-                        {
-                            // 有的宝箱会泡在水里，只把水清除即可
-                            tile.liquid = 0;
-                        }
-                        else
-                        {
-                            tile.type = (ushort)info.after.id;
-                            tile.active(true);
-                            tile.slope(0);
-                            tile.halfBrick(false);
-                            tile.liquid = 0;
-                        }
-                        flag = true;
-                    }
-                }
-            }
-
-            if (flag)
-            {
-                // 更新状态
-                NetMessage.SendTileSquare(-1, x, y);
-            }
         }
-        // 替换方块
-        private static void RelaceBlock(int x, int y, ReTileInfo info2)
+
+        if (flag)
         {
-            ITile tile = Main.tile[x, y];
-            int atype = info2.after.type;
-            int aid = info2.after.id;
-            int astyle = info2.after.style;
-
-            if (atype == 0)
-            {
-                if (aid == -1) // 清空图格
-                    tile.ClearTile();
-
-                //else if (aid == TileID.PalmTree)  // 棕榈树
-                //{
-                //    //WorldGen.GrowPalmTree(tileX, tileY);
-                //    tile.type = (ushort)aid;
-                //    tile.frameX = 66;
-                //    tile.frameY = 0;
-                //}
-                //else if (aid == TileID.OasisPlants) // 绿洲植物
-                //{
-                //    // WorldGen.PlaceOasisPlant(tileX, tileY); // 无效
-                //    int num = WorldGen.genRand.Next(9);
-                //    int num2 = 0;
-                //    short num3 = (short)(54 * num);
-                //    short num4 = (short)(36 * num2);
-                //    tile.type = (ushort)aid;
-                //    tile.frameX = num3;
-                //    tile.frameX = num4;
-                //}
-                //else if (aid >= 3 && astyle >= 0)  // 带style的图格
-                //{
-                //    WorldGen.PlaceTile(tileX, tileY, aid, false, true, 0, astyle);
-                //    //tile.frameX += 18;
-                //    //tile.frameX += 18;
-                //}
-
-                else // 直接替换
-                {
-                    tile.type = (ushort)aid;
-                }
-            }
+            return 1;
         }
-        static void RelaceBlock(int x, int y, int before, int after)
-        {
-            ITile tile = Main.tile[x, y];
-            if (tile.type == before)
-            {
-                tile.type = (ushort)after;
-                NetMessage.SendTileSquare(-1, x, y);
-            }
-        }
-        #endregion
-
-
-
-
-        #region 冰河化 / 冰融化
-        public static void IceAgeTile(int x, int y)
-        {
-            // 薄冰 
-            ITile tile = Main.tile[x, y];
-
-            if (tile.liquid > 0)
-            {
-                switch (tile.liquidType())
-                {
-                    // 水
-                    // Tile.Liquid_Water
-                    case 0:
-                        if (!tile.active())
-                        {
-                            tile.type = TileID.BreakableIce;
-                            tile.active(true);
-                            tile.slope(0);
-                            tile.halfBrick(false);
-                        }
-                        tile.liquid = 0;
-                        break;
-
-
-                    // 岩浆
-                    case 1: break;
-                    // 蜂蜜
-                    case 2: break;
-                }
-            }
-        }
-        public static void LavaLiquid(int x, int y)
-        {
-            // 薄冰 
-            ITile tile = Main.tile[x, y];
-
-            if (tile.liquid > 0)
-            {
-                switch (tile.liquidType())
-                {
-                    // 水
-                    // Tile.Liquid_Water
-                    case 0:
-                        if (!tile.active())
-                        {
-                            tile.lava(lava: true);
-                            tile.liquid = byte.MaxValue;
-                            WorldGen.SquareTileFrame(x, y);
-                            NetMessage.SendTileSquare(-1, x, y);
-                        }
-                        break;
-
-                    // 岩浆
-                    case 1: break;
-
-                    // 蜂蜜
-                    case 2: break;
-                }
-            }
-        }
-
-
-
-
-        public static void IceMeltTile(int tileX, int tileY)
-        {
-            ITile tile = Main.tile[tileX, tileY];
-            if (tile.type != TileID.BreakableIce) return;
-
-            tile.active(active: false);
-            tile.liquid = byte.MaxValue;
-            WorldGen.SquareTileFrame(tileX, tileY);
-        }
-        #endregion
-
+        return 0;
     }
+
+    /// <summary>
+    /// 替换方块
+    /// </summary>
+    /// <param name="x"></param>
+    /// <param name="y"></param>
+    /// <param name="info2"></param>
+    /// <returns>0表示未替换，1表示已替换</returns>
+    private static int RelaceBlock(int x, int y, ReTileInfo info2)
+    {
+        ITile tile = Main.tile[x, y];
+        int atype = info2.after.type;
+        int aid = info2.after.id;
+        int astyle = info2.after.style;
+
+        if (atype == 0)
+        {
+            if (aid == -1) // 清空图格
+            {
+                tile.ClearTile();
+            }
+
+            //else if (aid == TileID.PalmTree)  // 棕榈树
+            //{
+            //    //WorldGen.GrowPalmTree(tileX, tileY);
+            //    tile.type = (ushort)aid;
+            //    tile.frameX = 66;
+            //    tile.frameY = 0;
+            //}
+            //else if (aid == TileID.OasisPlants) // 绿洲植物
+            //{
+            //    // WorldGen.PlaceOasisPlant(tileX, tileY); // 无效
+            //    int num = WorldGen.genRand.Next(9);
+            //    int num2 = 0;
+            //    short num3 = (short)(54 * num);
+            //    short num4 = (short)(36 * num2);
+            //    tile.type = (ushort)aid;
+            //    tile.frameX = num3;
+            //    tile.frameX = num4;
+            //}
+            //else if (aid >= 3 && astyle >= 0)  // 带style的图格
+            //{
+            //    WorldGen.PlaceTile(tileX, tileY, aid, false, true, 0, astyle);
+            //    //tile.frameX += 18;
+            //    //tile.frameX += 18;
+            //}
+
+            else // 直接替换
+            {
+                tile.type = (ushort)aid;
+            }
+
+            NetMessage.SendTileSquare(-1, x, y);
+            return 1;
+        }
+        return 0;
+    }
+    /// <summary>
+    /// 替换方块
+    /// </summary>
+    /// <param name="x"></param>
+    /// <param name="y"></param>
+    /// <param name="before"></param>
+    /// <param name="after"></param>
+    /// <returns>0表示未替换，1表示已替换</returns>
+    static int ReplaceBlock(int x, int y, int before, int after)
+    {
+        ITile tile = Main.tile[x, y];
+        if (tile.type == before)
+        {
+            tile.type = (ushort)after;
+            NetMessage.SendTileSquare(-1, x, y);
+            return 1;
+        }
+        return 0;
+    }
+
+    /// <summary>
+    /// 替换墙体
+    /// </summary>
+    /// <param name="x"></param>
+    /// <param name="y"></param>
+    /// <param name="before"></param>
+    /// <param name="after"></param>
+    /// <returns>0表示未替换，1表示已替换</returns>
+    static int ReplaceWall(int x, int y, int before, int after)
+    {
+        ITile tile = Main.tile[x, y];
+        if (tile.wall == before)
+        {
+            tile.wall = (ushort)after;
+            NetMessage.SendTileSquare(-1, x, y);
+            return 1;
+        }
+        return 0;
+    }
+    #endregion
+
 }

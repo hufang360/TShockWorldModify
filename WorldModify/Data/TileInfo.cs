@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using Terraria.ID;
 
 namespace WorldModify
 {
@@ -67,29 +68,64 @@ namespace WorldModify
             style = _style;
             frameX = _frameX;
             frameY = _frameY;
+
+            Filling();
+        }
+
+        /// <summary>
+        /// 补齐frame信息
+        /// </summary>
+        void Filling()
+        {
+            if (w == 1 && h == 1)
+            {
+                var tileProp = TileHelper.GetTileByID((ushort)id);
+                if (tileProp != null)
+                {
+                    w = tileProp.w;
+                    h = tileProp.h;
+                }
+            }
+
+            switch (id)
+            {
+                case TileID.ShadowOrbs: // 31
+                    if (style == 0)
+                        frameX = 0; // 暗影珠
+                    else if (style == 1)
+                        frameX = 36; // 猩红之心
+                    break;
+
+                case TileID.DemonAltar: // 26
+                    if (style == 0)
+                        frameX = 0; // 恶魔祭坛
+                    else if (style == 1)
+                        frameX = 54; // 猩红祭坛
+                    break;
+
+                case TileID.LargePiles2: // 187
+                    if (style == 5) //附魔剑
+                    {
+                        frameX = 918;
+                        frameY = 0;
+                    }
+                    break;
+            }
         }
 
         public override string ToString()
         {
-            return $"id={id},style={style},w={w},h={h}";
+            return $"id={id},style={style},w={w},h={h},frameX={frameX},frameY={frameY}";
         }
 
         /// <summary>
-        /// 补齐宽高、及 style信息
+        /// 是否为多样式图格
         /// </summary>
-        //public void Fixed()
-        //{
-        //    TileObjectData tileData = TileObjectData.GetTileData(id, style);
-        //    w = tileData.Width;
-        //    h = tileData.Height;
-        //}
-
-        //public void FixedWH()
-        //{
-        //    TileObjectData tileData = TileObjectData.GetTileData(id, 0);
-        //    w = tileData.Width;
-        //    h = tileData.Height;
-        //}
+        /// <returns></returns>
+        public bool IsFrame()
+        {
+            return TileHelper.IsFrame(id);
+        }
     }
 
 
@@ -115,7 +151,15 @@ namespace WorldModify
         /// </summary>
         public string Desc
         {
-            get { return $"{name}（{id}）"; }
+            get
+            {
+                var itemID = Mapping.GetItemID(name);
+                var wallName = Utils.Highlight($"{name}({id})");
+                if (itemID != 0)
+                    return $"[i:{itemID}]{wallName}";
+                else
+                    return wallName;
+            }
         }
 
         public override string ToString()
@@ -138,6 +182,9 @@ namespace WorldModify
         public string color = "";
         public List<FrameProp> frames = new();
 
+        public int frameX = -1;
+        public int frameY = -1;
+
         public void Add(int frameX, int frameY, string name = "", string variety = "")
         {
             if (!string.IsNullOrEmpty(variety))
@@ -150,6 +197,53 @@ namespace WorldModify
                 frameY = frameY,
                 name = $"{name}{variety}",
             });
+        }
+
+        /// <summary>
+        /// 克隆
+        /// </summary>
+        /// <returns></returns>
+        public TileProp Clone()
+        {
+            TileProp p = new()
+            {
+                id = id,
+                w = w,
+                h = h,
+                isFrame = isFrame,
+                name = name,
+                color = color
+            };
+            return p;
+        }
+
+        /// <summary>
+        /// 完整的色值
+        /// </summary>
+        public string FullColor
+        {
+            get { return $"#FF{color}"; }
+        }
+
+        /// <summary>
+        /// 描述信息
+        /// </summary>
+        public string Desc
+        {
+            get
+            {
+                var itemID = Mapping.GetItemID(name);
+                var tileName = Utils.Highlight($"{name}({id})");
+                if (itemID != 0)
+                    return $"[i:{itemID}]{tileName}";
+                else
+                    return tileName;
+            }
+        }
+
+        public override string ToString()
+        {
+            return $"{id},{name},{w},{h},{(isFrame ? "是" : "否")},{FullColor}";
         }
     }
 

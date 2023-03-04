@@ -7,6 +7,9 @@ using TShockAPI;
 
 namespace WorldModify
 {
+    /// <summary>
+    /// 世界备份
+    /// </summary>
     public class BackupHelper
     {
         public static string BackupPath { get; set; }
@@ -26,36 +29,28 @@ namespace WorldModify
 
         private static void DoBackup(TSPlayer op, string notes)
         {
+            string worldname = Main.worldPathName;
+            if (string.IsNullOrEmpty(notes))
+                Main.ActiveWorldFileData._path = Path.Combine(BackupPath, string.Format("world_{0:yyyyMMdd-HHmm-ss}.wld", DateTime.Now));
+            else
+                Main.ActiveWorldFileData._path = Path.Combine(BackupPath, string.Format("world_{0:yyyyMMdd-HHmm-ss}_{1}.wld", DateTime.Now, notes));
+
             try
             {
-                string worldname = Main.worldPathName;
-                string name = Path.GetFileName(worldname);
+                if (!Directory.Exists(BackupPath))
+                    Directory.CreateDirectory(BackupPath);
 
-                if (string.IsNullOrEmpty(notes))
-                    Main.ActiveWorldFileData._path = Path.Combine(BackupPath, string.Format("{0}.{1:yyyyMMddHHmmss}.bak", name, DateTime.Now));
-                else
-                    Main.ActiveWorldFileData._path = Path.Combine(BackupPath, string.Format("{0}.{1:yyyyMMddHHmmss}_{2}.bak", name, DateTime.Now, notes));
-
-                string worldpath = Path.GetDirectoryName(Main.worldPathName);
-                if (worldpath != null && !Directory.Exists(worldpath))
-                    Directory.CreateDirectory(worldpath);
-
-                TShock.Log.Info("[wm]正在备份地图...");
-                op.SendInfoMessage("正在备份地图...");
-
+                op.SendInfoMessage("正在备份世界...");
                 TShock.Utils.SaveWorld();
-
-                TShock.Log.Info($"[wm]世界已备份 ({Main.worldPathName})");
-                op.SendInfoMessage($"世界已备份");
-
-                Main.ActiveWorldFileData._path = worldname;
+                op.SendSuccessMessage($"世界已备份至：{Main.worldPathName}");
             }
             catch (Exception ex)
             {
-                TShock.Log.Error("[wm]备份失败!");
-                op.SendInfoMessage("备份地图失败！请手动查看日志文件");
                 TShock.Log.Error(ex.ToString());
+                op.SendErrorMessage("备份世界失败！请手动查看日志文件");
             }
+
+            Main.ActiveWorldFileData._path = worldname;
         }
 
     }

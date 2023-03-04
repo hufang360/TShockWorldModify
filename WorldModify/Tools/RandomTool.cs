@@ -8,6 +8,9 @@ using TShockAPI;
 
 namespace WorldModify
 {
+    /// <summary>
+    /// 随机工具
+    /// </summary>
     class RandomTool
     {
         /// <summary>
@@ -27,7 +30,7 @@ namespace WorldModify
         {
             int secondLast = Utils.GetUnixTimestamp;
 
-            op.SendSuccessMessage($"全图随机开始……");
+            op.SendSuccessMessage("全图随机开始……");
             return Task.Run(() =>
             {
                 ResetTileMapping();
@@ -64,7 +67,7 @@ namespace WorldModify
         //}
 
         #region 随机方块
-        public static void RandomTile(int x, int y)
+        public static int RandomTile(int x, int y)
         {
             // TileID.GrayBrick
             // WallID.GrayBrick
@@ -76,17 +79,25 @@ namespace WorldModify
             ITile tile = Main.tile[x, y];
             //Random rng = new Random((int)DateTime.Now.Ticks);
             //bool needSkip = rng.Next(10) < 2;
+
+            bool flag = false;
             if (tile.active() && matchBlockID.Contains(tile.type) && Mapping.ContainsKey(tile.type))
             {
                 tile.type = (ushort)Mapping[tile.type];
                 NetMessage.SendTileSquare(-1, x, y);
+
+                flag = true;
             }
 
             if (tile.wall != 0 && WallMapping.ContainsKey(tile.wall))
             {
                 tile.wall = (ushort)WallMapping[tile.wall];
                 NetMessage.SendTileSquare(-1, x, y);
+
+                flag = true;
             }
+
+            return flag ? 1 : 0;
         }
 
         public static void ResetTileMapping()

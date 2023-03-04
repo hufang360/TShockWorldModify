@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Text;
@@ -5,6 +6,7 @@ using System.Text.RegularExpressions;
 using Terraria;
 using Terraria.ID;
 using Terraria.Localization;
+using Terraria.Map;
 using TShockAPI;
 
 
@@ -23,12 +25,12 @@ namespace WorldModify
             // https://terraria.wiki.gg/zh/wiki/Buff_IDs
             Utils.CreateSaveDir();
 
-            bool needRecover = true;
+            bool needRecover = false;
             GameCulture culture = Language.ActiveCulture;
             if (culture.LegacyId != (int)GameCulture.CultureName.Chinese)
             {
                 LanguageManager.Instance.SetLanguage(GameCulture.FromCultureName(GameCulture.CultureName.Chinese));
-                needRecover = false;
+                needRecover = true;
             }
 
             List<string> paths = new() {
@@ -38,6 +40,7 @@ namespace WorldModify
                 Utils.CombinePath("[wm]Buff清单.txt"),
                 Utils.CombinePath("[wm]射弹清单.txt"),
                 Utils.CombinePath("[wm]墙清单.txt"),
+                Utils.CombinePath("[wm]图格清单.txt"),
             };
 
             DumpItems(paths[0]);
@@ -46,6 +49,7 @@ namespace WorldModify
             DumpBuffs(paths[3]);
             DumpProjectiles(paths[4]);
             DumpWalls(paths[5]);
+            DumpTiles(paths[6]);
 
             op.SendInfoMessage($"已生成参考文档:\n{string.Join("\n", paths)}");
 
@@ -168,10 +172,29 @@ namespace WorldModify
             StringBuilder buffer = new();
             buffer.AppendLine("备注：本表的名称参照了wiki。");
             buffer.AppendLine("参考：https://terraria.wiki.gg/zh/wiki/Wall_IDs");
-            buffer.AppendLine("id,墙体名称,颜色");
+            buffer.AppendLine("id,名称,颜色");
 
-            ResHelper.LoadWall();
-            foreach (var obj in ResHelper.Walls)
+            TileHelper.LoadWall();
+            foreach (var obj in TileHelper.Walls)
+            {
+                buffer.AppendLine(obj.Value.ToString());
+            }
+            File.WriteAllText(path, buffer.ToString());
+        }
+
+
+        /// <summary>
+        /// 转储 图格 数据
+        /// </summary>
+        private static void DumpTiles(string path)
+        {
+            StringBuilder buffer = new();
+            buffer.AppendLine("备注：本表的名称参照了wiki。");
+            buffer.AppendLine("参考：https://terraria.wiki.gg/zh/wiki/Tile_IDs");
+            buffer.AppendLine("id,名称,宽,高,多样式,颜色");
+
+            TileHelper.LoadTile();
+            foreach (var obj in TileHelper.Tiles)
             {
                 buffer.AppendLine(obj.Value.ToString());
             }

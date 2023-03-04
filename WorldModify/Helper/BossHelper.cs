@@ -49,8 +49,7 @@ namespace WorldModify
 
         private static void ShowSpawnTips(CommandArgs args)
         {
-            TSPlayer op = args.Player;
-            if (!PaginationTools.TryParsePageNumber(args.Parameters, 1, op, out int pageNumber))
+            if (!PaginationTools.TryParsePageNumber(args.Parameters, 1, args.Player, out int pageNumber))
                 return;
 
             List<string> lines = new()
@@ -98,14 +97,11 @@ namespace WorldModify
             {
                 lines[i] = string.Format(lines[i], $"{Commands.Specifier}sb ");
             }
-            PaginationTools.SendPage(
-                op, pageNumber, lines,
-                new PaginationTools.Settings
-                {
-                    HeaderFormat = Commands.Specifier + "spawnboss 指令 贴士 ({0}/{1})：",
-                    FooterFormat = "输入 {0}boss sb {{0}} 查看更多".SFormat(Commands.Specifier)
-                }
-            );
+            PaginationTools.SendPage(args.Player, pageNumber, lines, new PaginationTools.Settings
+            {
+                HeaderFormat = Utils.Highlight("/spawnboss") +"指令贴士 ({0}/{1})：",
+                FooterFormat = "输入[c/96FF0A:{0}boss sb {{0}}]查看更多".SFormat(Commands.Specifier)
+            });
         }
 
         /// <summary>

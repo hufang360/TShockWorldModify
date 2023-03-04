@@ -5,9 +5,14 @@ using TShockAPI;
 
 namespace WorldModify
 {
-    class SelectionTool
+    /// <summary>
+    /// 选区工具
+    /// </summary>
+    public class SelectionTool
     {
-        private static TempPointData[] TempPoints = new TempPointData[Main.maxPlayers];
+        static bool hasEvent = false;
+        static bool[] flags = new bool[Main.maxPlayers];
+        static Rectangle[] rects = new Rectangle[Main.maxPlayers];
         public static void Mange(CommandArgs args)
         {
             args.Parameters.RemoveAt(0);
@@ -24,42 +29,30 @@ namespace WorldModify
                 return;
             }
 
-            TempPointData tpd = GetPointData(op.Index);
             switch (args.Parameters[0].ToLowerInvariant())
             {
                 case "help":
                     op.SendInfoMessage("/igen s, 查看 选区");
-                    op.SendInfoMessage("/igen s all，将 选区 设置为 整个世界");
-                    op.SendInfoMessage("/igen s screen，将 选区 设置为 以玩家为中心的一屏区域");
-                    op.SendInfoMessage("/igen s 1，设置 选区的 起始点");
-                    op.SendInfoMessage("/igen s 2，设置 选区的 结束点");
+                    op.SendInfoMessage("/igen s all，选中整个世界");
+                    op.SendInfoMessage("/igen s 0，以玩家为中心的一屏区域");
+                    op.SendInfoMessage("/igen s 1，自定义选区（[i:3611]）");
                     break;
 
                 case "all":
-                    tpd.rect = new Rectangle(0, 0, Main.maxTilesX, Main.maxTilesY);
+                    rects[op.Index] = new Rectangle(0, 0, Main.maxTilesX, Main.maxTilesY);
                     op.SendSuccessMessage("已将选区设置为整个世界");
                     break;
 
                 case "screen":
                 case "0":
-                    tpd.rect = new Rectangle();
-                    op.SendSuccessMessage("已将 选区 设置为 以玩家为中心的一屏区域，区域将实时计算");
+                    rects[op.Index] = Rectangle.Empty;
+                    op.SendSuccessMessage("已将选区设置为以玩家为中心的一屏区域，区域将实时计算。");
                     break;
 
                 case "1":
-                    tpd.AwaitingTempPoint = 1;
+                    flags[args.Player.Index] = true;
                     RegisterEvent();
-                    op.SendSuccessMessage("用镐子敲击方块，以设置选区的起始点");
-                    break;
-
-                case "2":
-                    if (tpd.TempPoints[0] == Point.Zero)
-                    {
-                        op.SendInfoMessage("请先执行 /igen s 1 设置选区的起始点");
-                        return;
-                    }
-                    tpd.AwaitingTempPoint = 2;
-                    op.SendSuccessMessage("用镐子敲击方块，以完成选区的设置");
+                    op.SendSuccessMessage("使用[i:3611]精密线控仪拉动放置红电线，以设置选区");
                     break;
             }
         }
@@ -69,88 +62,64 @@ namespace WorldModify
             if (index == -1)
                 return Utils.GetBaseArea();
 
-            if (TempPoints[index] == null)
-                return Utils.GetScreen(TShock.Players[index]);
+            if (rects[index] != Rectangle.Empty)
+                return rects[index];
             else
-                return Utils.CloneRect(TempPoints[index].rect);
+                return Utils.GetScreen(TShock.Players[index]);
         }
 
-        private static TempPointData GetPointData(int index)
+        public static Rectangle GetSelection2(int index)
         {
-            TempPointData tpd = TempPoints[index];
-            if (tpd == null)
-            {
-                tpd = new TempPointData();
-                TempPoints[index] = tpd;
-            }
-            return tpd;
+            return rects[index];
         }
 
-        static bool hasEvent = false;
-        private static void RegisterEvent()
+        static void RegisterEvent()
         {
             if (!hasEvent)
             {
                 hasEvent = true;
-                GetDataHandlers.TileEdit += OnTileEdit;
+                GetDataHandlers.MassWireOperation += OnMassWire;
             }
         }
 
-        // 敲击方块
-        public static void OnTileEdit(object sender, GetDataHandlers.TileEditEventArgs e)
+        static void OnMassWire(object sender, GetDataHandlers.MassWireOperationEventArgs e)
         {
-            TSPlayer op = e.Player;
-            TempPointData tpd = GetPointData(op.Index);
-
-            if (tpd.AwaitingTempPoint != 0)
+            var index = e.Player.Index;
+            // ToolMode BitFlags: 1 = Red, 2 = Green, 4 = Blue, 8 = Yellow, 16 = Actuator, 32 = Cutter 33移除红电线 34移绿
+            if (flags[index] && e.ToolMode == 1)
             {
-                tpd.TempPoints[tpd.AwaitingTempPoint - 1].X = e.X;
-                tpd.TempPoints[tpd.AwaitingTempPoint - 1].Y = e.Y;
-
-                if (tpd.AwaitingTempPoint == 1)
+                Rectangle rect = new(e.StartX, e.StartY, e.EndX - e.StartX, e.EndY - e.StartY);
+                if (rect.Width < 0)
                 {
-                    op.SendInfoMessage($"已设置起始点，输入 /igen s 2 以设置结束点");
+                    rect.X += rect.Width;
+                    rect.Width = Math.Abs(rect.Width);
                 }
-                else
+                if (rect.Height < 0)
                 {
-                    var x = Math.Min(tpd.TempPoints[0].X, tpd.TempPoints[1].X);
-                    var y = Math.Min(tpd.TempPoints[0].Y, tpd.TempPoints[1].Y);
-                    var width = Math.Abs(tpd.TempPoints[0].X - tpd.TempPoints[1].X);
-                    var height = Math.Abs(tpd.TempPoints[0].Y - tpd.TempPoints[1].Y);
-
-                    tpd.TempPoints[0] = Point.Zero;
-                    tpd.TempPoints[1] = Point.Zero;
-
-                    Rectangle rect = new(x, y, width + 1, height + 1);
-                    tpd.rect = rect;
-                    op.SendSuccessMessage($"已将选区设置为 x={rect.X} y={rect.Y} 宽={rect.Width} 高={rect.Height}（仅本次开服有效）");
+                    rect.Y += rect.Height;
+                    rect.Height = Math.Abs(rect.Height);
                 }
 
-                tpd.AwaitingTempPoint = 0;
-                op.SendTileSquareCentered(e.X, e.Y, 4);
+                // 边界
+                rect.Width++;
+                rect.Height++;
+
+                rects[index] = rect;
+                flags[index] = false;
                 e.Handled = true;
+                e.Player.SendSuccessMessage($"已选取区域：x={rect.X} y={rect.Y} 宽={rect.Width} 高={rect.Height}（仅本次开服有效）");
             }
-
         }
 
-        public static void dispose()
+        public static void Dispose()
         {
             if (hasEvent)
             {
                 hasEvent = false;
-                GetDataHandlers.TileEdit -= OnTileEdit;
+                GetDataHandlers.MassWireOperation -= OnMassWire;
             }
+
         }
     }
 
-
-    #region TempPointData
-    class TempPointData
-    {
-        public int AwaitingTempPoint { get; set; }
-
-        public Point[] TempPoints = new Point[2];
-        public Rectangle rect = new();
-    }
-    #endregion
 }

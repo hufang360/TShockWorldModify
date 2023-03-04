@@ -313,14 +313,8 @@ namespace WorldModify
                 {
                     int index = FindNPCByID(npcs[0].netID);
                     NPC npc = Main.npc[index];
-
-                    int x = (int)(npc.Center.X / 16);
-                    int y = (int)(npc.Center.Y / 16);
-
-                    op.SendSuccessMessage($"名称：{npcs[0].FullName}（id={npcs[0].netID}）" +
-                        $"\n数量：{total}" +
-                        $"\n坐标：{Utils.PointToLocationDesc(npc)}   {Utils.PointToLocationDesc(x, y)}" +
-                        $"\n输入 /tppos {(int)npc.position.X / 16} {(int)npc.position.Y / 16} 进行传送");
+                    op.SendSuccessMessage($"名称：{npcs[0].FullName}({npc.netID}) {(total > 1 ? "x" + total : "")}" +
+                        $"\n位置：{Utils.GetLocationDesc(npc)}(/tppos {(int)(npc.position.X / 16)} {(int)(npc.position.Y / 16)})");
                 }
                 else
                 {

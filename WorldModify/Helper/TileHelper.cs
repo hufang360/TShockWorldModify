@@ -1,10 +1,11 @@
-﻿using Terraria;
-using Terraria.Map;
+﻿using System.Collections.Generic;
+using System.Linq;
+using Terraria;
+using Terraria.ID;
 using TShockAPI;
 
 namespace WorldModify
 {
-
     /// <summary>
     /// 图格辅助
     /// </summary>
@@ -146,25 +147,378 @@ namespace WorldModify
             tile.halfBrick(false);
         }
 
-        public static void Initialize()
+        /// <summary>
+        /// 是否为晶塔
+        /// </summary>
+        /// <param name="op"></param>
+        /// <param name="tileID"></param>
+        /// <returns></returns>
+        public static bool IsPylon(TSPlayer op, int tileID)
         {
-            if (MapHelper.tileLookup == null)
+            if (tileID == TileID.TeleportationPylon)
             {
-                bool status = Main.dedServ;
-                Main.dedServ = false;
-                MapHelper.Initialize();
-                Main.dedServ = status;
+                op.SendInfoMessage("目前无法安全清除晶塔，请进游戏用镐子进行操作！");
+                return true;
+            }
+            return false;
+        }
 
-                // dedServ为假时，不执行 Main 会执行 MapHelper.Initialize();
-                // 执行 MapHelper.Initialize(); 时会执行 Lang.BuildMapAtlas();
-                // 但是执行 Lang.BuildMapAtlas(); 遇到dedServ为真时，会不执行
+
+
+        #region 图格数据查询
+        public static Dictionary<int, TileProp> Tiles = new();
+        /// <summary>
+        /// 加载内嵌的图格配置文件（.csv）
+        /// </summary>
+        public static void LoadTile()
+        {
+            if (Tiles.Any()) return;
+
+            // csv文件列头
+            // id,name,w,h,isFrame,color
+            foreach (string line in Utils.FromEmbeddedPath("Tile.csv").Split('\n').Skip(2))
+            {
+                var arr = line.Split(',');
+                int id = int.Parse(arr[0]);
+                Tiles.Add(id, new TileProp
+                {
+                    id = id,
+                    name = arr[1],
+                    w = int.Parse(arr[2]),
+                    h = int.Parse(arr[3]),
+                    isFrame = arr[4] == "1",
+                    color = arr[5],
+                });
             }
         }
 
-        public static string GetTileName(int type, int style)
+        /// <summary>
+        /// 获得图格属性
+        /// </summary>
+        /// <param name="idOrName"></param>
+        /// <returns>查找失败时返回 null</returns>
+        public static TileProp GetTileByIDOrName(string idOrName)
         {
-            return Lang._mapLegendCache[MapHelper.TileToLookup(type, style)].Value;
+            LoadTile();
+            if (!int.TryParse(idOrName, out int id))
+            {
+                // 匹配大小写
+                idOrName = Mapping.UpperTileName(idOrName);
+
+                foreach (var w in Tiles.Values)
+                {
+                    if (w.name == idOrName)
+                    {
+                        id = w.id;
+                        break;
+                    }
+                }
+            }
+
+            if (id == 0)
+            {
+                if (idOrName == "0" || idOrName == Tiles[0].name)
+                {
+                    return Tiles[id];
+                }
+                else
+                {
+                    // 匹配已知的多样式图格（id）
+                    if (WMFindTool.FindList.ContainsKey(idOrName))
+                    {
+                        id = WMFindTool.FindList[idOrName].id;
+                    }
+                    else
+                    {
+                        return null;
+                    }
+                }
+            }
+
+            if (Tiles.ContainsKey(id))
+            {
+                var p = Tiles[id];
+                if (WMFindTool.FindList.ContainsKey(idOrName))
+                {
+                    var p2 = WMFindTool.FindList[idOrName];
+                    var p3 = p.Clone();
+                    p3.name = idOrName;
+                    p3.frameX = p2.frameX;
+                    p3.frameY = p2.frameY;
+                    return p3;
+                }
+
+                return p;
+            }
+            else
+            {
+                return null;
+            }
         }
 
+        /// <summary>
+        /// 获得图格id
+        /// <param name="fuzzy">是否模糊匹配</param>
+        /// <returns>{tileID,tileStyle}</returns>
+        public static Dictionary<int, int> GetTileIDByIdOrName(string idOrName, bool fuzzy = true)
+        {
+            Dictionary<int, int> dict = new();
+            int id;
+            FindInfo fd;
+
+            LoadTile();
+            if (!IsTileID(idOrName))
+            {
+                // 匹配大小写
+                idOrName = Mapping.UpperTileName(idOrName);
+
+                if (fuzzy)
+                {
+                    // 模糊匹配
+                    foreach (var w in Tiles.Values)
+                    {
+                        var name = w.name;
+                        if (name == idOrName || name.StartsWith(idOrName) || name.EndsWith(idOrName))
+                        {
+                            dict.Add(w.id, -1);
+                        }
+                    }
+
+                    // 匹配已知的多样式图格
+                    foreach (var name in WMFindTool.FindList.Keys)
+                    {
+                        if (name == idOrName || name.StartsWith(idOrName) || name.EndsWith(idOrName))
+                        {
+                            fd = WMFindTool.FindList[name];
+                            if (!dict.ContainsKey(fd.id))
+                            {
+                                dict.Add(fd.id, fd.style);
+                            }
+                            else
+                            {
+                                dict[fd.id] = fd.style;
+                            }
+                        }
+                    }
+                }
+                else
+                {
+                    foreach (var w in Tiles.Values)
+                    {
+                        if (w.name == idOrName)
+                        {
+                            dict.Add(w.id, -1);
+                            break;
+                        }
+                    }
+
+                    if (WMFindTool.FindList.ContainsKey(idOrName))
+                    {
+                        fd = WMFindTool.FindList[idOrName];
+                        if (!dict.ContainsKey(fd.id))
+                            dict.Add(fd.id, fd.style);
+                        else
+                            dict[fd.id] = fd.style;
+                    }
+                }
+            }
+            else
+            {
+                id = int.Parse(idOrName);
+                dict.Add(id, -1);
+            }
+
+            return dict;
+        }
+
+        public static TileProp GetTileByID(int id)
+        {
+            LoadTile();
+            return Tiles.ContainsKey(id) ? Tiles[id] : null;
+        }
+
+        /// <summary>
+        /// 获得图格描述
+        /// </summary>
+        /// <param name="idOrName"></param>
+        /// <returns>未找到则返回空</returns>
+        public static string GetTileDescByIDOrName(string idOrName)
+        {
+            var p = GetTileByIDOrName(idOrName);
+            return p != null ? p.Desc : "";
+        }
+
+        /// <summary>
+        /// 获得图格名称
+        /// </summary>
+        public static string GetTileNameByID(int id)
+        {
+            LoadTile();
+            return Tiles.ContainsKey(id) ? Tiles[id].name : "";
+        }
+
+        /// <summary>
+        /// 图格id是否有效
+        /// </summary>
+        public static bool IsTileID(int id)
+        {
+            return id >= 0 && id <= TileID.Count;
+        }
+
+        /// <summary>
+        /// 图格id是否有效
+        /// </summary>
+        public static bool IsTileID(string value)
+        {
+            if (int.TryParse(value, out int id))
+                return IsTileID(id);
+            else
+                return false;
+        }
+
+        /// <summary>
+        /// 是否为多样式图格
+        /// </summary>
+        /// <returns></returns>
+        public static bool IsFrame(int id)
+        {
+            if (Tiles.ContainsKey(id))
+            {
+                return Tiles[id].isFrame;
+            }
+            return false;
+        }
+        #endregion
+
+
+        #region 墙数据查询
+        public static Dictionary<int, WallProp> Walls = new();
+        /// <summary>
+        /// 加载内嵌的墙体配置文件（.csv）
+        /// </summary>
+        public static void LoadWall()
+        {
+            if (Walls.Any()) return;
+
+            // csv文件列头
+            // id,name,color
+            foreach (string line in Utils.FromEmbeddedPath("Wall.csv").Split('\n').Skip(2))
+            {
+                var arr = line.Split(',');
+                int id = int.Parse(arr[0]);
+                Walls.Add(id, new WallProp
+                {
+                    id = id,
+                    name = arr[1],
+                    color = arr[2]
+                });
+            }
+        }
+
+        /// <summary>
+        /// 获得墙属性
+        /// </summary>
+        /// <param name="idOrName"></param>
+        /// <returns>查找失败时返回 null</returns>
+        public static WallProp GetWallByIDOrName(string idOrName)
+        {
+            LoadWall();
+            if (!int.TryParse(idOrName, out int id))
+            {
+                foreach (var w in Walls.Values)
+                {
+                    if (w.name == idOrName)
+                    {
+                        id = w.id;
+                        break;
+                    }
+                }
+            }
+            return Walls.ContainsKey(id) ? Walls[id] : null;
+        }
+        public static WallProp GetWallByID(ushort id)
+        {
+            return GetWallByIDOrName(id.ToString());
+        }
+
+        public static string GetWallNameByID(int id)
+        {
+            LoadWall();
+            return Walls.ContainsKey(id) ? Walls[id].name : "";
+        }
+
+        /// <summary>
+        /// 获得墙描述
+        /// </summary>
+        /// <param name="idOrName"></param>
+        /// <returns>未找到则返回空</returns>
+        public static string GetWallDescByIDOrName(string idOrName)
+        {
+            var p = GetWallByIDOrName(idOrName);
+            return p != null ? p.Desc : "";
+        }
+
+        /// <summary>
+        /// 获得墙id
+        /// <param name="fuzzy">是否模糊匹配</param>
+        public static List<int> GetWallIDByIdOrName(string idOrName, bool fuzzy = true)
+        {
+            List<int> ids = new();
+
+            LoadWall();
+            if (!IsWallID(idOrName))
+            {
+                if (fuzzy)
+                {
+                    // 模糊匹配
+                    foreach (var w in Walls.Values)
+                    {
+                        var name = w.name;
+                        if (name == idOrName || name.StartsWith(idOrName) || name.EndsWith(idOrName))
+                        {
+                            ids.Add(w.id);
+                        }
+                    }
+                }
+                else
+                {
+                    foreach (var w in Walls.Values)
+                    {
+                        if (w.name == idOrName)
+                        {
+                            ids.Add(w.id);
+                            break;
+                        }
+                    }
+                }
+            }
+            else
+            {
+                ids.Add(int.Parse(idOrName));
+            }
+
+            return ids;
+        }
+
+
+        /// <summary>
+        /// 墙id是否有效
+        /// </summary>
+        public static bool IsWallID(int id)
+        {
+            return id > 0 && id <= WallID.Count;
+        }
+
+        /// <summary>
+        /// 墙id是否有效
+        /// </summary>
+        public static bool IsWallID(string value)
+        {
+            if (int.TryParse(value, out int id))
+                return IsWallID(id);
+            else
+                return false;
+        }
+        #endregion
     }
 }

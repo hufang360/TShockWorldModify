@@ -16,32 +16,23 @@ namespace WorldModify
         {
             None,
 
-            Block,  // 填充图格
-            Wall,  // 填充墙体
+            Block,
+            Wall,
 
-            Dirt,   // 填充土块
-            Mud,    // 填充泥块
-            Water,  // 填水
-            Honey,  // 填充蜂蜜
-            Lava,   // 填充岩浆
-            Shimmer,   // 填充微光
+            Dirt, Mud,
+            Water, Honey, Lava, Shimmer,
+            Wire1, Wire2, Wire3, Wire4,
         };
-        static string TypeDesc(Type type)
-        {
-            return type switch
-            {
-                Type.Block => "方块",
-                Type.Wall => "墙体",
 
-                Type.Dirt => "土块",
-                Type.Mud => "泥块",
-                Type.Water => "水",
-                Type.Honey => "蜂蜜",
-                Type.Lava => "岩浆",
-                Type.Shimmer => "微光",
-                _ => "图格",
-            };
-        }
+        static readonly string[] Desc = new string[] {
+            "",
+            "方块",
+            "墙体",
+
+            "土块", "泥块",
+            "水", "蜂蜜", "岩浆", "微光",
+            "红电线", "蓝电线", "绿电线", "黄电线",
+        };
 
         public static void Manage(CommandArgs args)
         {
@@ -49,27 +40,15 @@ namespace WorldModify
             TSPlayer op = args.Player;
             void Help()
             {
-                if (!PaginationTools.TryParsePageNumber(args.Parameters, 1, op, out int pageNumber))
-                    return;
-
                 List<string> lines = new()
                 {
-                    "/igen f <id>，填充指定图格",
-                    "/igen f wall <墙的 id/中文名称>，填充指定墙体",
-                    "/igen f dirt，填充土块",
-                    "/igen f mud，填充泥块",
-
-                    "/igen f water，填充水",
-                    "/igen f honey，填充蜂蜜",
-                    "/igen f lava，填充岩浆",
-                    "/igen f shimmer，填充微光",
+                    "/igen f <id/名称>，填充图格",
+                    "/igen f wall <id/名称>，铺墙",
+                    "/igen f <dirt/mud>，填充土块/泥块",
+                    "/igen f <water/lava/honey/shimmer>，填充水/岩浆/蜂蜜/微光",
+                    "/igen f <red/blue/green/yellow>，铺设红/蓝/绿/黄电线",
                 };
-
-                PaginationTools.SendPage(op, pageNumber, lines, new PaginationTools.Settings
-                {
-                    HeaderFormat = "/igen fill 指令用法 ({0}/{1})：",
-                    FooterFormat = "输入 /igen f help {{0}} 查看更多".SFormat(Commands.Specifier)
-                });
+                Utils.Pagination(args, ref lines, "/igen fill");
             }
             if (args.Parameters.Count == 0 || args.Parameters[0].ToLowerInvariant() == "help")
             {
@@ -87,12 +66,14 @@ namespace WorldModify
                 case "土":
                 case "土块":
                     type = Type.Dirt;
+                    id = TileID.Dirt;
                     break;
 
                 case "mud":
                 case "泥":
                 case "泥块":
                     type = Type.Mud;
+                    id = TileID.Mud;
                     break;
 
                 case "water":
@@ -112,58 +93,76 @@ namespace WorldModify
 
                 case "shimmer":
                 case "微光":
-                    type = Type.Shimmer; break;
+                    type = Type.Shimmer;
+                    break;
 
                 case "wall":
                 case "w":
-                case "墙体":
                 case "墙":
                     if (args.Parameters.Count < 2)
                     {
-                        op.SendErrorMessage("需要输入墙体ID，/igen f wall <墙的 id/中文名称>");
+                        op.SendErrorMessage("需要输入墙体ID，/igen f wall <id/名称>");
                         return;
                     }
-                    var wp = ResHelper.GetWallByIDOrName(args.Parameters[1]);
+                    var wp = TileHelper.GetWallByIDOrName(args.Parameters[1]);
                     if (wp == null)
                     {
-                        op.SendErrorMessage("墙的 id/中文名称 错误");
+                        op.SendErrorMessage("输入的墙id无效或名称不匹配！");
                         return;
                     }
                     else
                     {
                         type = Type.Wall;
                         id = wp.id;
-                        name = wp.name;
+                        name = wp.Desc;
                     }
                     break;
 
-                default:
-                    if (int.TryParse(kw, out id))
-                    {
-                        //if (!IDSet.matchBlockID.Contains(id))
-                        //{
-                        //    op.SendErrorMessage("输入的图格ID无效！目前仅支持填充一些方块");
-                        //    return;
-                        //}
+                // 电线
+                case "red":
+                case "红电线":
+                case "电线":
+                    type = Type.Wire1;
+                    id = 1;
+                    break;
 
-                        //TileObjectData tileData = TileObjectData.GetTileData(id, 0);
-                        //utils.Log($"tileData:{tileData.Width}");
-                        //Point p = TileHelper.GetTileWH(id);
-                        //if (p.X>1 ||p.Y>1)
-                        //{
-                        //    op.SendErrorMessage("仅支持填充1x1的图格，不支持填充家具等！");
-                        //    return;
-                        //}
+                case "blue":
+                case "蓝电线":
+                    type = Type.Wire2;
+                    id = 2;
+                    break;
+
+                case "green":
+                case "绿电线":
+                    type = Type.Wire3;
+                    id = 3;
+                    break;
+
+                case "yellow":
+                case "黄电线":
+                    type = Type.Wire4;
+                    id = 4;
+                    break;
+
+                default:
+                    // 图格id / 图格名称
+                    var tileProp = TileHelper.GetTileByIDOrName(kw);
+                    if (tileProp != null)
+                    {
                         type = Type.Block;
+                        id = tileProp.id;
+                        name = tileProp.Desc;
                     }
                     else
                     {
-                        Help();
+                        op.SendErrorMessage("输入的图格id无效或图格名称不匹配！");
+                        return;
                     }
                     break;
             }
             if (type != Type.None)
             {
+                if (TileHelper.IsPylon(op, id)) return;
                 Action(op, type, id, name);
             }
         }
@@ -208,7 +207,7 @@ namespace WorldModify
                             case Type.Honey:
                             case Type.Lava:
                             case Type.Shimmer:
-                                if (tile.liquid == 0)
+                                if (tile.liquid == 0 && tile.wall == 0 && !tile.active())
                                 {
                                     count++;
                                     FillLiquid(x, y, type);
@@ -217,12 +216,52 @@ namespace WorldModify
                         }
                     }
                 }
+
+                switch (type)
+                {
+                    // 电线
+                    case Type.Wire1:
+                    case Type.Wire2:
+                    case Type.Wire3:
+                    case Type.Wire4:
+                        for (int x = rect.X; x < rect.Right; x++)
+                        {
+                            ITile tile = Main.tile[x, rect.Bottom - 1];
+                            if (id == 1) tile.wire(true);
+                            else if (id == 2) tile.wire2(true);
+                            else if (id == 3) tile.wire3(true);
+                            else if (id == 4) tile.wire4(true);
+
+                            count++;
+                        }
+                        for (int y = rect.Y; y < rect.Bottom; y++)
+                        {
+                            ITile tile = Main.tile[rect.Right - 1, y];
+                            if (id == 1) tile.wire(true);
+                            else if (id == 2) tile.wire2(true);
+                            else if (id == 3) tile.wire3(true);
+                            else if (id == 4) tile.wire4(true);
+                            count++;
+                        }
+                        break;
+                }
             }).ContinueWith((d) =>
             {
                 TileHelper.GenAfter();
                 int second = Utils.GetUnixTimestamp - secondLast;
-                if (string.IsNullOrEmpty(name)) name = TypeDesc(type);
-                op.SendSuccessMessage($"已填充 {count}格 {name}，用时{second}秒");
+                if (string.IsNullOrEmpty(name)) name = Desc[(int)type];
+
+                string text = "";
+                switch (type)
+                {
+                    case Type.Water:
+                    case Type.Honey:
+                    case Type.Lava:
+                    case Type.Shimmer:
+                        text = $"，如液体不流动，可输入{Utils.Highlight("/settle")}进行平衡";
+                        break;
+                }
+                op.SendSuccessMessage($"已填充{count}格{name}，用时{second}秒{text}。");
             });
         }
 
@@ -258,7 +297,7 @@ namespace WorldModify
         private static void FillLiquid(int x, int y, Type type)
         {
             ITile tile = Main.tile[x, y];
-            if (tile.active() || tile.liquid != byte.MaxValue) return;
+            if (tile.active() || tile.liquid > 0) return;
 
             int id = -1;
             switch (type)

@@ -18,11 +18,11 @@
       Also, be sure to release on github with the exact assembly version tag as below
       so that the update manager works correctly (via the Github releases api and mimic)
     -->
-    <Version>1.4.0.5</Version>
-    <AssemblyTitle>WorldModify</AssemblyTitle>
+    <Version>1.4.0.8</Version>
+    <AssemblyTitle>WorldModify 20230305</AssemblyTitle>
     <Company></Company>
     <Product>WorldModify</Product>
-    <Copyright>Copyright © hufang360 2022</Copyright>
+    <Copyright>Copyright © hufang360 2023</Copyright>
     <!-- extras for nuget -->
     <GeneratePackageOnBuild>False</GeneratePackageOnBuild>
     <PackageLicenseExpression></PackageLicenseExpression>
@@ -31,7 +31,8 @@
     <PackageId></PackageId>
     <AssemblyName>WorldModify</AssemblyName>
     <ProduceReferenceAssembly>False</ProduceReferenceAssembly>
-    <RunAnalyzersDuringBuild>False</RunAnalyzersDuringBuild> <!-- package name for nuget -->
+    <RunAnalyzersDuringBuild>False</RunAnalyzersDuringBuild>
+    <FileVersion></FileVersion> <!-- package name for nuget -->
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
@@ -45,13 +46,15 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <None Remove="res\retile.json" />
-    <None Remove="res\Wall.csv" />
+    <None Remove="Res\retile.json" />
+    <None Remove="Res\Tile.csv" />
+    <None Remove="Res\Wall.csv" />
   </ItemGroup>
 
   <ItemGroup>
-    <EmbeddedResource Include="res\retile.json" />
-    <EmbeddedResource Include="res\Wall.csv">
+    <EmbeddedResource Include="Res\retile.json" />
+    <EmbeddedResource Include="Res\Tile.csv" />
+    <EmbeddedResource Include="Res\Wall.csv">
       <CustomToolNamespace></CustomToolNamespace>
       <Generator></Generator>
     </EmbeddedResource>
@@ -84,8 +87,11 @@
 
   <ItemGroup>
     <None Update="res\TileFrame.csv">
-      <CustomToolNamespace></CustomToolNamespace>
     </None>
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="Util\" />
   </ItemGroup>
 
 </Project>

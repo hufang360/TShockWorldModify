@@ -143,8 +143,8 @@ namespace WorldModify
                 new ReTileInfo(272, 216, 1,1), // 大理石墙（天然） → 硬化沙墙（天然）
     
     
-                new ReTileInfo(25, 396), // 黑檀石块 → 沙岩块
-                new ReTileInfo(203, 396), // 猩红石块  → 沙岩块
+                //new ReTileInfo(25, 396), // 黑檀石块 → 沙岩块
+                //new ReTileInfo(203, 396), // 猩红石块  → 沙岩块
             };
         }
     }
