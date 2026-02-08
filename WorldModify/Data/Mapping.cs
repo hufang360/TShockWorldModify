@@ -43,6 +43,7 @@
                 "bb" => "弹力巨石",
                 "tnt" => "TNT枪管",
                 "water bolt" or "wb" => "水矢",
+                "egg" or "chilletegg" => "巨型龙蛋",
 
                 "h" => "help",
                 _ => name,

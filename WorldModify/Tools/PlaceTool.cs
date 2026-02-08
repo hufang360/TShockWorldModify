@@ -33,6 +33,7 @@ namespace WorldModify.Tools
                     $"/igen p bulb，放置 {FT("花苞")}",
                     $"/igen p larva，放置 {FT("幼虫")}",
                     $"/igen p tulip，放置 {FT("发光郁金香")}",
+                    $"/igen p egg，放置 {FT("巨型龙蛋（疾旋鼬）")}",
 
                     "/igen p pot，放置 罐子",
                 };
@@ -58,19 +59,13 @@ namespace WorldModify.Tools
                     break;
 
                 case "暗影珠":
-                    flag = WorldGen.crimson;
-                    WorldGen.crimson = false;
                     WorldGen.AddShadowOrb(x, y, false);
-                    WorldGen.crimson = flag;
                     NetMessage.SendTileSquare(-1, x, y, 3);
                     op.SendSuccessMessage($"已放置1个{FT(kw)}");
                     break;
 
                 case "猩红之心":
-                    flag = WorldGen.crimson;
-                    WorldGen.crimson = true;
                     WorldGen.AddShadowOrb(x, y, true);
-                    WorldGen.crimson = flag;
                     NetMessage.SendTileSquare(-1, x, y, 3);
                     op.SendSuccessMessage($"已放置1个{FT(kw)}");
                     break;
@@ -79,7 +74,7 @@ namespace WorldModify.Tools
                     PreparePlace(x, y, 3, 2, true, 25);
                     WorldGen.Place3x2(x, y, TileID.DemonAltar);
                     NetMessage.SendTileSquare(-1, x, y, 3);
-                    op.SendInfoMessage($"已放置1个{kw}");
+                    op.SendSuccessMessage($"已放置1个{kw}");
                     break;
 
                 case "猩红祭坛":
@@ -141,6 +136,14 @@ namespace WorldModify.Tools
                 case "发光郁金香":
                     PlaceTulip(x, y);
                     op.SendSuccessMessage($"已放置1朵{FT(kw)}");
+                    break;
+
+                case "巨型龙蛋":
+                    flag = PlaceChilletEgg(x, y);
+                    if (flag)
+                        op.SendSuccessMessage($"已放置1颗{FT(kw)}");
+                    else
+                        op.SendErrorMessage($"请移动到合适的位置，再进行操作！");
                     break;
 
                 default:
@@ -296,7 +299,7 @@ namespace WorldModify.Tools
                     }
                 }
             }
-            WorldGen.PlaceTile(x + 1, y, TileID.PlanteraBulb, mute: true);
+            WorldGen.PlaceTile(x, y, TileID.PlanteraBulb, mute: true);
             NetMessage.SendTileSquare(-1, x, y, 3);
         }
 
@@ -348,17 +351,11 @@ namespace WorldModify.Tools
                     }
                     else
                     {
-                        // 发光郁金香只生成在指定图格上面
-                        var type = tile.type;
-                        if (type != 0 && type != 70 && type != 633 && type != 59 && type != 225 && !TileID.Sets.Conversion.Grass[type] && !TileID.Sets.Conversion.Stone[type] && !Main.tileMoss[type])
-                        {
-                            // 放置“草”方块
-                            tile.active(active: true);
-                            tile.type = 2;
-                            tile.slope(0);
-                            tile.halfBrick(halfBrick: false);
-                        }
-
+                        // 放置“丛林草”方块
+                        Main.tile[rx, ry].active(active: true);
+                        Main.tile[rx, ry].type = 60;
+                        Main.tile[rx, ry].slope(0);
+                        Main.tile[rx, ry].halfBrick(halfBrick: false);
                     }
                 }
             }
@@ -367,6 +364,40 @@ namespace WorldModify.Tools
             NetMessage.SendTileSquare(-1, x, y, 3);
         }
 
+        /// <summary>
+        /// 放置龙蛋（疾旋鼬）
+        /// </summary>
+        /// <param name="x"></param>
+        /// <param name="y"></param>
+        static bool PlaceChilletEgg(int x, int y)
+        {
+            for (int rx = x; rx <= x + 1; rx++)
+            {
+                for (int ry = y - 2; ry <= y + 1; ry++)
+                {
+                    ITile tile = Main.tile[rx, ry];
+                    if (ry != y + 1)
+                    {
+                        tile.active(active: false);
+                    }
+                    else
+                    {
+                        // 只生成在指定图格上面
+                        var type = tile.type;
+
+                        // 放置“草”方块
+                        tile.active(active: true);
+                        tile.type = 2;
+                        tile.slope(0);
+                        tile.halfBrick(halfBrick: false);
+                    }
+                }
+            }
+
+            bool flag = WorldGen.PlaceTile(x + 1, y, TileID.PalworldChilletEgg, true);
+            NetMessage.SendTileSquare(-1, x, y, 3);
+            return flag;
+        }
 
         /// <summary>
         /// 准备放置

@@ -24,6 +24,7 @@ namespace WorldModify
                 op.SendInfoMessage("/npc clear help, 移除指定NPC");
                 op.SendInfoMessage("/npc tphere help, 将NPC传送到你身边");
                 op.SendInfoMessage("/npc relive, 复活NPC（根据怪物图鉴记录）");
+                op.SendInfoMessage("/npc gohome, 让NPC回家");
                 op.SendInfoMessage("/npc find <id/名称>, 查询指定NPC的信息");
                 op.SendInfoMessage("/npc <id/名称>, 切换NPC解救状态");
                 op.SendInfoMessage("/npc list, 查看支持切换解救状态的NPC");
@@ -74,6 +75,12 @@ namespace WorldModify
 
                 // NPC重生
                 case "relive": Relive(args); break;
+
+                // 让NPC回家
+                case "gh":
+                case "gohome":
+                    Relive(args);
+                    break;
 
                 // 召唤美杜莎boss
                 case "mq": NPC.SpawnMechQueen(op.Index); break;

@@ -49,6 +49,7 @@ namespace WorldModify
 
                     $"/wm f dirtiest，查找 {FT("最脏的块")}",
                     $"/wm f tulip，查找 {FT("发光郁金香")}",
+                    $"/wm f egg，查找 {FT("巨型龙蛋（疾旋鼬）")}",
                     $"/wm f <森林晶塔/海洋晶塔……>，查找 {FT("晶塔")}",
                 };
 
@@ -107,6 +108,7 @@ namespace WorldModify
             { "梳妆台", new FindInfo(88) },
             { "最脏的块", new FindInfo(668) },
             { "发光郁金香", new FindInfo(656) },
+            { "巨型龙蛋", new FindInfo(752,0, 2,2, 0,0) },
             { "水矢", new FindInfo(50,5,1,1,90,0) },
 
             {"森林晶塔", new FindInfo(597,1, 3,4, 0, 0) },
@@ -118,6 +120,8 @@ namespace WorldModify
             {"雪原晶塔", new FindInfo(597,7, 3,4, 324,0)},
             {"蘑菇晶塔", new FindInfo(597,8, 3,4, 378,0)},
             {"万能晶塔", new FindInfo(597,9, 3,4, 432,0)},
+            {"地狱晶塔", new FindInfo(597,10, 3,4, 486,0)},
+            {"以太晶塔", new FindInfo(597,11, 3,4, 540,0)},
         };
 
         /// <summary>
