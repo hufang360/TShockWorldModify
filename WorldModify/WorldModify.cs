@@ -75,6 +75,7 @@ public class WorldModify : TerrariaPlugin
                 "/wm remix，开启/关闭 Remix 秘密世界",
                 "/wm nt，开启/关闭 No Traps 秘密世界",
                 "/wm zenith，开启/关闭 Zenith 秘密世界",
+                "/wm vampire，开启/关闭 吸血鬼 秘密世界",
                 "/wm seed [种子]，查看/修改 世界种子",
 
                 "/wm id [id]，查看/修改 世界ID",
@@ -174,7 +175,7 @@ public class WorldModify : TerrariaPlugin
             case "seed":
                 if (args.Parameters.Count == 1)
                 {
-                    op.SendInfoMessage($"世界种子：{WorldGen.currentWorldSeed}（{Main.ActiveWorldFileData.GetFullSeedText()}）\n输入 /wm seed <种子> 可更改世界种子");
+                    op.SendInfoMessage($"世界种子：{Main.ActiveWorldFileData.SeedText}（{Main.ActiveWorldFileData.GetFullSeedText()}）\n输入 /wm seed <种子> 可更改世界种子");
                     break;
                 }
 
@@ -194,7 +195,7 @@ public class WorldModify : TerrariaPlugin
 
                 if (int.TryParse(args.Parameters[1], out int worldId))
                 {
-                    Main.worldID = worldId;
+                    Main.ActiveWorldFileData.WorldId = worldId;
                     TSPlayer.All.SendData(PacketTypes.WorldInfo);
                     op.SendSuccessMessage("世界的ID已改成 {0}", args.Parameters[1]);
                 }
@@ -476,6 +477,14 @@ public class WorldModify : TerrariaPlugin
                 TSPlayer.All.SendData(PacketTypes.WorldInfo);
                 op.SendSuccessMessage($"{Utils.BFlag(Main.zenithWorld)} 天顶 秘密世界（getfixedboi）");
                 break;
+
+            //  吸血鬼种子
+            case "va":
+            case "vampire":
+                Main.vampireSeed = !Main.vampireSeed;
+                TSPlayer.All.SendData(PacketTypes.WorldInfo);
+                op.SendSuccessMessage($"{Utils.BFlag(Main.vampireSeed)} vampire 秘密世界（吸血鬼）");
+                break;
             #endregion
 
             // 全物品研究
@@ -611,7 +620,7 @@ public class WorldModify : TerrariaPlugin
             $"名称：{Main.worldName}",
             $"大小：{GetWorldSize()}",
             $"难度：{_worldModes.Keys.ElementAt(Main.GameMode)}",
-            $"种子：{WorldGen.currentWorldSeed}"
+            $"种子：{Main.ActiveWorldFileData.SeedText}"
         };
         if (isSuperAdmin)
         {

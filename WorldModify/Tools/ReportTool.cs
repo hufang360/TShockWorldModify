@@ -1,7 +1,7 @@
-namespace WorldModify
+ï»¿namespace WorldModify
 {
     ///// <summary>
-    ///// µ¼³ö¹¤¾ß
+    ///// å¯¼å‡ºå·¥å…·
     ///// </summary>
     //class ReportTool
     //{
@@ -33,7 +33,7 @@ namespace WorldModify
     //            }
 
     //            Utils.Save(SaveFile, Alllists.ToString());
-    //            op.SendInfoMessage($"ÒÑ±£´æ{SaveFile}");
+    //            op.SendInfoMessage($"å·²ä¿å­˜{SaveFile}");
     //        }
     //        else
     //        {
@@ -50,7 +50,7 @@ namespace WorldModify
     //                }
     //            }
     //            TileHelper.InformPlayers();
-    //            op.SendInfoMessage($"ïÎ¿ÕÍê³É£¡");
+    //            op.SendInfoMessage($"é•‚ç©ºå®Œæˆï¼");
     //        }
     //    }
 

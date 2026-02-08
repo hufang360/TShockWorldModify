@@ -1,4 +1,4 @@
-using Microsoft.Xna.Framework;
+ï»¿using Microsoft.Xna.Framework;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -9,7 +9,7 @@ using WorldModify.Tools;
 namespace WorldModify;
 
 /// <summary>
-/// Ìæ»»¹¤¾ß
+/// æ›¿æ¢å·¥å…·
 /// </summary>
 class ReplaceTool
 {
@@ -17,11 +17,11 @@ class ReplaceTool
     {
         None,
 
-        Block, // Ìæ»»
-        Wall, // Ìæ»»Ç½
-        Liquid, // Ìæ»»ÒºÌå
-        Random, // Ëæ»ú·½¿é
-        Config, // °´ÅäÖÃÎÄ¼ş½øĞĞÌæ»»
+        Block, // æ›¿æ¢
+        Wall, // æ›¿æ¢å¢™
+        Liquid, // æ›¿æ¢æ¶²ä½“
+        Random, // éšæœºæ–¹å—
+        Config, // æŒ‰é…ç½®æ–‡ä»¶è¿›è¡Œæ›¿æ¢
 
         Ice, Helt, Truffle, Desert,
         Purify, Corruption, Crimson, Hallow,
@@ -30,14 +30,14 @@ class ReplaceTool
     static List<string> OPNames = new() {
         "None",
 
-        "Ìæ»»·½¿é",
-        "Ìæ»»Ç½",
-        "Ìæ»»ÒºÌå",
-        "Ëæ»úÍ¼¸ñ",
-        "°´ÅäÖÃÌæ»»",
+        "æ›¿æ¢æ–¹å—",
+        "æ›¿æ¢å¢™",
+        "æ›¿æ¢æ¶²ä½“",
+        "éšæœºå›¾æ ¼",
+        "æŒ‰é…ç½®æ›¿æ¢",
 
-        "±ùºÓ»¯", "±ùÈÚ»¯", "Ä¢¹½»¯", "É³Ä®»¯",
-        "¾»»¯", "¸¯»¯", "ĞÉºì»¯", "ÉñÊ¥»¯",
+        "å†°æ²³åŒ–", "å†°èåŒ–", "è˜‘è‡åŒ–", "æ²™æ¼ åŒ–",
+        "å‡€åŒ–", "è…åŒ–", "çŒ©çº¢åŒ–", "ç¥åœ£åŒ–",
     };
 
 
@@ -49,22 +49,22 @@ class ReplaceTool
         {
             List<string> lines = new()
             {
-                "/igen r <id/Ãû³Æ> <id/Ãû³Æ>£¬Ìæ»»·½¿é",
-                "/igen r <ÒºÌåÃû³Æ> <ÒºÌåÃû³Æ>£¬Ìæ»»ÒºÌå£¨Ë®/water, ÑÒ½¬/lava, ·äÃÛ/honey, Î¢¹â/shimmer£©",
-                "/igen r wall <id/Ãû³Æ> <id/Ãû³Æ>£¬Ìæ»»Ç½Ìå",
-                "/igen r purify£¬¾»»¯",
+                "/igen r <id/åç§°> <id/åç§°>ï¼Œæ›¿æ¢æ–¹å—",
+                "/igen r <æ¶²ä½“åç§°> <æ¶²ä½“åç§°>ï¼Œæ›¿æ¢æ¶²ä½“ï¼ˆæ°´/water, å²©æµ†/lava, èœ‚èœœ/honey, å¾®å…‰/shimmerï¼‰",
+                "/igen r wall <id/åç§°> <id/åç§°>ï¼Œæ›¿æ¢å¢™ä½“",
+                "/igen r purifyï¼Œå‡€åŒ–",
 
-                "/igen r corruption£¬¸¯»¯",
-                "/igen r crimson£¬ĞÉºì»¯",
-                "/igen r hallow£¬ÉñÊ¥»¯",
-                "/igen r mushroom£¬Ä¢¹½»¯",
+                "/igen r corruptionï¼Œè…åŒ–",
+                "/igen r crimsonï¼ŒçŒ©çº¢åŒ–",
+                "/igen r hallowï¼Œç¥åœ£åŒ–",
+                "/igen r mushroomï¼Œè˜‘è‡åŒ–",
 
-                "/igen r desert£¬É³Ä®»¯",
-                "/igen r ice£¬Ë® ¡ú ±¡±ù",
-                "/igen r melt£¬±¡±ù ¡ú Ë®",
-                "/igen r random£¬Ëæ»ú",
+                "/igen r desertï¼Œæ²™æ¼ åŒ–",
+                "/igen r iceï¼Œæ°´ â†’ è–„å†°",
+                "/igen r meltï¼Œè–„å†° â†’ æ°´",
+                "/igen r randomï¼Œéšæœº",
 
-                "/igen r config£¬°´ÅäÖÃÌæ»»",
+                "/igen r configï¼ŒæŒ‰é…ç½®æ›¿æ¢",
             };
             Utils.Pagination(args, ref lines, "/igen replace");
         }
@@ -82,53 +82,53 @@ class ReplaceTool
         switch (kw)
         {
             default:
-                // Ìæ»»·½¿é
+                // æ›¿æ¢æ–¹å—
                 if (args.Parameters.Count < 2)
                 {
-                    args.Player.SendInfoMessage("ÇëÊäÈëÒªÌæ»»µÄ·½¿éid/Ãû³Æ");
+                    args.Player.SendInfoMessage("è¯·è¾“å…¥è¦æ›¿æ¢çš„æ–¹å—id/åç§°");
                     Help();
                     return;
                 }
 
-                // Ìæ»»ÒºÌå
+                // æ›¿æ¢æ¶²ä½“
                 beforeID = LiquidMan.GetLiquidID(args.Parameters[0].ToLowerInvariant());
                 if (beforeID != -1)
                 {
                     afterID = LiquidMan.GetLiquidID(args.Parameters[1].ToLowerInvariant());
                     if (afterID == -1)
                     {
-                        op.SendErrorMessage("ÊäÈëµÄµÚ¶ş¸öÒºÌåÃû³ÆÎŞĞ§£¡");
+                        op.SendErrorMessage("è¾“å…¥çš„ç¬¬äºŒä¸ªæ¶²ä½“åç§°æ— æ•ˆï¼");
                         return;
                     }
 
                     type = OPType.Liquid;
-                    name = $"½«{LiquidMan.GetName((short)beforeID)}Ìæ»»³É{LiquidMan.GetName((short)afterID)}";
+                    name = $"å°†{LiquidMan.GetName((short)beforeID)}æ›¿æ¢æˆ{LiquidMan.GetName((short)afterID)}";
                 }
                 else
                 {
                     var tileProp1 = TileHelper.GetTileByIDOrName(args.Parameters[0].ToLowerInvariant());
                     if (tileProp1 == null)
                     {
-                        args.Player.SendInfoMessage("ÊäÈëµÄµÚÒ»¸ö·½¿éidÎŞĞ§/Ãû³Æ²»Æ¥Åä£¡");
+                        args.Player.SendInfoMessage("è¾“å…¥çš„ç¬¬ä¸€ä¸ªæ–¹å—idæ— æ•ˆ/åç§°ä¸åŒ¹é…ï¼");
                         return;
                     }
 
                     var tileProp2 = TileHelper.GetTileByIDOrName(args.Parameters[1].ToLowerInvariant());
                     if (tileProp2 == null)
                     {
-                        args.Player.SendInfoMessage("ÊäÈëµÄµÚ¶ş¸ö·½¿éidÎŞĞ§/Ãû³Æ²»Æ¥Åä£¡");
+                        args.Player.SendInfoMessage("è¾“å…¥çš„ç¬¬äºŒä¸ªæ–¹å—idæ— æ•ˆ/åç§°ä¸åŒ¹é…ï¼");
                         return;
                     }
 
                     type = OPType.Block;
                     beforeID = tileProp1.id;
                     afterID = tileProp2.id;
-                    name = $"½«{tileProp1.Desc}Ìæ»»³É{tileProp2.Desc}";
+                    name = $"å°†{tileProp1.Desc}æ›¿æ¢æˆ{tileProp2.Desc}";
                 }
 
                 if (beforeID == afterID)
                 {
-                    op.SendInfoMessage("ÒªÌæ»»µÄÄ¿±êÏàÍ¬£¬Ê²Ã´Ò²Ã»×ö~");
+                    op.SendInfoMessage("è¦æ›¿æ¢çš„ç›®æ ‡ç›¸åŒï¼Œä»€ä¹ˆä¹Ÿæ²¡åš~");
                     return;
                 }
                 break;
@@ -136,34 +136,34 @@ class ReplaceTool
 
             case "wall":
             case "w":
-            case "Ç½":
+            case "å¢™":
                 if (args.Parameters.Count < 3)
                 {
-                    op.SendErrorMessage("Ö¸ÁîÓÃ·¨£º/igen r wall <Ä¿±êid> <Ìæ»»ºóµÄid>");
+                    op.SendErrorMessage("æŒ‡ä»¤ç”¨æ³•ï¼š/igen r wall <ç›®æ ‡id> <æ›¿æ¢åçš„id>");
                     return;
                 }
 
                 var wp1 = TileHelper.GetWallByIDOrName(args.Parameters[1]);
                 if (wp1 == null)
                 {
-                    op.SendErrorMessage("ÊäÈëµÄµÚÒ»¸öidÎŞĞ§/Ãû³Æ²»Æ¥Åä£¡");
+                    op.SendErrorMessage("è¾“å…¥çš„ç¬¬ä¸€ä¸ªidæ— æ•ˆ/åç§°ä¸åŒ¹é…ï¼");
                     return;
                 }
 
                 var wp2 = TileHelper.GetWallByIDOrName(args.Parameters[2]);
                 if (wp2 == null)
                 {
-                    op.SendErrorMessage("ÊäÈëµÄµÚ¶ş¸öidÎŞĞ§/Ãû³Æ²»Æ¥Åä£¡");
+                    op.SendErrorMessage("è¾“å…¥çš„ç¬¬äºŒä¸ªidæ— æ•ˆ/åç§°ä¸åŒ¹é…ï¼");
                     return;
                 }
 
                 type = OPType.Wall;
                 beforeID = wp1.id;
                 afterID = wp2.id;
-                name = $"½«{wp1.Desc}Ìæ»»³É{wp2.Desc}";
+                name = $"å°†{wp1.Desc}æ›¿æ¢æˆ{wp2.Desc}";
                 if (beforeID == afterID)
                 {
-                    op.SendInfoMessage("ÒªÌæ»»µÄÄ¿±êÏàÍ¬£¬Ê²Ã´Ò²Ã»×ö~");
+                    op.SendInfoMessage("è¦æ›¿æ¢çš„ç›®æ ‡ç›¸åŒï¼Œä»€ä¹ˆä¹Ÿæ²¡åš~");
                     return;
                 }
                 break;
@@ -172,7 +172,7 @@ class ReplaceTool
             case "l":
                 if (args.Parameters.Count < 3)
                 {
-                    op.SendErrorMessage("Ö¸ÁîÓÃ·¨£º/igen r liquid <ÒºÌåÃû³Æ> <ÒºÌåÃû³Æ>");
+                    op.SendErrorMessage("æŒ‡ä»¤ç”¨æ³•ï¼š/igen r liquid <æ¶²ä½“åç§°> <æ¶²ä½“åç§°>");
                     return;
                 }
 
@@ -180,21 +180,21 @@ class ReplaceTool
                 afterID = Tools.LiquidMan.GetLiquidID(args.Parameters[2].ToLowerInvariant());
                 if (beforeID == -1)
                 {
-                    op.SendErrorMessage("ÊäÈëµÄµÚÒ»¸öÒºÌåÃû³ÆÎŞĞ§£¡");
+                    op.SendErrorMessage("è¾“å…¥çš„ç¬¬ä¸€ä¸ªæ¶²ä½“åç§°æ— æ•ˆï¼");
                     return;
                 }
 
                 if (afterID == -1)
                 {
-                    op.SendErrorMessage("ÊäÈëµÄµÚ¶ş¸öÒºÌåÃû³ÆÎŞĞ§£¡");
+                    op.SendErrorMessage("è¾“å…¥çš„ç¬¬äºŒä¸ªæ¶²ä½“åç§°æ— æ•ˆï¼");
                     return;
                 }
 
                 type = OPType.Liquid;
-                name = $"½«{Tools.LiquidMan.GetName((short)beforeID)}Ìæ»»³É{Tools.LiquidMan.GetName((short)afterID)}";
+                name = $"å°†{Tools.LiquidMan.GetName((short)beforeID)}æ›¿æ¢æˆ{Tools.LiquidMan.GetName((short)afterID)}";
                 if (beforeID == afterID)
                 {
-                    op.SendInfoMessage("ÒªÌæ»»µÄÄ¿±êÏàÍ¬£¬Ê²Ã´Ò²Ã»×ö~");
+                    op.SendInfoMessage("è¦æ›¿æ¢çš„ç›®æ ‡ç›¸åŒï¼Œä»€ä¹ˆä¹Ÿæ²¡åš~");
                     return;
                 }
                 break;
@@ -204,7 +204,7 @@ class ReplaceTool
                 bool flag = RetileTool.FirstCreate();
                 if (flag)
                 {
-                    op.SendErrorMessage($"{RetileTool.SaveFile} ÒÑ´´½¨£¬°´¸ñÊ½±à¼­ºó£¬ÔÙ´ÎÖ´ĞĞ±¾Ö¸Áî");
+                    op.SendErrorMessage($"{RetileTool.SaveFile} å·²åˆ›å»ºï¼ŒæŒ‰æ ¼å¼ç¼–è¾‘åï¼Œå†æ¬¡æ‰§è¡Œæœ¬æŒ‡ä»¤");
                     return;
                 }
                 else
@@ -214,15 +214,15 @@ class ReplaceTool
                 }
                 break;
 
-            case "desert": type = OPType.Desert; break;   // É³Ä®»¯
-            case "ice": type = OPType.Ice; break; // ±ùºÓ»¯
-            case "melt": case "mel": type = OPType.Helt; break;    // ±ùÈÚ»¯
-            case "purify": case "pur": type = OPType.Purify; break;   // ¾»»¯
-            case "corruption": case "cor": type = OPType.Corruption; break;    // ¸¯»¯
-            case "crimson": case "cri": type = OPType.Crimson; break; // ĞÉºì»¯
-            case "hallow": case "hal": type = OPType.Hallow; break;   // ÉñÊ¥»¯
-            case "mushroom": case "mus": type = OPType.Truffle; break; // Ä¢¹½»¯
-            case "random": case "ran": type = OPType.Random; break; // Ëæ»ú»¯
+            case "desert": type = OPType.Desert; break;   // æ²™æ¼ åŒ–
+            case "ice": type = OPType.Ice; break; // å†°æ²³åŒ–
+            case "melt": case "mel": type = OPType.Helt; break;    // å†°èåŒ–
+            case "purify": case "pur": type = OPType.Purify; break;   // å‡€åŒ–
+            case "corruption": case "cor": type = OPType.Corruption; break;    // è…åŒ–
+            case "crimson": case "cri": type = OPType.Crimson; break; // çŒ©çº¢åŒ–
+            case "hallow": case "hal": type = OPType.Hallow; break;   // ç¥åœ£åŒ–
+            case "mushroom": case "mus": type = OPType.Truffle; break; // è˜‘è‡åŒ–
+            case "random": case "ran": type = OPType.Random; break; // éšæœºåŒ–
         }
         if (type != OPType.None)
         {
@@ -278,7 +278,7 @@ class ReplaceTool
             }
         }).ContinueWith((d) =>
         {
-            // Î´±ÜÃâÌæ»»¹ı³ÌÖĞ³öÏÖ¶îÍâµÄ×ª»»£¬´ıÌæ»»Íê³ÉºóÔÙÍ³Ò»¸üĞÂ
+            // æœªé¿å…æ›¿æ¢è¿‡ç¨‹ä¸­å‡ºç°é¢å¤–çš„è½¬æ¢ï¼Œå¾…æ›¿æ¢å®Œæˆåå†ç»Ÿä¸€æ›´æ–°
             if (type == OPType.Liquid)
             {
                 TileHelper.InformPlayers();
@@ -294,28 +294,28 @@ class ReplaceTool
                 case OPType.Crimson:
                 case OPType.Hallow:
                 case OPType.Truffle:
-                    op.SendSuccessMessage($"{name}Íê³É£¬ÓÃÊ±{second}Ãë¡£");
+                    op.SendSuccessMessage($"{name}å®Œæˆï¼Œç”¨æ—¶{second}ç§’ã€‚");
                     break;
 
                 default:
-                    op.SendSuccessMessage($"{name}Íê³É£¬¹²{count}¸ñ£¬ÓÃÊ±{second}Ãë¡£");
+                    op.SendSuccessMessage($"{name}å®Œæˆï¼Œå…±{count}æ ¼ï¼Œç”¨æ—¶{second}ç§’ã€‚");
                     break;
             }
         });
     }
 
-    #region Ìæ»»Í¼¸ñ
+    #region æ›¿æ¢å›¾æ ¼
     /// <summary>
-    /// Ìæ»»Í¼¸ñ
+    /// æ›¿æ¢å›¾æ ¼
     /// </summary>
-    /// <returns>0±íÊ¾Î´Ìæ»»£¬1±íÊ¾ÒÑÌæ»»</returns>
+    /// <returns>0è¡¨ç¤ºæœªæ›¿æ¢ï¼Œ1è¡¨ç¤ºå·²æ›¿æ¢</returns>
     static int ReplaceTile(int x, int y, List<ReTileInfo> replaceInfo)
     {
         ITile tile = Main.tile[x, y];
         IEnumerable<ReTileInfo> query;
         bool flag = false;
 
-        // ·½¿é
+        // æ–¹å—
         if (tile.active())
         {
             query = replaceInfo.Where(info => info.before.type == 0 && info.before.id == tile.type);
@@ -326,7 +326,7 @@ class ReplaceTool
             }
         }
 
-        // Ç½
+        // å¢™
         query = replaceInfo.Where(info => info.before.type == 1 && info.before.id == tile.wall);
         foreach (ReTileInfo info in query)
         {
@@ -338,19 +338,19 @@ class ReplaceTool
             }
         }
 
-        // ÒºÌå
+        // æ¶²ä½“
         if (tile.liquid > 0)
         {
             int liquidType = tile.liquidType() + 1;
             query = replaceInfo.Where(info => info.before.type == 2 && info.before.id == liquidType);
             foreach (ReTileInfo info in query)
             {
-                // ÒºÌåÌæ»»³ÉÎï¿é
+                // æ¶²ä½“æ›¿æ¢æˆç‰©å—
                 if (info.after.type == 0)
                 {
                     if (tile.active())
                     {
-                        // ÓĞµÄ±¦Ïä»áÅİÔÚË®Àï£¬Ö»°ÑË®Çå³ı¼´¿É
+                        // æœ‰çš„å®ç®±ä¼šæ³¡åœ¨æ°´é‡Œï¼ŒåªæŠŠæ°´æ¸…é™¤å³å¯
                         tile.liquid = 0;
                     }
                     else
@@ -375,12 +375,12 @@ class ReplaceTool
     }
 
     /// <summary>
-    /// Ìæ»»·½¿é
+    /// æ›¿æ¢æ–¹å—
     /// </summary>
     /// <param name="x"></param>
     /// <param name="y"></param>
     /// <param name="info2"></param>
-    /// <returns>0±íÊ¾Î´Ìæ»»£¬1±íÊ¾ÒÑÌæ»»</returns>
+    /// <returns>0è¡¨ç¤ºæœªæ›¿æ¢ï¼Œ1è¡¨ç¤ºå·²æ›¿æ¢</returns>
     private static int RelaceBlock(int x, int y, ReTileInfo info2)
     {
         ITile tile = Main.tile[x, y];
@@ -390,21 +390,21 @@ class ReplaceTool
 
         if (atype == 0)
         {
-            if (aid == -1) // Çå¿ÕÍ¼¸ñ
+            if (aid == -1) // æ¸…ç©ºå›¾æ ¼
             {
                 tile.ClearTile();
             }
 
-            //else if (aid == TileID.PalmTree)  // ×ØéµÊ÷
+            //else if (aid == TileID.PalmTree)  // æ£•æ¦ˆæ ‘
             //{
             //    //WorldGen.GrowPalmTree(tileX, tileY);
             //    tile.type = (ushort)aid;
             //    tile.frameX = 66;
             //    tile.frameY = 0;
             //}
-            //else if (aid == TileID.OasisPlants) // ÂÌÖŞÖ²Îï
+            //else if (aid == TileID.OasisPlants) // ç»¿æ´²æ¤ç‰©
             //{
-            //    // WorldGen.PlaceOasisPlant(tileX, tileY); // ÎŞĞ§
+            //    // WorldGen.PlaceOasisPlant(tileX, tileY); // æ— æ•ˆ
             //    int num = WorldGen.genRand.Next(9);
             //    int num2 = 0;
             //    short num3 = (short)(54 * num);
@@ -413,14 +413,14 @@ class ReplaceTool
             //    tile.frameX = num3;
             //    tile.frameX = num4;
             //}
-            //else if (aid >= 3 && astyle >= 0)  // ´østyleµÄÍ¼¸ñ
+            //else if (aid >= 3 && astyle >= 0)  // å¸¦styleçš„å›¾æ ¼
             //{
             //    WorldGen.PlaceTile(tileX, tileY, aid, false, true, 0, astyle);
             //    //tile.frameX += 18;
             //    //tile.frameX += 18;
             //}
 
-            else // Ö±½ÓÌæ»»
+            else // ç›´æ¥æ›¿æ¢
             {
                 tile.type = (ushort)aid;
             }
@@ -433,13 +433,13 @@ class ReplaceTool
 
 
     /// <summary>
-    /// Ìæ»»·½¿é
+    /// æ›¿æ¢æ–¹å—
     /// </summary>
     /// <param name="x"></param>
     /// <param name="y"></param>
     /// <param name="before"></param>
     /// <param name="after"></param>
-    /// <returns>0±íÊ¾Î´Ìæ»»£¬1±íÊ¾ÒÑÌæ»»</returns>
+    /// <returns>0è¡¨ç¤ºæœªæ›¿æ¢ï¼Œ1è¡¨ç¤ºå·²æ›¿æ¢</returns>
     static int ReplaceBlock(int x, int y, int before, int after)
     {
         ITile tile = Main.tile[x, y];
@@ -453,13 +453,13 @@ class ReplaceTool
     }
 
     /// <summary>
-    /// Ìæ»»Ç½Ìå
+    /// æ›¿æ¢å¢™ä½“
     /// </summary>
     /// <param name="x"></param>
     /// <param name="y"></param>
     /// <param name="before"></param>
     /// <param name="after"></param>
-    /// <returns>0±íÊ¾Î´Ìæ»»£¬1±íÊ¾ÒÑÌæ»»</returns>
+    /// <returns>0è¡¨ç¤ºæœªæ›¿æ¢ï¼Œ1è¡¨ç¤ºå·²æ›¿æ¢</returns>
     static int ReplaceWall(int x, int y, int before, int after)
     {
         ITile tile = Main.tile[x, y];

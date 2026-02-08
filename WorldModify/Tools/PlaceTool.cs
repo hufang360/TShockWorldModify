@@ -1,4 +1,4 @@
-using System.Collections.Generic;
+ï»¿using System.Collections.Generic;
 using Terraria;
 using Terraria.ID;
 using TShockAPI;
@@ -6,7 +6,7 @@ using TShockAPI;
 namespace WorldModify.Tools
 {
     /// <summary>
-    /// ·ÅÖÃ¹¤¾ß
+    /// æ”¾ç½®å·¥å…·
     /// </summary>
     class PlaceTool
     {
@@ -19,22 +19,22 @@ namespace WorldModify.Tools
             {
                 List<string> lines = new()
                 {
-                    "/igen p <id/Ãû³Æ> [ÑùÊ½]£¬·ÅÖÃ Ö¸¶¨Í¼¸ñ£¨²»Ò»¶¨³É¹¦£©",
-                    $"/igen p lc£¬·ÅÖÃ {FT("ÉúÃüË®¾§")}",
-                    $"/igen p lf£¬·ÅÖÃ {FT("ÉúÃü¹û")}",
-                    $"/igen p sword£¬·ÅÖÃ {FT("¸½Ä§½£")}",
+                    "/igen p <id/åç§°> [æ ·å¼]ï¼Œæ”¾ç½® æŒ‡å®šå›¾æ ¼ï¼ˆä¸ä¸€å®šæˆåŠŸï¼‰",
+                    $"/igen p lcï¼Œæ”¾ç½® {FT("ç”Ÿå‘½æ°´æ™¶")}",
+                    $"/igen p lfï¼Œæ”¾ç½® {FT("ç”Ÿå‘½æœ")}",
+                    $"/igen p swordï¼Œæ”¾ç½® {FT("é™„é­”å‰‘")}",
 
-                    $"/igen p orb£¬·ÅÖÃ {FT("°µÓ°Öé")}",
-                    $"/igen p heart£¬·ÅÖÃ {FT("ĞÉºìÖ®ĞÄ")}",
-                    $"/igen p demon£¬·ÅÖÃ {FT("¶ñÄ§¼ÀÌ³")}",
-                    $"/igen p crimson£¬·ÅÖÃ {FT("ĞÉºì¼ÀÌ³")}",
+                    $"/igen p orbï¼Œæ”¾ç½® {FT("æš—å½±ç ")}",
+                    $"/igen p heartï¼Œæ”¾ç½® {FT("çŒ©çº¢ä¹‹å¿ƒ")}",
+                    $"/igen p demonï¼Œæ”¾ç½® {FT("æ¶é­”ç¥­å›")}",
+                    $"/igen p crimsonï¼Œæ”¾ç½® {FT("çŒ©çº¢ç¥­å›")}",
 
-                    $"/igen p altar£¬·ÅÖÃ {FT("¼ÀÌ³")}£¨×Ô¶¯ÅĞ¶Ï¸¯»¯ÀàĞÍ£©",
-                    $"/igen p bulb£¬·ÅÖÃ {FT("»¨°ú")}",
-                    $"/igen p larva£¬·ÅÖÃ {FT("Ó×³æ")}",
-                    $"/igen p tulip£¬·ÅÖÃ {FT("·¢¹âÓô½ğÏã")}",
+                    $"/igen p altarï¼Œæ”¾ç½® {FT("ç¥­å›")}ï¼ˆè‡ªåŠ¨åˆ¤æ–­è…åŒ–ç±»å‹ï¼‰",
+                    $"/igen p bulbï¼Œæ”¾ç½® {FT("èŠ±è‹")}",
+                    $"/igen p larvaï¼Œæ”¾ç½® {FT("å¹¼è™«")}",
+                    $"/igen p tulipï¼Œæ”¾ç½® {FT("å‘å…‰éƒé‡‘é¦™")}",
 
-                    "/igen p pot£¬·ÅÖÃ ¹Ş×Ó",
+                    "/igen p potï¼Œæ”¾ç½® ç½å­",
                 };
                 Utils.Pagination(args, ref lines, "/igen place");
             }
@@ -44,52 +44,52 @@ namespace WorldModify.Tools
                 return;
             }
 
-            string kw = Mapping.AliasSubCMD(args.Parameters[0].ToLowerInvariant()); // ×ª»»±ğÃû
+            string kw = Mapping.AliasSubCMD(args.Parameters[0].ToLowerInvariant()); // è½¬æ¢åˆ«å
             int x = op.TileX;
             int y = op.TileY + 2;
             bool flag;
             switch (kw)
             {
-                case "ÉúÃüË®¾§":
+                case "ç”Ÿå‘½æ°´æ™¶":
                     PreparePlace(x, y, 2, 2, true);
                     WorldGen.AddLifeCrystal(x, y);
                     NetMessage.SendTileSquare(-1, x, y, 3);
-                    op.SendSuccessMessage($"ÒÑ·ÅÖÃ1¸ö{FT(kw)}");
+                    op.SendSuccessMessage($"å·²æ”¾ç½®1ä¸ª{FT(kw)}");
                     break;
 
-                case "°µÓ°Öé":
+                case "æš—å½±ç ":
                     flag = WorldGen.crimson;
                     WorldGen.crimson = false;
-                    WorldGen.AddShadowOrb(x, y);
+                    WorldGen.AddShadowOrb(x, y, false);
                     WorldGen.crimson = flag;
                     NetMessage.SendTileSquare(-1, x, y, 3);
-                    op.SendSuccessMessage($"ÒÑ·ÅÖÃ1¸ö{FT(kw)}");
+                    op.SendSuccessMessage($"å·²æ”¾ç½®1ä¸ª{FT(kw)}");
                     break;
 
-                case "ĞÉºìÖ®ĞÄ":
+                case "çŒ©çº¢ä¹‹å¿ƒ":
                     flag = WorldGen.crimson;
                     WorldGen.crimson = true;
-                    WorldGen.AddShadowOrb(x, y);
+                    WorldGen.AddShadowOrb(x, y, true);
                     WorldGen.crimson = flag;
                     NetMessage.SendTileSquare(-1, x, y, 3);
-                    op.SendSuccessMessage($"ÒÑ·ÅÖÃ1¸ö{FT(kw)}");
+                    op.SendSuccessMessage($"å·²æ”¾ç½®1ä¸ª{FT(kw)}");
                     break;
 
-                case "¶ñÄ§¼ÀÌ³":
+                case "æ¶é­”ç¥­å›":
                     PreparePlace(x, y, 3, 2, true, 25);
                     WorldGen.Place3x2(x, y, TileID.DemonAltar);
                     NetMessage.SendTileSquare(-1, x, y, 3);
-                    op.SendInfoMessage($"ÒÑ·ÅÖÃ1¸ö{kw}");
+                    op.SendInfoMessage($"å·²æ”¾ç½®1ä¸ª{kw}");
                     break;
 
-                case "ĞÉºì¼ÀÌ³":
+                case "çŒ©çº¢ç¥­å›":
                     PreparePlace(x, y, 3, 2, true, 203);
                     WorldGen.Place3x2(x, y, TileID.DemonAltar, 1);
                     NetMessage.SendTileSquare(-1, x, y, 3);
-                    op.SendSuccessMessage($"ÒÑ·ÅÖÃ1¸ö{kw}");
+                    op.SendSuccessMessage($"å·²æ”¾ç½®1ä¸ª{kw}");
                     break;
 
-                case "¼ÀÌ³":
+                case "ç¥­å›":
                     if (!WorldGen.crimson)
                     {
                         PreparePlace(x, y, 3, 2, true, 25);
@@ -101,50 +101,50 @@ namespace WorldModify.Tools
                         WorldGen.Place3x2(x, y, TileID.DemonAltar, 1);
                     }
                     NetMessage.SendTileSquare(-1, x, y, 3);
-                    op.SendSuccessMessage($"ÒÑ·ÅÖÃ1¸ö{kw}");
+                    op.SendSuccessMessage($"å·²æ”¾ç½®1ä¸ª{kw}");
                     break;
 
-                case "¸½Ä§½£":
+                case "é™„é­”å‰‘":
                     PreparePlace(x, y, 3, 2, true);
                     WorldGen.PlaceTile(x, y, TileID.LargePiles2, true, true, -1, 17);
                     NetMessage.SendTileSquare(-1, x, y, 3);
-                    op.SendSuccessMessage($"ÒÑ·ÅÖÃ1°Ñ{FT(kw)}");
+                    op.SendSuccessMessage($"å·²æ”¾ç½®1æŠŠ{FT(kw)}");
                     break;
 
-                case "¹Ş×Ó":
+                case "ç½å­":
                     if (!PlacePot(x, y))
                     {
-                        op.SendErrorMessage("Î´ÄÜ·ÅÖÃ¹Ş×Ó");
+                        op.SendErrorMessage("æœªèƒ½æ”¾ç½®ç½å­");
                     }
                     else
                     {
-                        op.SendInfoMessage("ÒÑ³¢ÊÔ·ÅÖÃ1¸ö¹Ş×Ó");
+                        op.SendInfoMessage("å·²å°è¯•æ”¾ç½®1ä¸ªç½å­");
                     }
                     break;
 
-                case "ÉúÃü¹û":
+                case "ç”Ÿå‘½æœ":
                     PlaceFruit(x, y);
-                    op.SendSuccessMessage($"ÒÑ·ÅÖÃ1¿Å{FT(kw)}");
+                    op.SendSuccessMessage($"å·²æ”¾ç½®1é¢—{FT(kw)}");
                     break;
 
-                case "Ó×³æ":
+                case "å¹¼è™«":
                     PreparePlace(x, y - 1, 3, 3, true, 225);
                     PlaceLarva(x, y);
-                    op.SendSuccessMessage($"ÒÑ·ÅÖÃ1¸ö{FT(kw)}");
+                    op.SendSuccessMessage($"å·²æ”¾ç½®1ä¸ª{FT(kw)}");
                     break;
 
-                case "»¨°ú":
+                case "èŠ±è‹":
                     PlaceBulb(x, y);
-                    op.SendSuccessMessage($"ÒÑ·ÅÖÃ1¸ö{FT(kw)}");
+                    op.SendSuccessMessage($"å·²æ”¾ç½®1ä¸ª{FT(kw)}");
                     break;
 
-                case "·¢¹âÓô½ğÏã":
+                case "å‘å…‰éƒé‡‘é¦™":
                     PlaceTulip(x, y);
-                    op.SendSuccessMessage($"ÒÑ·ÅÖÃ1¶ä{FT(kw)}");
+                    op.SendSuccessMessage($"å·²æ”¾ç½®1æœµ{FT(kw)}");
                     break;
 
                 default:
-                    // Í¼¸ñid / Í¼¸ñÃû³Æ
+                    // å›¾æ ¼id / å›¾æ ¼åç§°
                     var tileProp = TileHelper.GetTileByIDOrName(kw);
                     if (tileProp != null)
                     {
@@ -153,7 +153,7 @@ namespace WorldModify.Tools
                         {
                             if (!int.TryParse(args.Parameters[1], out tileStyle))
                             {
-                                op.SendErrorMessage("Í¼¸ñÑùÊ½ÊäÈë´íÎó£¡");
+                                op.SendErrorMessage("å›¾æ ¼æ ·å¼è¾“å…¥é”™è¯¯ï¼");
                                 return;
                             }
                         }
@@ -166,19 +166,19 @@ namespace WorldModify.Tools
                         NetMessage.SendTileSquare(-1, x, y, 20);
                         //TileHelper.GenAfter();
 
-                        var s = tileProp.isFrame ? "£¨¸ÃÍ¼¸ñÓĞ¶àÖÖÑùÊ½£©" : "";
-                        op.SendSuccessMessage($"ÒÑ³¢ÊÔ·ÅÖÃ1¸ö{tileProp.Desc}£¬ÑùÊ½{tileStyle}{s}¡£");
+                        var s = tileProp.isFrame ? "ï¼ˆè¯¥å›¾æ ¼æœ‰å¤šç§æ ·å¼ï¼‰" : "";
+                        op.SendSuccessMessage($"å·²å°è¯•æ”¾ç½®1ä¸ª{tileProp.Desc}ï¼Œæ ·å¼{tileStyle}{s}ã€‚");
                     }
                     else
                     {
-                        op.SendErrorMessage("ÊäÈëµÄÍ¼¸ñidÎŞĞ§»òÃû³Æ²»Æ¥Åä£¡");
+                        op.SendErrorMessage("è¾“å…¥çš„å›¾æ ¼idæ— æ•ˆæˆ–åç§°ä¸åŒ¹é…ï¼");
                     }
                     break;
             }
         }
 
         /// <summary>
-        /// ·ÅÖÃ¹Ş×Ó
+        /// æ”¾ç½®ç½å­
         /// </summary>
         /// <param name="x"></param>
         /// <param name="y"></param>
@@ -243,7 +243,7 @@ namespace WorldModify.Tools
         }
 
         /// <summary>
-        /// ·ÅÖÃÓ×³æ
+        /// æ”¾ç½®å¹¼è™«
         /// </summary>
         /// <param name="x"></param>
         /// <param name="y"></param>
@@ -259,7 +259,7 @@ namespace WorldModify.Tools
                     }
                     else
                     {
-                        // ·ÅÖÃ·ä³²¿é
+                        // æ”¾ç½®èœ‚å·¢å—
                         //Main.tile[rx, ry].active(active: true);
                         //Main.tile[rx, ry].type = 225;
                         //Main.tile[rx, ry].slope(0);
@@ -272,7 +272,7 @@ namespace WorldModify.Tools
         }
 
         /// <summary>
-        /// ·ÅÖÃ»¨°ú
+        /// æ”¾ç½®èŠ±è‹
         /// </summary>
         /// <param name="x"></param>
         /// <param name="y"></param>
@@ -288,7 +288,7 @@ namespace WorldModify.Tools
                     }
                     else
                     {
-                        // ·ÅÖÃ¡°´ÔÁÖ²İ¡±·½¿é
+                        // æ”¾ç½®â€œä¸›æ—è‰â€æ–¹å—
                         Main.tile[rx, ry].active(active: true);
                         Main.tile[rx, ry].type = 60;
                         Main.tile[rx, ry].slope(0);
@@ -301,7 +301,7 @@ namespace WorldModify.Tools
         }
 
         /// <summary>
-        /// ·ÅÖÃÉúÃü¹û
+        /// æ”¾ç½®ç”Ÿå‘½æœ
         /// </summary>
         /// <param name="x"></param>
         /// <param name="y"></param>
@@ -317,7 +317,7 @@ namespace WorldModify.Tools
                     }
                     else
                     {
-                        // ·ÅÖÃ¡°´ÔÁÖ²İ¡±·½¿é
+                        // æ”¾ç½®â€œä¸›æ—è‰â€æ–¹å—
                         Main.tile[rx, ry].active(active: true);
                         Main.tile[rx, ry].type = 60;
                         Main.tile[rx, ry].slope(0);
@@ -330,7 +330,7 @@ namespace WorldModify.Tools
         }
 
         /// <summary>
-        /// ·ÅÖÃ·¢¹âÓô½ğÏã
+        /// æ”¾ç½®å‘å…‰éƒé‡‘é¦™
         /// </summary>
         /// <param name="x"></param>
         /// <param name="y"></param>
@@ -348,11 +348,11 @@ namespace WorldModify.Tools
                     }
                     else
                     {
-                        // ·¢¹âÓô½ğÏãÖ»Éú³ÉÔÚÖ¸¶¨Í¼¸ñÉÏÃæ
+                        // å‘å…‰éƒé‡‘é¦™åªç”Ÿæˆåœ¨æŒ‡å®šå›¾æ ¼ä¸Šé¢
                         var type = tile.type;
                         if (type != 0 && type != 70 && type != 633 && type != 59 && type != 225 && !TileID.Sets.Conversion.Grass[type] && !TileID.Sets.Conversion.Stone[type] && !Main.tileMoss[type])
                         {
-                            // ·ÅÖÃ¡°²İ¡±·½¿é
+                            // æ”¾ç½®â€œè‰â€æ–¹å—
                             tile.active(active: true);
                             tile.type = 2;
                             tile.slope(0);
@@ -369,10 +369,10 @@ namespace WorldModify.Tools
 
 
         /// <summary>
-        /// ×¼±¸·ÅÖÃ
+        /// å‡†å¤‡æ”¾ç½®
         /// </summary>
-        /// <param name="makeLand">Í¼¸ñÏÂ·½·ÅÖÃ·½¿é</param>
-        /// <param name="landType">µæ½Å·½¿éµÄÍ¼¸ñid</param>
+        /// <param name="makeLand">å›¾æ ¼ä¸‹æ–¹æ”¾ç½®æ–¹å—</param>
+        /// <param name="landType">å«è„šæ–¹å—çš„å›¾æ ¼id</param>
         static void PreparePlace(int x, int y, int w = 1, int h = 1, bool makeLand = false, ushort landType = 2)
         {
             y--;
@@ -385,19 +385,19 @@ namespace WorldModify.Tools
                     Main.tile[rx, ry].active(false);
                 }
 
-                //·ÅÖÃ²İ¿é
+                //æ”¾ç½®è‰å—
                 tile = Main.tile[rx, y + h];
-                Utils.Log($"Ğ±Ãæ£º{tile.slope()}");
+                Utils.Log($"æ–œé¢ï¼š{tile.slope()}");
                 if (makeLand)
                 {
-                    // ²¹¿Õ
+                    // è¡¥ç©º
                     if (!tile.active())
                     {
                         tile.active(true);
                         tile.type = landType;
                     }
 
-                    // Íæ¼Ò¿ÉÒÔ´©¹ıµÄÍ¼¸ñ
+                    // ç©å®¶å¯ä»¥ç©¿è¿‡çš„å›¾æ ¼
                     // !Main.tileSolidTop[tile.type]
                     if (!Main.tileSolid[tile.type])
                     {
@@ -406,19 +406,19 @@ namespace WorldModify.Tools
                         tile.type = landType;
                     }
 
-                    // Î´¼¤»î
+                    // æœªæ¿€æ´»
                     if (tile.inActive())
                     {
                         tile.inActive(false);
                     }
 
-                    // °ë×©
+                    // åŠç –
                     if (!tile.halfBrick())
                     {
                         tile.halfBrick(false);
                     }
 
-                    // Ğ±Ãæ
+                    // æ–œé¢
                     if (tile.slope() != 0)
                     {
                         tile.slope(0);

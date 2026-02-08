@@ -1,4 +1,4 @@
-using Microsoft.Xna.Framework;
+ï»¿using Microsoft.Xna.Framework;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using Terraria;
@@ -8,7 +8,7 @@ using TShockAPI;
 namespace WorldModify
 {
     /// <summary>
-    /// Ìî³ä¹¤¾ß
+    /// å¡«å……å·¥å…·
     /// </summary>
     class FillTool
     {
@@ -26,12 +26,12 @@ namespace WorldModify
 
         static readonly string[] Desc = new string[] {
             "",
-            "·½¿é",
-            "Ç½Ìå",
+            "æ–¹å—",
+            "å¢™ä½“",
 
-            "ÍÁ¿é", "Äà¿é",
-            "Ë®", "·äÃÛ", "ÑÒ½¬", "Î¢¹â",
-            "ºìµçÏß", "À¶µçÏß", "ÂÌµçÏß", "»ÆµçÏß",
+            "åœŸå—", "æ³¥å—",
+            "æ°´", "èœ‚èœœ", "å²©æµ†", "å¾®å…‰",
+            "çº¢ç”µçº¿", "è“ç”µçº¿", "ç»¿ç”µçº¿", "é»„ç”µçº¿",
         };
 
         public static void Manage(CommandArgs args)
@@ -42,11 +42,11 @@ namespace WorldModify
             {
                 List<string> lines = new()
                 {
-                    "/igen f <id/Ãû³Æ>£¬Ìî³äÍ¼¸ñ",
-                    "/igen f wall <id/Ãû³Æ>£¬ÆÌÇ½",
-                    "/igen f <dirt/mud>£¬Ìî³äÍÁ¿é/Äà¿é",
-                    "/igen f <water/lava/honey/shimmer>£¬Ìî³äË®/ÑÒ½¬/·äÃÛ/Î¢¹â",
-                    "/igen f <red/blue/green/yellow>£¬ÆÌÉèºì/À¶/ÂÌ/»ÆµçÏß",
+                    "/igen f <id/åç§°>ï¼Œå¡«å……å›¾æ ¼",
+                    "/igen f wall <id/åç§°>ï¼Œé“ºå¢™",
+                    "/igen f <dirt/mud>ï¼Œå¡«å……åœŸå—/æ³¥å—",
+                    "/igen f <water/lava/honey/shimmer>ï¼Œå¡«å……æ°´/å²©æµ†/èœ‚èœœ/å¾®å…‰",
+                    "/igen f <red/blue/green/yellow>ï¼Œé“ºè®¾çº¢/è“/ç»¿/é»„ç”µçº¿",
                 };
                 Utils.Pagination(args, ref lines, "/igen fill");
             }
@@ -63,51 +63,51 @@ namespace WorldModify
             switch (kw)
             {
                 case "dirt":
-                case "ÍÁ":
-                case "ÍÁ¿é":
+                case "åœŸ":
+                case "åœŸå—":
                     type = Type.Dirt;
                     id = TileID.Dirt;
                     break;
 
                 case "mud":
-                case "Äà":
-                case "Äà¿é":
+                case "æ³¥":
+                case "æ³¥å—":
                     type = Type.Mud;
                     id = TileID.Mud;
                     break;
 
                 case "water":
-                case "Ë®":
+                case "æ°´":
                     type = Type.Water;
                     break;
 
                 case "honey":
-                case "·äÃÛ":
+                case "èœ‚èœœ":
                     type = Type.Honey;
                     break;
 
                 case "lava":
-                case "ÑÒ½¬":
+                case "å²©æµ†":
                     type = Type.Lava;
                     break;
 
                 case "shimmer":
-                case "Î¢¹â":
+                case "å¾®å…‰":
                     type = Type.Shimmer;
                     break;
 
                 case "wall":
                 case "w":
-                case "Ç½":
+                case "å¢™":
                     if (args.Parameters.Count < 2)
                     {
-                        op.SendErrorMessage("ĞèÒªÊäÈëÇ½ÌåID£¬/igen f wall <id/Ãû³Æ>");
+                        op.SendErrorMessage("éœ€è¦è¾“å…¥å¢™ä½“IDï¼Œ/igen f wall <id/åç§°>");
                         return;
                     }
                     var wp = TileHelper.GetWallByIDOrName(args.Parameters[1]);
                     if (wp == null)
                     {
-                        op.SendErrorMessage("ÊäÈëµÄÇ½idÎŞĞ§»òÃû³Æ²»Æ¥Åä£¡");
+                        op.SendErrorMessage("è¾“å…¥çš„å¢™idæ— æ•ˆæˆ–åç§°ä¸åŒ¹é…ï¼");
                         return;
                     }
                     else
@@ -118,34 +118,34 @@ namespace WorldModify
                     }
                     break;
 
-                // µçÏß
+                // ç”µçº¿
                 case "red":
-                case "ºìµçÏß":
-                case "µçÏß":
+                case "çº¢ç”µçº¿":
+                case "ç”µçº¿":
                     type = Type.Wire1;
                     id = 1;
                     break;
 
                 case "blue":
-                case "À¶µçÏß":
+                case "è“ç”µçº¿":
                     type = Type.Wire2;
                     id = 2;
                     break;
 
                 case "green":
-                case "ÂÌµçÏß":
+                case "ç»¿ç”µçº¿":
                     type = Type.Wire3;
                     id = 3;
                     break;
 
                 case "yellow":
-                case "»ÆµçÏß":
+                case "é»„ç”µçº¿":
                     type = Type.Wire4;
                     id = 4;
                     break;
 
                 default:
-                    // Í¼¸ñid / Í¼¸ñÃû³Æ
+                    // å›¾æ ¼id / å›¾æ ¼åç§°
                     var tileProp = TileHelper.GetTileByIDOrName(kw);
                     if (tileProp != null)
                     {
@@ -155,7 +155,7 @@ namespace WorldModify
                     }
                     else
                     {
-                        op.SendErrorMessage("ÊäÈëµÄÍ¼¸ñidÎŞĞ§»òÍ¼¸ñÃû³Æ²»Æ¥Åä£¡");
+                        op.SendErrorMessage("è¾“å…¥çš„å›¾æ ¼idæ— æ•ˆæˆ–å›¾æ ¼åç§°ä¸åŒ¹é…ï¼");
                         return;
                     }
                     break;
@@ -182,7 +182,7 @@ namespace WorldModify
                         ITile tile = Main.tile[x, y];
                         switch (type)
                         {
-                            // Í¼¸ñ
+                            // å›¾æ ¼
                             case Type.Block:
                             case Type.Dirt:
                             case Type.Mud:
@@ -193,7 +193,7 @@ namespace WorldModify
                                 }
                                 break;
 
-                            // Ç½
+                            // å¢™
                             case Type.Wall:
                                 if (tile.wall == 0)
                                 {
@@ -202,7 +202,7 @@ namespace WorldModify
                                 }
                                 break;
 
-                            // ÒºÌå
+                            // æ¶²ä½“
                             case Type.Water:
                             case Type.Honey:
                             case Type.Lava:
@@ -219,7 +219,7 @@ namespace WorldModify
 
                 switch (type)
                 {
-                    // µçÏß
+                    // ç”µçº¿
                     case Type.Wire1:
                     case Type.Wire2:
                     case Type.Wire3:
@@ -258,15 +258,15 @@ namespace WorldModify
                     case Type.Honey:
                     case Type.Lava:
                     case Type.Shimmer:
-                        text = $"£¬ÈçÒºÌå²»Á÷¶¯£¬¿ÉÊäÈë{Utils.Highlight("/settle")}½øĞĞÆ½ºâ";
+                        text = $"ï¼Œå¦‚æ¶²ä½“ä¸æµåŠ¨ï¼Œå¯è¾“å…¥{Utils.Highlight("/settle")}è¿›è¡Œå¹³è¡¡";
                         break;
                 }
-                op.SendSuccessMessage($"ÒÑÌî³ä{count}¸ñ{name}£¬ÓÃÊ±{second}Ãë{text}¡£");
+                op.SendSuccessMessage($"å·²å¡«å……{count}æ ¼{name}ï¼Œç”¨æ—¶{second}ç§’{text}ã€‚");
             });
         }
 
         /// <summary>
-        /// Ìî³äÍ¼¸ñ
+        /// å¡«å……å›¾æ ¼
         /// </summary>
         private static void Fill(int x, int y, Type type, int replaceID = -1)
         {
@@ -292,7 +292,7 @@ namespace WorldModify
         }
 
         /// <summary>
-        /// Ìî³äÒºÌå
+        /// å¡«å……æ¶²ä½“
         /// </summary>
         private static void FillLiquid(int x, int y, Type type)
         {

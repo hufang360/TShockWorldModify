@@ -13,6 +13,7 @@ using Terraria.ID;
 using Terraria.Net;
 using TShockAPI;
 using TShockAPI.DB;
+using TShockAPI.DB.Queries;
 
 namespace WorldModify
 {
@@ -96,11 +97,11 @@ namespace WorldModify
                         }
                         else if (items.Count > 1)
                         {
-                            args.Player.SendMultipleMatchError(items.Select(i => $"{i.Name}({i.netID})"));
+                            args.Player.SendMultipleMatchError(items.Select(i => $"{i.Name}({i.type})"));
                         }
                         else
                         {
-                            UnlockOne(items[0].netID, op);
+                            UnlockOne(items[0].type, op);
                         }
                     }
                     break;
@@ -116,7 +117,7 @@ namespace WorldModify
             }
             int needNum = CreativeItemSacrificesCatalog.Instance.SacrificeCountNeededByItemId[id];
             TShock.ResearchDatastore.SacrificeItem(id, needNum, op);
-            var response = NetCreativeUnlocksModule.SerializeItemSacrifice(id, needNum);
+            var response = NetCreativeUnlocksPlayerReportModule.SerializeSacrificeRequest(op.Index, id, needNum);
             NetManager.Instance.Broadcast(response);
             op.SendErrorMessage($"{Lang.GetItemName(id)} 已研究。id:{id} 研究数:{needNum}");
         }
@@ -133,7 +134,7 @@ namespace WorldModify
                 foreach (KeyValuePair<int, int> item in dic)
                 {
                     TShock.ResearchDatastore.SacrificeItem(item.Key, item.Value, op);
-                    var response = NetCreativeUnlocksModule.SerializeItemSacrifice(item.Key, item.Value);
+                    var response = NetCreativeUnlocksPlayerReportModule.SerializeSacrificeRequest(op.Index, item.Key, item.Value);
                     NetManager.Instance.Broadcast(response);
                 }
                 op.SendSuccessMessage($"已解锁 {dic.Count} 个物品研究");
@@ -172,7 +173,7 @@ namespace WorldModify
                     if (int.TryParse(arr[0], out int key) && int.TryParse(arr[0], out int value))
                     {
                         TShock.ResearchDatastore.SacrificeItem(key, value, op);
-                        var response = NetCreativeUnlocksModule.SerializeItemSacrifice(key, value);
+                        var response = NetCreativeUnlocksPlayerReportModule.SerializeSacrificeRequest(op.Index, key, value);
                         NetManager.Instance.Broadcast(response);
                         count++;
                     }
@@ -198,8 +199,8 @@ namespace WorldModify
                     );
                 var creator = new SqlTableCreator(db,
                     db.GetSqlType() == SqlType.Sqlite
-                        ? new SqliteQueryCreator()
-                        : new MysqlQueryCreator());
+                        ? new SqliteQueryBuilder()
+                        : new MysqlQueryBuilder());
                 try
                 {
                     creator.EnsureTableStructure(table);

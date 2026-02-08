@@ -1,4 +1,4 @@
-using Microsoft.Xna.Framework;
+ï»¿using Microsoft.Xna.Framework;
 using System;
 using System.Collections.Generic;
 using Terraria;
@@ -9,7 +9,7 @@ using TShockAPI;
 namespace WorldModify
 {
     /// <summary>
-    /// ²éÕÒ¹¤¾ß
+    /// æŸ¥æ‰¾å·¥å…·
     /// </summary>
     class WMFindTool
     {
@@ -22,34 +22,34 @@ namespace WorldModify
                 var FT = Mapping.FlagTile;
                 List<string> lines = new()
                 {
-                    "/wm f <id/Ãû³Æ>£¬²éÕÒÖ¸¶¨Í¼¸ñ£¨Î´ÄÜÇø·Ö¶àÑùÊ½Í¼¸ñ£©",
-                    $"/wm f tomb£¬²éÕÒ {FT("Ä¹±®")}£¨È«ÀàĞÍ£©",
-                    $"/wm f dress£¬²éÕÒ {FT("Êá×±Ì¨")}£¨È«ÀàĞÍ£©",
-                    $"/wm f sword£¬²éÕÒ {FT("¸½Ä§½£")}",
+                    "/wm f <id/åç§°>ï¼ŒæŸ¥æ‰¾æŒ‡å®šå›¾æ ¼ï¼ˆæœªèƒ½åŒºåˆ†å¤šæ ·å¼å›¾æ ¼ï¼‰",
+                    $"/wm f tombï¼ŒæŸ¥æ‰¾ {FT("å¢“ç¢‘")}ï¼ˆå…¨ç±»å‹ï¼‰",
+                    $"/wm f dressï¼ŒæŸ¥æ‰¾ {FT("æ¢³å¦†å°")}ï¼ˆå…¨ç±»å‹ï¼‰",
+                    $"/wm f swordï¼ŒæŸ¥æ‰¾ {FT("é™„é­”å‰‘")}",
 
-                    $"/wm f lc£¬²éÕÒ {FT("ÉúÃüË®¾§")}",
-                    $"/wm f lf£¬²éÕÒ {FT("ÉúÃü¹û")}",
-                    $"/wm f lcb£¬²éÕÒ {FT("¾ŞĞÍÉúÃüË®¾§")}",
-                    $"/wm f bb£¬²éÕÒ {FT("µ¯Á¦¾ŞÊ¯")}",
+                    $"/wm f lcï¼ŒæŸ¥æ‰¾ {FT("ç”Ÿå‘½æ°´æ™¶")}",
+                    $"/wm f lfï¼ŒæŸ¥æ‰¾ {FT("ç”Ÿå‘½æœ")}",
+                    $"/wm f lcbï¼ŒæŸ¥æ‰¾ {FT("å·¨å‹ç”Ÿå‘½æ°´æ™¶")}",
+                    $"/wm f bbï¼ŒæŸ¥æ‰¾ {FT("å¼¹åŠ›å·¨çŸ³")}",
 
-                    $"/wm f wb£¬²éÕÒ {FT("Ë®Ê¸")}",
-                    $"/wm f gc£¬²éÕÒ {FT("Ã÷½ºË®¾§")}",
-                    $"/wm f orb£¬²éÕÒ {FT("°µÓ°Öé")}",
-                    $"/wm f heart£¬²éÕÒ {FT("ĞÉºìÖ®ĞÄ")}",
+                    $"/wm f wbï¼ŒæŸ¥æ‰¾ {FT("æ°´çŸ¢")}",
+                    $"/wm f gcï¼ŒæŸ¥æ‰¾ {FT("æ˜èƒ¶æ°´æ™¶")}",
+                    $"/wm f orbï¼ŒæŸ¥æ‰¾ {FT("æš—å½±ç ")}",
+                    $"/wm f heartï¼ŒæŸ¥æ‰¾ {FT("çŒ©çº¢ä¹‹å¿ƒ")}",
 
-                    $"/wm f demon£¬²éÕÒ {FT("¶ñÄ§¼ÀÌ³")}",
-                    $"/wm f crimson£¬²éÕÒ {FT("ĞÉºì¼ÀÌ³")}",
-                    $"/wm f la£¬²éÕÒ {FT("´ÔÁÖòáòæ¼ÀÌ³")}",
-                    $"/wm f hf£¬²éÕÒ {FT("µØÓüÈÛÂ¯")}",
+                    $"/wm f demonï¼ŒæŸ¥æ‰¾ {FT("æ¶é­”ç¥­å›")}",
+                    $"/wm f crimsonï¼ŒæŸ¥æ‰¾ {FT("çŒ©çº¢ç¥­å›")}",
+                    $"/wm f laï¼ŒæŸ¥æ‰¾ {FT("ä¸›æ—èœ¥èœ´ç¥­å›")}",
+                    $"/wm f hfï¼ŒæŸ¥æ‰¾ {FT("åœ°ç‹±ç†”ç‚‰")}",
 
-                    $"/wm f larva£¬²éÕÒ {FT("Ó×³æ")}",
-                    $"/wm f bulb£¬²éÕÒ {FT("»¨°ú")}",
-                    $"/wm f ex£¬²éÕÒ {FT("ÌáÁ¶»ú")}",
-                    $"/wm f loom£¬²éÕÒ {FT("Ö¯²¼»ú")}",
+                    $"/wm f larvaï¼ŒæŸ¥æ‰¾ {FT("å¹¼è™«")}",
+                    $"/wm f bulbï¼ŒæŸ¥æ‰¾ {FT("èŠ±è‹")}",
+                    $"/wm f exï¼ŒæŸ¥æ‰¾ {FT("æç‚¼æœº")}",
+                    $"/wm f loomï¼ŒæŸ¥æ‰¾ {FT("ç»‡å¸ƒæœº")}",
 
-                    $"/wm f dirtiest£¬²éÕÒ {FT("×îÔàµÄ¿é")}",
-                    $"/wm f tulip£¬²éÕÒ {FT("·¢¹âÓô½ğÏã")}",
-                    $"/wm f <É­ÁÖ¾§Ëş/º£Ñó¾§Ëş¡­¡­>£¬²éÕÒ {FT("¾§Ëş")}",
+                    $"/wm f dirtiestï¼ŒæŸ¥æ‰¾ {FT("æœ€è„çš„å—")}",
+                    $"/wm f tulipï¼ŒæŸ¥æ‰¾ {FT("å‘å…‰éƒé‡‘é¦™")}",
+                    $"/wm f <æ£®æ—æ™¶å¡”/æµ·æ´‹æ™¶å¡”â€¦â€¦>ï¼ŒæŸ¥æ‰¾ {FT("æ™¶å¡”")}",
                 };
 
                 Utils.Pagination(args, ref lines, "/wm find");
@@ -76,57 +76,57 @@ namespace WorldModify
                 }
                 else
                 {
-                    op.SendErrorMessage("ÊäÈëµÄÍ¼¸ñidÎŞĞ§»òÃû³Æ²»Æ¥Åä£¡");
+                    op.SendErrorMessage("è¾“å…¥çš„å›¾æ ¼idæ— æ•ˆæˆ–åç§°ä¸åŒ¹é…ï¼");
                 }
             }
         }
 
         public static readonly Dictionary<string, FindInfo> FindList = new()
         {
-            { "¸½Ä§½£", new FindInfo(187,5) },
-            { "»¨°ú", new FindInfo(238) },
-            { "°µÓ°Öé", new FindInfo(31,0) },
-            { "ĞÉºìÖ®ĞÄ", new FindInfo(31,1) },
+            { "é™„é­”å‰‘", new FindInfo(187,5) },
+            { "èŠ±è‹", new FindInfo(238) },
+            { "æš—å½±ç ", new FindInfo(31,0) },
+            { "çŒ©çº¢ä¹‹å¿ƒ", new FindInfo(31,1) },
 
-            { "ÉúÃüË®¾§", new FindInfo(12,-1, 2,2) },
-            { "ÉúÃü¹û", new FindInfo(236) },
-            { "¾ŞĞÍÉúÃüË®¾§", new FindInfo(665) },
-            { "µ¯Á¦¾ŞÊ¯", new FindInfo(664) },
+            { "ç”Ÿå‘½æ°´æ™¶", new FindInfo(12,-1, 2,2) },
+            { "ç”Ÿå‘½æœ", new FindInfo(236) },
+            { "å·¨å‹ç”Ÿå‘½æ°´æ™¶", new FindInfo(665) },
+            { "å¼¹åŠ›å·¨çŸ³", new FindInfo(664) },
 
-            { "Ã÷½ºË®¾§", new FindInfo(129) },
-            { "Ó×³æ", new FindInfo(231) },
-            { "´ÔÁÖòáòæ¼ÀÌ³", new FindInfo(237) },
-            { "µØÓüÈÛÂ¯", new FindInfo(77) },
+            { "æ˜èƒ¶æ°´æ™¶", new FindInfo(129) },
+            { "å¹¼è™«", new FindInfo(231) },
+            { "ä¸›æ—èœ¥èœ´ç¥­å›", new FindInfo(237) },
+            { "åœ°ç‹±ç†”ç‚‰", new FindInfo(77) },
 
-            { "ÌáÁ¶»ú", new FindInfo(219) },
-            { "Ö¯²¼»ú", new FindInfo(86) },
-            { "¶ñÄ§¼ÀÌ³", new FindInfo(26,0) },
-            { "ĞÉºì¼ÀÌ³", new FindInfo(26,1) },
+            { "æç‚¼æœº", new FindInfo(219) },
+            { "ç»‡å¸ƒæœº", new FindInfo(86) },
+            { "æ¶é­”ç¥­å›", new FindInfo(26,0) },
+            { "çŒ©çº¢ç¥­å›", new FindInfo(26,1) },
 
-            { "Ä¹±®", new FindInfo(85) },
-            { "Êá×±Ì¨", new FindInfo(88) },
-            { "×îÔàµÄ¿é", new FindInfo(668) },
-            { "·¢¹âÓô½ğÏã", new FindInfo(656) },
-            { "Ë®Ê¸", new FindInfo(50,5,1,1,90,0) },
+            { "å¢“ç¢‘", new FindInfo(85) },
+            { "æ¢³å¦†å°", new FindInfo(88) },
+            { "æœ€è„çš„å—", new FindInfo(668) },
+            { "å‘å…‰éƒé‡‘é¦™", new FindInfo(656) },
+            { "æ°´çŸ¢", new FindInfo(50,5,1,1,90,0) },
 
-            {"É­ÁÖ¾§Ëş", new FindInfo(597,1, 3,4, 0, 0) },
-            {"´ÔÁÖ¾§Ëş", new FindInfo(597,2, 3,4, 54,0)},
-            {"ÉñÊ¥¾§Ëş", new FindInfo(597,3, 3,4, 108,0)},
-            {"¶´Ñ¨¾§Ëş", new FindInfo(597,4, 3,4, 162,0)},
-            {"º£Ñó¾§Ëş", new FindInfo(597,5, 3,4, 216,0)},
-            {"É³Ä®¾§Ëş", new FindInfo(597,6, 3,4, 270,0)},
-            {"Ñ©Ô­¾§Ëş", new FindInfo(597,7, 3,4, 324,0)},
-            {"Ä¢¹½¾§Ëş", new FindInfo(597,8, 3,4, 378,0)},
-            {"ÍòÄÜ¾§Ëş", new FindInfo(597,9, 3,4, 432,0)},
+            {"æ£®æ—æ™¶å¡”", new FindInfo(597,1, 3,4, 0, 0) },
+            {"ä¸›æ—æ™¶å¡”", new FindInfo(597,2, 3,4, 54,0)},
+            {"ç¥åœ£æ™¶å¡”", new FindInfo(597,3, 3,4, 108,0)},
+            {"æ´ç©´æ™¶å¡”", new FindInfo(597,4, 3,4, 162,0)},
+            {"æµ·æ´‹æ™¶å¡”", new FindInfo(597,5, 3,4, 216,0)},
+            {"æ²™æ¼ æ™¶å¡”", new FindInfo(597,6, 3,4, 270,0)},
+            {"é›ªåŸæ™¶å¡”", new FindInfo(597,7, 3,4, 324,0)},
+            {"è˜‘è‡æ™¶å¡”", new FindInfo(597,8, 3,4, 378,0)},
+            {"ä¸‡èƒ½æ™¶å¡”", new FindInfo(597,9, 3,4, 432,0)},
         };
 
         /// <summary>
-        /// ÁĞ³öÍ¼¸ñ
+        /// åˆ—å‡ºå›¾æ ¼
         /// </summary>
         /// <param name="op"></param>
         /// <param name="opName"></param>
         /// <param name="fd"></param>
-        /// <param name="accurate">ÊÇ·ñ¾«È·£¨³ıÒÑÖªµÄÍ¼¸ñÍâ£¬ÔİÊ±ÎŞ·¨Æ¥Åä¶àÑùÊ½Í¼¸ñ£©</param>
+        /// <param name="accurate">æ˜¯å¦ç²¾ç¡®ï¼ˆé™¤å·²çŸ¥çš„å›¾æ ¼å¤–ï¼Œæš‚æ—¶æ— æ³•åŒ¹é…å¤šæ ·å¼å›¾æ ¼ï¼‰</param>
         static void ListedExtra(TSPlayer op, string opName, FindInfo fd, bool accurate = true)
         {
             ResetSkip();
@@ -144,7 +144,7 @@ namespace WorldModify
             }
             if (found.Count == 0)
             {
-                op.SendInfoMessage($"Î´ÕÒµ½{opName}£¡");
+                op.SendInfoMessage($"æœªæ‰¾åˆ°{opName}ï¼");
                 return;
             }
             Point16 p = found[0];
@@ -154,19 +154,19 @@ namespace WorldModify
             var HL = Utils.Highlight;
             var s1 = $"/tppos {p.X} {p.Y}";
             var s2 = "/wm gps <x> <y>";
-            var s3 = accurate ? "" : "*¸ÃÍ¼¸ñÓĞ¶àÖÖÑùÊ½£¬±¾´Î²éÕÒ½á¹ûÎª¶à¸öÑùÊ½µÄ»ã×Ü\n";
+            var s3 = accurate ? "" : "*è¯¥å›¾æ ¼æœ‰å¤šç§æ ·å¼ï¼Œæœ¬æ¬¡æŸ¥æ‰¾ç»“æœä¸ºå¤šä¸ªæ ·å¼çš„æ±‡æ€»\n";
             List<string> lines = new() {
-                $"ÕÒµ½{found.Count}¸ö{opName}:",
-                $"Ç°ÍùÊ×¸ö×ø±ê£º{HL(s1)}, {Utils.GetLocationDesc(p.X, p.Y)}",
-                $"Ç°20¸öµÄ×ø±ê£º{string.Join("\n", pstrings)}",
-                $"{s3}*ÊäÈë{HL(s2)}²éÑ¯×ø±ê¶ÔÓ¦µÄGPSĞÅÏ¢"
+                $"æ‰¾åˆ°{found.Count}ä¸ª{opName}:",
+                $"å‰å¾€é¦–ä¸ªåæ ‡ï¼š{HL(s1)}, {Utils.GetLocationDesc(p.X, p.Y)}",
+                $"å‰20ä¸ªçš„åæ ‡ï¼š{string.Join("\n", pstrings)}",
+                $"{s3}*è¾“å…¥{HL(s2)}æŸ¥è¯¢åæ ‡å¯¹åº”çš„GPSä¿¡æ¯"
             };
 
             op.SendInfoMessage(string.Join("\n", lines));
         }
 
         /// <summary>
-        /// ×ø±ê×ª×Ö·û´®
+        /// åæ ‡è½¬å­—ç¬¦ä¸²
         /// </summary>
         static List<string> Point2String(List<Point16> points)
         {
@@ -179,7 +179,7 @@ namespace WorldModify
         }
 
         /// <summary>
-        /// ²éÕÒ¾«Áé/Í¼¸ñ
+        /// æŸ¥æ‰¾ç²¾çµ/å›¾æ ¼
         /// </summary>
         /// <param name="tileX"></param>
         /// <param name="tileY"></param>
@@ -219,7 +219,7 @@ namespace WorldModify
                 return pass;
             }
 
-            // Ã÷½ºË®¾§
+            // æ˜èƒ¶æ°´æ™¶
             if (id == TileID.Crystals && frameX >= 324)
             {
                 return true;

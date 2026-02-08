@@ -1,4 +1,4 @@
-using System.Drawing;
+ï»¿using System.Drawing;
 using System.IO;
 using Terraria;
 using Terraria.Map;
@@ -7,7 +7,7 @@ using TShockAPI;
 namespace WorldModify
 {
     /// <summary>
-    /// ÏñËØ»­´òÓ¡¹¤¾ß
+    /// åƒç´ ç”»æ‰“å°å·¥å…·
     /// </summary>
     class PaintTool
     {
@@ -16,20 +16,20 @@ namespace WorldModify
             string filename = Path.Combine(Utils.WorkDir, "1.png");
             if (!File.Exists(filename))
             {
-                op.SendErrorMessage($"{filename} ÎÄ¼ş²»´æÔÚ£¡");
+                op.SendErrorMessage($"{filename} æ–‡ä»¶ä¸å­˜åœ¨ï¼");
                 return;
             }
 
             Bitmap bmp = new(filename);
             if (bmp.Width > Main.maxTilesX)
             {
-                op.SendErrorMessage($"Í¼Æ¬¿í¶ÈÌ«´óÁË£¬²»Ó¦³¬¹ı{Main.maxTilesX}px");
+                op.SendErrorMessage($"å›¾ç‰‡å®½åº¦å¤ªå¤§äº†ï¼Œä¸åº”è¶…è¿‡{Main.maxTilesX}px");
                 bmp.Dispose();
                 return;
             }
             if (bmp.Height > Main.maxTilesY)
             {
-                op.SendErrorMessage($"Í¼Æ¬µÄ¸ß¶ÈÌ«´óÁË£¬²»Ó¦³¬¹ı{Main.maxTilesY}px");
+                op.SendErrorMessage($"å›¾ç‰‡çš„é«˜åº¦å¤ªå¤§äº†ï¼Œä¸åº”è¶…è¿‡{Main.maxTilesY}px");
                 bmp.Dispose();
                 return;
             }
@@ -40,27 +40,27 @@ namespace WorldModify
 
             if (startX < 0)
             {
-                op.SendErrorMessage($"Î»ÖÃÌ«¿¿×óÁË£¬ÇëÍùÓÒÒÆ¶¯Ò»Ğ©");
+                op.SendErrorMessage($"ä½ç½®å¤ªé å·¦äº†ï¼Œè¯·å¾€å³ç§»åŠ¨ä¸€äº›");
                 bmp.Dispose();
                 return;
             }
             if (startY < 0)
             {
-                op.SendErrorMessage($"Î»ÖÃÌ«¿¿ÉÏÁË£¬ÇëÍùÏÂÒÆ¶¯Ò»Ğ©");
+                op.SendErrorMessage($"ä½ç½®å¤ªé ä¸Šäº†ï¼Œè¯·å¾€ä¸‹ç§»åŠ¨ä¸€äº›");
                 bmp.Dispose();
                 return;
             }
 
             if (startX + bmp.Width / 2 > Main.maxTilesX)
             {
-                op.SendErrorMessage($"Î»ÖÃÌ«¿¿ÓÒÁË£¬ÇëÍù×óÒÆ¶¯Ò»Ğ©");
+                op.SendErrorMessage($"ä½ç½®å¤ªé å³äº†ï¼Œè¯·å¾€å·¦ç§»åŠ¨ä¸€äº›");
                 bmp.Dispose();
                 return;
             }
 
             if (startY + bmp.Height > Main.maxTilesY)
             {
-                op.SendErrorMessage($"Î»ÖÃÌ«¿¿ÏÂÁË£¬ÇëÍùÉÏÒÆ¶¯Ò»Ğ©");
+                op.SendErrorMessage($"ä½ç½®å¤ªé ä¸‹äº†ï¼Œè¯·å¾€ä¸Šç§»åŠ¨ä¸€äº›");
                 bmp.Dispose();
                 return;
             }
@@ -76,7 +76,7 @@ namespace WorldModify
                 }
             }
             bmp.Dispose();
-            op.SendSuccessMessage("ÏñËØ´òÓ¡Íê³É£¡");
+            op.SendSuccessMessage("åƒç´ æ‰“å°å®Œæˆï¼");
         }
 
         private static Tile TileFromColor(Color color)
@@ -93,7 +93,7 @@ namespace WorldModify
         }
 
 
-        // ¼Ù²ÊÉ«Í¼Ïñ£¨Real TileColor£©
+        // å‡å½©è‰²å›¾åƒï¼ˆReal TileColorï¼‰
         public static int GetBrickFromColor(Color color)
         {
             for (int i = 0; i < MapHelper.colorLookup.Length; i++)

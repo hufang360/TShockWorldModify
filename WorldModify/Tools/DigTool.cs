@@ -1,7 +1,7 @@
-namespace WorldModify
+ï»¿namespace WorldModify
 {
     /// <summary>
-    /// ÍÚ¾ò¹¤¾ß
+    /// æŒ–æ˜å·¥å…·
     /// </summary>
     //class DigTool
     //{
@@ -37,27 +37,27 @@ namespace WorldModify
 
     //            List<string> lines = new()
     //            {
-    //                "/igen d <id>£¬Çå³ı Ö¸¶¨·½¿é",
-    //                "/igen d block£¬Çå³ı ËùÓĞ·½¿é",
-    //                "/igen d all£¬Çå³ı ËùÓĞ",
-    //                "/igen d wall£¬Çå³ı ËùÓĞÇ½Ìå",
+    //                "/igen d <id>ï¼Œæ¸…é™¤ æŒ‡å®šæ–¹å—",
+    //                "/igen d blockï¼Œæ¸…é™¤ æ‰€æœ‰æ–¹å—",
+    //                "/igen d allï¼Œæ¸…é™¤ æ‰€æœ‰",
+    //                "/igen d wallï¼Œæ¸…é™¤ æ‰€æœ‰å¢™ä½“",
 
-    //                "/igen d liquid£¬Çå³ı ËùÓĞÒºÌå",
-    //                "/igen d wire£¬Çå³ı ËùÓĞµçÏß",
+    //                "/igen d liquidï¼Œæ¸…é™¤ æ‰€æœ‰æ¶²ä½“",
+    //                "/igen d wireï¼Œæ¸…é™¤ æ‰€æœ‰ç”µçº¿",
 
-    //                "/igen d redwire£¬Çå³ı ºìµçÏß",
-    //                "/igen d bluewire£¬Çå³ı À¶µçÏß",
-    //                "/igen d greenwire£¬Çå³ı ÂÌµçÏß",
-    //                "/igen d yellowwire£¬Çå³ı »ÆµçÏß",
+    //                "/igen d redwireï¼Œæ¸…é™¤ çº¢ç”µçº¿",
+    //                "/igen d bluewireï¼Œæ¸…é™¤ è“ç”µçº¿",
+    //                "/igen d greenwireï¼Œæ¸…é™¤ ç»¿ç”µçº¿",
+    //                "/igen d yellowwireï¼Œæ¸…é™¤ é»„ç”µçº¿",
     //            };
     //            PaginationTools.SendPage(op, pageNumber, lines, new PaginationTools.Settings
     //            {
-    //                HeaderFormat = "/igen clear Ö¸ÁîÓÃ·¨ ({0}/{1})£º",
-    //                FooterFormat = "ÊäÈë /igen c help {{0}} ²é¿´¸ü¶à".SFormat(Commands.Specifier)
+    //                HeaderFormat = "/igen clear æŒ‡ä»¤ç”¨æ³• ({0}/{1})ï¼š",
+    //                FooterFormat = "è¾“å…¥ /igen c help {{0}} æŸ¥çœ‹æ›´å¤š".SFormat(Commands.Specifier)
     //            });
 
-    //            //op.SendInfoMessage("/igen c wall [Ç½id]£¬Çå³ı Ç½");
-    //            //op.SendInfoMessage("/igen c wire [red/blue/]£¬Çå³ı µçÏß");
+    //            //op.SendInfoMessage("/igen c wall [å¢™id]ï¼Œæ¸…é™¤ å¢™");
+    //            //op.SendInfoMessage("/igen c wire [red/blue/]ï¼Œæ¸…é™¤ ç”µçº¿");
     //        }
     //        if (args.Parameters.Count == 0)
     //        {
@@ -96,7 +96,7 @@ namespace WorldModify
     //                    }
     //                    else
     //                    {
-    //                        op.SendErrorMessage($"Í¼¸ñid£¬ÓĞĞ§ÖµÎª 0~{TileID.Count - 1}");
+    //                        op.SendErrorMessage($"å›¾æ ¼idï¼Œæœ‰æ•ˆå€¼ä¸º 0~{TileID.Count - 1}");
     //                    }
     //                }
     //                else
@@ -111,7 +111,7 @@ namespace WorldModify
     //            Rectangle rect = SelectionTool.GetSelection(op.Index);
     //            if (rect.Width * rect.Height > 122 * 68)
     //            {
-    //                op.SendInfoMessage("´Ë²Ù×÷ÈİÒ×Ôì³É·şÎñÆ÷¿¨¶Ù£¬Çë½«Ñ¡ÇøÉèÖÃÔÚÒ»ÆÁÄÚ£¡");
+    //                op.SendInfoMessage("æ­¤æ“ä½œå®¹æ˜“é€ æˆæœåŠ¡å™¨å¡é¡¿ï¼Œè¯·å°†é€‰åŒºè®¾ç½®åœ¨ä¸€å±å†…ï¼");
     //                return;
     //            }
     //            await Action(op, type, rect, new int[] { tileID });
@@ -126,26 +126,26 @@ namespace WorldModify
     //        {
     //            return type switch
     //            {
-    //                Type.Match => "Ö¸¶¨Í¼¸ñ",
-    //                Type.All => "ËùÓĞ",
-    //                Type.Block => "ËùÓĞ·½¿é",
-    //                Type.Wall => "ËùÓĞÇ½Ìå",
-    //                Type.Wire => "ËùÓĞµçÏß",
-    //                Type.Liquid => "ËùÓĞÒºÌå",
+    //                Type.Match => "æŒ‡å®šå›¾æ ¼",
+    //                Type.All => "æ‰€æœ‰",
+    //                Type.Block => "æ‰€æœ‰æ–¹å—",
+    //                Type.Wall => "æ‰€æœ‰å¢™ä½“",
+    //                Type.Wire => "æ‰€æœ‰ç”µçº¿",
+    //                Type.Liquid => "æ‰€æœ‰æ¶²ä½“",
 
-    //                Type.Wire1 => "ºìµçÏß",
-    //                Type.Wire2 => "À¶µçÏß",
-    //                Type.Wire3 => "ÂÌµçÏß",
-    //                Type.Wire4 => "»ÆµçÏß",
+    //                Type.Wire1 => "çº¢ç”µçº¿",
+    //                Type.Wire2 => "è“ç”µçº¿",
+    //                Type.Wire3 => "ç»¿ç”µçº¿",
+    //                Type.Wire4 => "é»„ç”µçº¿",
 
-    //                Type.Water => "Ë®",
-    //                Type.Lava => "ÑÒ½¬",
-    //                Type.Honey => "·äÃÛ",
-    //                Type.Shimmer => "Î¢¹â",
-    //                _ => "Í¼¸ñ",
+    //                Type.Water => "æ°´",
+    //                Type.Lava => "å²©æµ†",
+    //                Type.Honey => "èœ‚èœœ",
+    //                Type.Shimmer => "å¾®å…‰",
+    //                _ => "å›¾æ ¼",
     //            };
     //        }
-    //        string opString = $"ÊÕ¼¯{GetOpString()}";
+    //        string opString = $"æ”¶é›†{GetOpString()}";
 
     //        return Task.Run(() =>
     //        {
@@ -163,7 +163,7 @@ namespace WorldModify
 
     //                        case Type.Wall: WorldGen.KillWall(x, y); break;
 
-    //                        // µçÏß
+    //                        // ç”µçº¿
     //                        case Type.Wire:
     //                            WorldGen.KillWire(x, y);
     //                            WorldGen.KillWire2(x, y);
@@ -175,7 +175,7 @@ namespace WorldModify
     //                        case Type.Wire3: WorldGen.KillWire3(x, y); break;
     //                        case Type.Wire4: WorldGen.KillWire4(x, y); break;
 
-    //                        // ÒºÌå
+    //                        // æ¶²ä½“
     //                        case Type.Liquid:
     //                        case Type.Water:
     //                        case Type.Lava:
@@ -190,12 +190,12 @@ namespace WorldModify
     //        {
     //            TileHelper.GenAfter();
     //            int second = Utils.GetUnixTimestamp - secondLast;
-    //            op.SendSuccessMessage($"{opString} ½áÊø£¨ÓÃÊ± {second}Ãë£©");
+    //            op.SendSuccessMessage($"{opString} ç»“æŸï¼ˆç”¨æ—¶ {second}ç§’ï¼‰");
     //        });
     //    }
 
 
-    //    // Çå³ıÒºÌå
+    //    // æ¸…é™¤æ¶²ä½“
     //    static void ClearLiquid(int x, int y, Type type)
     //    {
     //        ITile tile = Main.tile[x, y];

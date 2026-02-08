@@ -1,4 +1,4 @@
-using Microsoft.Xna.Framework;
+ï»¿using Microsoft.Xna.Framework;
 using System;
 using Terraria;
 using TShockAPI;
@@ -6,7 +6,7 @@ using TShockAPI;
 namespace WorldModify
 {
     /// <summary>
-    /// Ñ¡Çø¹¤¾ß
+    /// é€‰åŒºå·¥å…·
     /// </summary>
     public class SelectionTool
     {
@@ -21,38 +21,38 @@ namespace WorldModify
             if (args.Parameters.Count == 0)
             {
                 if (rect.Width == 0 && rect.Height == 0)
-                    op.SendInfoMessage("Ñ¡Çø£ºÒÔÍæ¼ÒÎªÖĞĞÄµÄÒ»ÆÁÇøÓò£¬ÇøÓò½«ÊµÊ±¼ÆËã");
+                    op.SendInfoMessage("é€‰åŒºï¼šä»¥ç©å®¶ä¸ºä¸­å¿ƒçš„ä¸€å±åŒºåŸŸï¼ŒåŒºåŸŸå°†å®æ—¶è®¡ç®—");
                 else if (rect.Width == Main.maxTilesX && rect.Height == Main.maxTilesY)
-                    op.SendErrorMessage("Ñ¡Çø£ºÕû¸öÊÀ½ç£¡Õû¸öÊÀ½ç£¡Õû¸öÊÀ½ç£¡");
+                    op.SendErrorMessage("é€‰åŒºï¼šæ•´ä¸ªä¸–ç•Œï¼æ•´ä¸ªä¸–ç•Œï¼æ•´ä¸ªä¸–ç•Œï¼");
                 else
-                    op.SendInfoMessage($"Ñ¡Çø£ºx={rect.X} y={rect.Y} ¿í={rect.Width} ¸ß={rect.Height}");
+                    op.SendInfoMessage($"é€‰åŒºï¼šx={rect.X} y={rect.Y} å®½={rect.Width} é«˜={rect.Height}");
                 return;
             }
 
             switch (args.Parameters[0].ToLowerInvariant())
             {
                 case "help":
-                    op.SendInfoMessage("/igen s, ²é¿´ Ñ¡Çø");
-                    op.SendInfoMessage("/igen s all£¬Ñ¡ÖĞÕû¸öÊÀ½ç");
-                    op.SendInfoMessage("/igen s 0£¬ÒÔÍæ¼ÒÎªÖĞĞÄµÄÒ»ÆÁÇøÓò");
-                    op.SendInfoMessage("/igen s 1£¬×Ô¶¨ÒåÑ¡Çø£¨[i:3611]£©");
+                    op.SendInfoMessage("/igen s, æŸ¥çœ‹ é€‰åŒº");
+                    op.SendInfoMessage("/igen s allï¼Œé€‰ä¸­æ•´ä¸ªä¸–ç•Œ");
+                    op.SendInfoMessage("/igen s 0ï¼Œä»¥ç©å®¶ä¸ºä¸­å¿ƒçš„ä¸€å±åŒºåŸŸ");
+                    op.SendInfoMessage("/igen s 1ï¼Œè‡ªå®šä¹‰é€‰åŒºï¼ˆ[i:3611]ï¼‰");
                     break;
 
                 case "all":
                     rects[op.Index] = new Rectangle(0, 0, Main.maxTilesX, Main.maxTilesY);
-                    op.SendSuccessMessage("ÒÑ½«Ñ¡ÇøÉèÖÃÎªÕû¸öÊÀ½ç");
+                    op.SendSuccessMessage("å·²å°†é€‰åŒºè®¾ç½®ä¸ºæ•´ä¸ªä¸–ç•Œ");
                     break;
 
                 case "screen":
                 case "0":
                     rects[op.Index] = Rectangle.Empty;
-                    op.SendSuccessMessage("ÒÑ½«Ñ¡ÇøÉèÖÃÎªÒÔÍæ¼ÒÎªÖĞĞÄµÄÒ»ÆÁÇøÓò£¬ÇøÓò½«ÊµÊ±¼ÆËã¡£");
+                    op.SendSuccessMessage("å·²å°†é€‰åŒºè®¾ç½®ä¸ºä»¥ç©å®¶ä¸ºä¸­å¿ƒçš„ä¸€å±åŒºåŸŸï¼ŒåŒºåŸŸå°†å®æ—¶è®¡ç®—ã€‚");
                     break;
 
                 case "1":
                     flags[args.Player.Index] = true;
                     RegisterEvent();
-                    op.SendSuccessMessage("Ê¹ÓÃ[i:3611]¾«ÃÜÏß¿ØÒÇÀ­¶¯·ÅÖÃºìµçÏß£¬ÒÔÉèÖÃÑ¡Çø");
+                    op.SendSuccessMessage("ä½¿ç”¨[i:3611]ç²¾å¯†çº¿æ§ä»ªæ‹‰åŠ¨æ”¾ç½®çº¢ç”µçº¿ï¼Œä»¥è®¾ç½®é€‰åŒº");
                     break;
             }
         }
@@ -85,7 +85,7 @@ namespace WorldModify
         static void OnMassWire(object sender, GetDataHandlers.MassWireOperationEventArgs e)
         {
             var index = e.Player.Index;
-            // ToolMode BitFlags: 1 = Red, 2 = Green, 4 = Blue, 8 = Yellow, 16 = Actuator, 32 = Cutter 33ÒÆ³ıºìµçÏß 34ÒÆÂÌ
+            // ToolMode BitFlags: 1 = Red, 2 = Green, 4 = Blue, 8 = Yellow, 16 = Actuator, 32 = Cutter 33ç§»é™¤çº¢ç”µçº¿ 34ç§»ç»¿
             if (flags[index] && e.ToolMode == 1)
             {
                 Rectangle rect = new(e.StartX, e.StartY, e.EndX - e.StartX, e.EndY - e.StartY);
@@ -100,14 +100,14 @@ namespace WorldModify
                     rect.Height = Math.Abs(rect.Height);
                 }
 
-                // ±ß½ç
+                // è¾¹ç•Œ
                 rect.Width++;
                 rect.Height++;
 
                 rects[index] = rect;
                 flags[index] = false;
                 e.Handled = true;
-                e.Player.SendSuccessMessage($"ÒÑÑ¡È¡ÇøÓò£ºx={rect.X} y={rect.Y} ¿í={rect.Width} ¸ß={rect.Height}£¨½ö±¾´Î¿ª·şÓĞĞ§£©");
+                e.Player.SendSuccessMessage($"å·²é€‰å–åŒºåŸŸï¼šx={rect.X} y={rect.Y} å®½={rect.Width} é«˜={rect.Height}ï¼ˆä»…æœ¬æ¬¡å¼€æœæœ‰æ•ˆï¼‰");
             }
         }
 

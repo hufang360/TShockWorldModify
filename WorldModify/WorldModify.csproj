@@ -3,7 +3,7 @@
 
   <PropertyGroup>
     <OutputType>Library</OutputType>
-    <TargetFramework>net6.0</TargetFramework>
+    <TargetFramework>net9.0</TargetFramework>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
     <GenerateDocumentationFile>False</GenerateDocumentationFile>
     <!-- 
@@ -18,16 +18,16 @@
       Also, be sure to release on github with the exact assembly version tag as below
       so that the update manager works correctly (via the Github releases api and mimic)
     -->
-    <Version>1.4.0.8</Version>
-    <AssemblyTitle>WorldModify 20230305</AssemblyTitle>
+    <Version>1.5</Version>
+    <AssemblyTitle>WorldModify</AssemblyTitle>
     <Company></Company>
     <Product>WorldModify</Product>
-    <Copyright>Copyright © hufang360 2025</Copyright>
+    <Copyright>Copyright © hufang360 2026</Copyright>
     <!-- extras for nuget -->
     <GeneratePackageOnBuild>False</GeneratePackageOnBuild>
     <PackageLicenseExpression></PackageLicenseExpression>
     <Authors>hufang360</Authors>
-    <Description></Description>
+    <Description>简易的世界修改器</Description>
     <PackageId></PackageId>
     <AssemblyName>WorldModify</AssemblyName>
     <ProduceReferenceAssembly>False</ProduceReferenceAssembly>
@@ -62,7 +62,26 @@
 
   <ItemGroup>
     <PackageReference Include="System.Drawing.Common" Version="6.0.0" />
-    <PackageReference Include="TShock" Version="5.2.3" />
+    <!-- <PackageReference Include="TShock" Version="5.2.4" /> -->
+    <PackageReference Include="Microsoft.Data.Sqlite" Version="9.0.0" />
+    <PackageReference Include="MySql.Data" Version="9.1.0" />
+    <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
+    <Reference
+      Include="OTAPI">
+      <HintPath>../../lib/1453/OTAPI.dll</HintPath>
+    </Reference>
+    <Reference
+      Include="TerrariaServer">
+      <HintPath>../../lib/1453/TerrariaServer.dll</HintPath>
+    </Reference>
+    <Reference
+      Include="TShockAPI">
+      <HintPath>../../lib/1453/TShockAPI.dll</HintPath>
+    </Reference>
+    <Reference
+      Include="ModFramework">
+      <HintPath>../../lib/1453/ModFramework.dll</HintPath>
+    </Reference>
   </ItemGroup>
 
   <ItemGroup>

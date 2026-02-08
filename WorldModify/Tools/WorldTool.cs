@@ -1,6 +1,7 @@
-using System;
+ï»¿using System;
 using System.Threading.Tasks;
 using Terraria;
+using Terraria.WorldBuilding;
 using TShockAPI;
 
 namespace WorldModify
@@ -12,12 +13,12 @@ namespace WorldModify
             TSPlayer op = args.Player;
             if (args.Parameters.Count == 1)
             {
-                op.SendErrorMessage("²ÎÊı²»¹»£¬ÓÃ·¨ÈçÏÂ");
-                op.SendErrorMessage("/igen world <ÖÖ×Ó> [¸¯»¯] [´óĞ¡] [²Êµ°ÌØĞÔ], ÖØ½¨µØÍ¼");
-                op.SendErrorMessage("ÖÖ×Ó£ºÊäÈëÈÎÒâÖÖ×ÓÃû£¬0±íÊ¾Ëæ»ú");
-                op.SendErrorMessage("¸¯»¯£º¸¯»¯/ĞÉºì »ò 1/2, 0±íÊ¾Ëæ»ú");
-                op.SendErrorMessage("´óĞ¡£ºĞ¡/ÖĞ/´ó »ò 1/2/3, 0±íÊ¾ºöÂÔ");
-                op.SendErrorMessage("²Êµ°ÌØĞÔ£ºÖÖ×ÓÃûÖĞ¼äÊäÈëÓ¢ÎÄ¶ººÅ£¬ÀıÈç 2020,ftw");
+                op.SendErrorMessage("å‚æ•°ä¸å¤Ÿï¼Œç”¨æ³•å¦‚ä¸‹");
+                op.SendErrorMessage("/igen world <ç§å­> [è…åŒ–] [å¤§å°] [å½©è›‹ç‰¹æ€§], é‡å»ºåœ°å›¾");
+                op.SendErrorMessage("ç§å­ï¼šè¾“å…¥ä»»æ„ç§å­åï¼Œ0è¡¨ç¤ºéšæœº");
+                op.SendErrorMessage("è…åŒ–ï¼šè…åŒ–/çŒ©çº¢ æˆ– 1/2, 0è¡¨ç¤ºéšæœº");
+                op.SendErrorMessage("å¤§å°ï¼šå°/ä¸­/å¤§ æˆ– 1/2/3, 0è¡¨ç¤ºå¿½ç•¥");
+                op.SendErrorMessage("å½©è›‹ç‰¹æ€§ï¼šç§å­åä¸­é—´è¾“å…¥è‹±æ–‡é€—å·ï¼Œä¾‹å¦‚ 2020,ftw");
                 return;
             }
             if (TileHelper.NeedWaitTask(op)) return;
@@ -36,17 +37,17 @@ namespace WorldModify
             }
 
             int size = 0;
-            if (sizeStr == "Ğ¡" || sizeStr == "1")
+            if (sizeStr == "å°" || sizeStr == "1")
                 size = 1;
-            else if (sizeStr == "ÖĞ" || sizeStr == "2")
+            else if (sizeStr == "ä¸­" || sizeStr == "2")
                 size = 2;
-            else if (sizeStr == "´ó" || sizeStr == "3")
+            else if (sizeStr == "å¤§" || sizeStr == "3")
                 size = 3;
 
             int evil = -1;
-            if (evilStr == "¸¯»¯" || evilStr == "1")
+            if (evilStr == "è…åŒ–" || evilStr == "1")
                 evil = 0;
-            else if (evilStr == "ĞÉºì" || evilStr == "2")
+            else if (evilStr == "çŒ©çº¢" || evilStr == "2")
                 evil = 1;
 
             GenWorld(op, seedStr, size, evil, eggStr);
@@ -54,7 +55,7 @@ namespace WorldModify
 
         /// <summary>
         /// GenWorld
-        /// ²Î¿¼£ºhttps://github.com/Illuminousity/WorldRefill/blob/master/WorldRefill/WorldRefill.cs#L997
+        /// å‚è€ƒï¼šhttps://github.com/Illuminousity/WorldRefill/blob/master/WorldRefill/WorldRefill.cs#L997
         /// </summary>
         /// <param name="op"></param>
         /// <param name="seedStr"></param>
@@ -67,12 +68,12 @@ namespace WorldModify
             if (!op.RealPlayer)
             {
                 Console.WriteLine($"seed:{seedStr}");
-                op.SendErrorMessage($"[i:556]ÊÀ½çÕıÔÚ½âÌå~");
+                op.SendErrorMessage($"[i:556]ä¸–ç•Œæ­£åœ¨è§£ä½“~");
             }
-            TSPlayer.All.SendErrorMessage("[i:556]ÊÀ½çÕıÔÚ½âÌå~");
+            TSPlayer.All.SendErrorMessage("[i:556]ä¸–ç•Œæ­£åœ¨è§£ä½“~");
             int secondLast = Utils.GetUnixTimestamp;
 
-            // ÉèÖÃ´´½¨²ÎÊı
+            // è®¾ç½®åˆ›å»ºå‚æ•°
             ProcessSeeds(seedStr);
             ProcessEggSeeds(eggStr);
             seedStr = seedStr.ToLowerInvariant();
@@ -86,7 +87,7 @@ namespace WorldModify
             else
                 Main.ActiveWorldFileData.SetSeed(seedStr);
 
-            // ´óĞ¡ ¸¯»¯
+            // å¤§å° è…åŒ–
             int tilesX = 0;
             int tilesY = 0;
             int rawSize = -1;
@@ -120,15 +121,16 @@ namespace WorldModify
             }
             WorldGen.WorldGenParam_Evil = evil;
 
-            // ¿ªÊ¼´´½¨
+            // å¼€å§‹åˆ›å»º
+            string seedText = Main.ActiveWorldFileData.SeedText;
             if (!op.RealPlayer)
-                op.SendErrorMessage($"[i:3061]ÊÀ½çÕıÔÚÖØ½¨£¨{WorldGen.currentWorldSeed}£©");
-            TSPlayer.All.SendErrorMessage($"[i:3061]ÊÀ½çÕıÔÚÖØ½¨£¨{WorldGen.currentWorldSeed}£©");
-            await AsyncGenerateWorld(Main.ActiveWorldFileData.Seed);
+                op.SendErrorMessage($"[i:3061]ä¸–ç•Œæ­£åœ¨é‡å»ºï¼ˆ{seedText}ï¼‰");
+            TSPlayer.All.SendErrorMessage($"[i:3061]ä¸–ç•Œæ­£åœ¨é‡å»ºï¼ˆ{seedText}ï¼‰");
+            await AsyncGenerateWorld();
 
-            // ´´½¨Íê³É
+            // åˆ›å»ºå®Œæˆ
             int second = Utils.GetUnixTimestamp - secondLast;
-            string text = $"[i:3061]ÊÀ½çÖØ½¨Íê³É £¨ÓÃÊ± {second}s, {WorldGen.currentWorldSeed}£©£»-£©";
+            string text = $"[i:3061]ä¸–ç•Œé‡å»ºå®Œæˆ ï¼ˆç”¨æ—¶ {second}s, {seedText}ï¼‰ï¼›-ï¼‰";
             TSPlayer.All.SendSuccessMessage(text);
             if (!op.RealPlayer) op.SendErrorMessage(text);
 
@@ -144,11 +146,11 @@ namespace WorldModify
                         }
                     }
                 }
-                Utils.Log("·şÎñÆ÷ÒÑ¹Ø±Õ£ºÖØ½¨ºóµÄµØÍ¼´óĞ¡ºÍÖ®Ç°²»Ò»Ñù£¬ÎªÁËÎÈ¶¨Æğ¼û£¬ÇëÖØĞÂ¿ª·ş");
-                TShock.Utils.StopServer(true, "·şÎñÆ÷ÒÑ¹Ø±Õ£ºµØÍ¼´óĞ¡ºÍ´´½¨Ç°²»Ò»Ñù");
+                Utils.Log("æœåŠ¡å™¨å·²å…³é—­ï¼šé‡å»ºåçš„åœ°å›¾å¤§å°å’Œä¹‹å‰ä¸ä¸€æ ·ï¼Œä¸ºäº†ç¨³å®šèµ·è§ï¼Œè¯·é‡æ–°å¼€æœ");
+                TShock.Utils.StopServer(true, "æœåŠ¡å™¨å·²å…³é—­ï¼šåœ°å›¾å¤§å°å’Œåˆ›å»ºå‰ä¸ä¸€æ ·");
             }
 
-            // ´«ËÍµ½³öÉúµã
+            // ä¼ é€åˆ°å‡ºç”Ÿç‚¹
             foreach (TSPlayer plr in TShock.Players)
             {
                 if (plr != null && plr.Active)
@@ -158,13 +160,13 @@ namespace WorldModify
             }
         }
 
-        private static Task AsyncGenerateWorld(int seed)
+        private static Task AsyncGenerateWorld()
         {
             TileHelper.isTaskRunning = true;
             WorldGen.clearWorld();
             return Task.Run(() =>
             {
-                WorldGen.GenerateWorld(seed);
+                WorldGen.GenerateWorld(new GenerationProgress());
             }).ContinueWith((d) =>
             {
                 TileHelper.GenAfter();
@@ -173,7 +175,7 @@ namespace WorldModify
 
 
         /// <summary>
-        /// ´¦ÀíÃØÃÜÊÀ½çÖÖ×Ó
+        /// å¤„ç†ç§˜å¯†ä¸–ç•Œç§å­
         /// </summary>
         /// <param name="seed"></param>
         private static void ProcessSeeds(string seed)
@@ -187,9 +189,9 @@ namespace WorldModify
         }
 
         /// <summary>
-        /// ´¦Àí²Êµ°
+        /// å¤„ç†å½©è›‹
         /// </summary>
-        /// <param name="seedstr">ÀıÈç£º2020,2021,ftw</param>
+        /// <param name="seedstr">ä¾‹å¦‚ï¼š2020,2021,ftw</param>
         private static void ProcessEggSeeds(string seedstr)
         {
             string[] seeds = seedstr.ToLowerInvariant().Split(',');
@@ -199,7 +201,7 @@ namespace WorldModify
             }
         }
         /// <summary>
-        /// ¿ª¹ØÃØÃÜÊÀ½ç£¨´´½¨Æ÷µÄÊôĞÔ£©
+        /// å¼€å…³ç§˜å¯†ä¸–ç•Œï¼ˆåˆ›å»ºå™¨çš„å±æ€§ï¼‰
         /// </summary>
         /// <param name="seed"></param>
         private static void ToggleSpecialWorld(string seed)
