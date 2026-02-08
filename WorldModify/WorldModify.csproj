@@ -22,7 +22,7 @@
     <AssemblyTitle>WorldModify 20230305</AssemblyTitle>
     <Company></Company>
     <Product>WorldModify</Product>
-    <Copyright>Copyright © hufang360 2023</Copyright>
+    <Copyright>Copyright © hufang360 2025</Copyright>
     <!-- extras for nuget -->
     <GeneratePackageOnBuild>False</GeneratePackageOnBuild>
     <PackageLicenseExpression></PackageLicenseExpression>
@@ -62,27 +62,7 @@
 
   <ItemGroup>
     <PackageReference Include="System.Drawing.Common" Version="6.0.0" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <Reference Include="ModFramework">
-      <HintPath>..\..\@lib\1.4.4.8\ModFramework.dll</HintPath>
-    </Reference>
-    <Reference Include="MySql.Data">
-      <HintPath>..\..\@lib\1.4.4.5\MySql.Data.dll</HintPath>
-    </Reference>
-    <Reference Include="Newtonsoft.Json">
-      <HintPath>..\..\@lib\1.4.4.5\Newtonsoft.Json.dll</HintPath>
-    </Reference>
-    <Reference Include="OTAPI">
-      <HintPath>..\..\@lib\1.4.4.8\OTAPI.dll</HintPath>
-    </Reference>
-    <Reference Include="TerrariaServer">
-      <HintPath>..\..\@lib\1.4.4.8\TerrariaServer.dll</HintPath>
-    </Reference>
-    <Reference Include="TShockAPI">
-      <HintPath>..\..\@lib\1.4.4.8\TShockAPI.dll</HintPath>
-    </Reference>
+    <PackageReference Include="TShock" Version="5.2.3" />
   </ItemGroup>
 
   <ItemGroup>

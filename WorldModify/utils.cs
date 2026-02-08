@@ -397,6 +397,8 @@ namespace WorldModify
             op.tempGroup = null;
         }
 
+        public static string RectangleToString(Rectangle rect) { return $"{rect.X},{rect.Y} {rect.Width}x{rect.Height}"; }
+
         /// <summary>
         /// 输出日志
         /// </summary>

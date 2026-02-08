@@ -37,6 +37,7 @@ namespace WorldModify
                     "/igen replace help，替换工具（选区内）",
                     "/igen fill help，填充工具（选区内）",
                     "/igen clear help，清除工具（选区内）",
+                    "/igen copy help，复制工具（选区内）",
 
                     "/igen stats help，统计工具（选区内）",
                     "/igen world help，重建世界",
@@ -240,6 +241,22 @@ namespace WorldModify
                 // 统计
                 case "stats":
                     StatsTool.Manage(args);
+                    break;
+
+                // 复制
+                case "copy":
+                    if (NeedInGame() || NeedWaitTask()) return;
+                    TileScaner.CopyUnder(args.Player);
+                    break;
+                // 粘贴
+                case "paste":
+                    if (NeedInGame() || NeedWaitTask()) return;
+                    if (args.Parameters.Count < 2)
+                    {
+                        op.SendErrorMessage("需要输入剪贴板名称，例如 /igen paste 001");
+                        return;
+                    }
+                    TileScaner.Paste(args.Player, args.Parameters[1]);
                     break;
                     #endregion
 

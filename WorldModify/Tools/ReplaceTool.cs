@@ -430,6 +430,8 @@ class ReplaceTool
         }
         return 0;
     }
+
+
     /// <summary>
     /// Ìæ»»·½¿é
     /// </summary>

@@ -195,39 +195,39 @@ namespace WorldModify
         /// </summary>
         /// <param name="projID"></param>
         /// <param name="damage"></param>
-        public static void BuildTileName()
-        {
-            if (MapHelper.tileLookup == null)
-            {
-                bool status = Main.dedServ;
-                Main.dedServ = false;
-                MapHelper.Initialize();
-                Main.dedServ = status;
+        //public static void BuildTileName()
+        //{
+        //    if (MapHelper.tileLookup == null)
+        //    {
+        //        bool status = Main.dedServ;
+        //        Main.dedServ = false;
+        //        MapHelper.Initialize();
+        //        Main.dedServ = status;
 
-                // dedServ为假时，不执行 Main 会执行 MapHelper.Initialize();
-                // 执行 MapHelper.Initialize(); 时会执行 Lang.BuildMapAtlas();
-                // 但是执行 Lang.BuildMapAtlas(); 遇到dedServ为真时，会不执行
-            }
+        //        // dedServ为假时，不执行 Main 会执行 MapHelper.Initialize();
+        //        // 执行 MapHelper.Initialize(); 时会执行 Lang.BuildMapAtlas();
+        //        // 但是执行 Lang.BuildMapAtlas(); 遇到dedServ为真时，会不执行
+        //    }
 
-            string s;
-            for (int i = 0; i < MapHelper.tileLookup.Length; i++)
-            {
-                int len = MapHelper.tileOptionCounts[i];
-                if (len == 0)
-                {
-                    s = Lang._mapLegendCache[MapHelper.tileLookup[i]].Value;
-                    Console.WriteLine($"-{i},{s}");
-                }
-                else
-                {
-                    for (int j = 0; j < len; j++)
-                    {
-                        s = Lang._mapLegendCache[MapHelper.TileToLookup(i, j)].Value;
-                        Console.WriteLine($"{i},{s}");
-                    }
-                }
-            }
-        }
+        //    string s;
+        //    for (int i = 0; i < MapHelper.tileLookup.Length; i++)
+        //    {
+        //        int len = MapHelper.tileOptionCounts[i];
+        //        if (len == 0)
+        //        {
+        //            s = Lang._mapLegendCache[MapHelper.tileLookup[i]].Value;
+        //            Console.WriteLine($"-{i},{s}");
+        //        }
+        //        else
+        //        {
+        //            for (int j = 0; j < len; j++)
+        //            {
+        //                s = Lang._mapLegendCache[MapHelper.TileToLookup(i, j)].Value;
+        //                Console.WriteLine($"{i},{s}");
+        //            }
+        //        }
+        //    }
+        //}
         #endregion
     }
 

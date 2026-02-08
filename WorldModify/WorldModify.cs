@@ -46,6 +46,7 @@ public class WorldModify : TerrariaPlugin
         Commands.ChatCommands.Add(new Command("bossinfo", BossHelper.BossInfo, "bossinfo", "bi") { HelpText = "boss进度信息" });
         Commands.ChatCommands.Add(new Command("relive", NPCHelper.Relive, "relive") { HelpText = "复活NPC" });
         Commands.ChatCommands.Add(new Command("cleartomb", WMClearTool.ClearTomb, "cleartomb", "ct") { HelpText = "清理墓碑" });
+        Commands.ChatCommands.Add(new Command("gohome", NPCHelper.GoHome, "gohome") { HelpText = "让NPC回家" });
 
         Utils.WorkDir = SaveDir;
         ResHelper.Init();

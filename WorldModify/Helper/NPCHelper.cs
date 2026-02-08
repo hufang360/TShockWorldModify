@@ -81,6 +81,35 @@ namespace WorldModify
         }
         #endregion
 
+        #region 让NPC回家
+        /// <summary>
+        /// 让NPC回家
+        /// </summary>
+        public static void GoHome(CommandArgs args)
+        {
+            var distance = 25;
+            var count = 0;
+            foreach (var npc in Main.npc.Where(npc => npc.townNPC && npc.homeTileX + npc.homeTileY > 0))
+            {
+                if (npc.position.X / 16 - npc.homeTileX > distance || npc.position.Y / 16 - npc.homeTileY > distance)
+                {
+
+                    npc.Teleport(new Vector2(npc.homeTileX * 16, npc.homeTileY * 16 - npc.height));
+                    count++;
+                }
+            }
+            if (count == 0)
+            {
+                args.Player.SendInfoMessage("NPC都在家附近！无需操作！");
+            }
+            else
+            {
+                args.Player.SendInfoMessage($"已将{count}个NPC传送回家！");
+            }
+        }
+        #endregion
+
+
         #region NPC信息
         /// <summary>
         /// NPC信息
