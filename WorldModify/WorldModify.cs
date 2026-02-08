@@ -64,17 +64,8 @@ public class WorldModify : TerrariaPlugin
                 "/wm info，查看 世界信息",
                 "/wm name [世界名]，查看/修改 世界名字",
                 "/wm mode [难度]，查看/修改 世界难度",
-                "/wm 2020，开启/关闭 05162020 秘密世界",
 
-                "/wm 2021，开启/关闭 05162021 秘密世界",
-                "/wm ftw，开启/关闭 for the worthy 秘密世界",
-                "/wm ntb，开启/关闭 not the bees 秘密世界",
-                "/wm dst，开启/关闭 饥荒联动 秘密世界",
-
-                "/wm remix，开启/关闭 Remix 秘密世界",
-                "/wm nt，开启/关闭 No Traps 秘密世界",
-                "/wm zenith，开启/关闭 Zenith 秘密世界",
-                "/wm vampire，开启/关闭 吸血鬼 秘密世界",
+                "/wm secret help，开关 秘密世界",
                 "/wm seed [种子]，查看/修改 世界种子",
 
                 "/wm id [id]，查看/修改 世界ID",
@@ -115,11 +106,21 @@ public class WorldModify : TerrariaPlugin
         string text;
 
         #endregion
-        switch (args.Parameters[0].ToLowerInvariant())
+        string kw = args.Parameters[0].ToLowerInvariant();
+        switch (kw)
         {
             // 帮助
             case "help": ShowHelpText(); break;
-            default: op.SendErrorMessage("语法不正确！输入 /wm help 查询用法"); break;
+            default:
+                if (WMSecretSeedTool.IsSecretSeedCommand(kw))
+                {
+                    WMSecretSeedTool.SecretSeed(args);
+                }
+                else
+                {
+                    op.SendErrorMessage("语法不正确！输入 /wm help 查询用法");
+                }
+                break;
 
             // 世界信息
             case "info": ShowWorldInfo(args, true); break;
@@ -401,90 +402,12 @@ public class WorldModify : TerrariaPlugin
                 op.SendInfoMessage($"风速：{Main.windSpeedCurrent}\n输入 /wind <速度> 可调节风速");
                 break;
 
-            #region 秘密世界
-            // 醉酒世界
-            case "516":
-            case "0516":
-            case "5162020":
-            case "05162020":
-            case "2020":
-            case "drunk":
-                Main.drunkWorld = !Main.drunkWorld;
-                TSPlayer.All.SendData(PacketTypes.WorldInfo);
-                op.SendSuccessMessage($"{Utils.BFlag(Main.drunkWorld)} 05162020 秘密世界（醉酒世界 / DrunkWorld）");
+            // 秘密世界种子
+            case "secret":
+            case "sec":
+            case "s":
+                WMSecretSeedTool.Manage(args);
                 break;
-
-
-            // 10周年庆典,tenthAnniversaryWorld
-            case "2011":
-            case "2021":
-            case "5162011":
-            case "5162021":
-            case "05162011":
-            case "05162021":
-            case "celebrationmk10":
-                Main.tenthAnniversaryWorld = !Main.tenthAnniversaryWorld;
-                TSPlayer.All.SendData(PacketTypes.WorldInfo);
-                op.SendSuccessMessage($"{Utils.BFlag(Main.tenthAnniversaryWorld)} 10周年庆典 秘密世界（05162021）");
-                break;
-
-            // ftw（for the worthy）
-            case "ftw":
-            case "for the worthy":
-                Main.getGoodWorld = !Main.getGoodWorld;
-                TSPlayer.All.SendData(PacketTypes.WorldInfo);
-                op.SendSuccessMessage($"{Utils.BFlag(Main.getGoodWorld)} for the worthy 秘密世界");
-                break;
-
-            // not the bees
-            case "ntb":
-                Main.notTheBeesWorld = !Main.notTheBeesWorld;
-                TSPlayer.All.SendData(PacketTypes.WorldInfo);
-                op.SendSuccessMessage($"{Utils.BFlag(Main.notTheBeesWorld)} not the bees 秘密世界");
-                break;
-
-            //  饥荒联动
-            case "eye":
-            case "dst":
-            case "constant":
-                Main.dontStarveWorld = !Main.dontStarveWorld;
-                TSPlayer.All.SendData(PacketTypes.WorldInfo);
-                op.SendSuccessMessage($"{Utils.BFlag(Main.dontStarveWorld)} 永恒领域 秘密世界（饥荒联动）");
-                break;
-
-
-            //  Remix 种子
-            case "remix":
-                Main.remixWorld = !Main.remixWorld;
-                TSPlayer.All.SendData(PacketTypes.WorldInfo);
-                op.SendSuccessMessage($"{Utils.BFlag(Main.remixWorld)} Remix 秘密世界（don't dig up）");
-                break;
-
-            //  noTraps 种子
-            case "nt":
-            case "no traps":
-                Main.noTrapsWorld = !Main.noTrapsWorld;
-                TSPlayer.All.SendData(PacketTypes.WorldInfo);
-                op.SendSuccessMessage($"{Utils.BFlag(Main.noTrapsWorld)} No Traps 秘密世界");
-                break;
-
-            //  天顶种子
-            case "zenith":
-            case "gfb":
-            case "everything":
-                Main.zenithWorld = !Main.zenithWorld;
-                TSPlayer.All.SendData(PacketTypes.WorldInfo);
-                op.SendSuccessMessage($"{Utils.BFlag(Main.zenithWorld)} 天顶 秘密世界（getfixedboi）");
-                break;
-
-            //  吸血鬼种子
-            case "va":
-            case "vampire":
-                Main.vampireSeed = !Main.vampireSeed;
-                TSPlayer.All.SendData(PacketTypes.WorldInfo);
-                op.SendSuccessMessage($"{Utils.BFlag(Main.vampireSeed)} vampire 秘密世界（吸血鬼）");
-                break;
-            #endregion
 
             // 全物品研究
             case "research":
@@ -500,6 +423,7 @@ public class WorldModify : TerrariaPlugin
 
             // 备份
             case "backup":
+            case "save":
                 string notes = "";
                 if (args.Parameters.Count > 1)
                 {
@@ -804,9 +728,9 @@ public class WorldModify : TerrariaPlugin
 
     #region GetSecretWorldDescription
     // 获取秘密世界种子状态描述
-    private string GetSecretWorldDescription()
+    private static string GetSecretWorldDescription()
     {
-        List<string> ss = new();
+        List<string> ss = [];
 
         if (Main.getGoodWorld) ss.Add("for the worthy");
         if (Main.drunkWorld) ss.Add("05162020");
@@ -816,6 +740,12 @@ public class WorldModify : TerrariaPlugin
         if (Main.remixWorld) ss.Add("Remix");
         if (Main.noTrapsWorld) ss.Add("No Traps");
         if (Main.zenithWorld) ss.Add("Zenith");
+
+        if (Main.skyblockWorld) ss.Add("空岛");
+        if (Main.vampireSeed) ss.Add("吸血鬼");
+        if (Main.infectedSeed) ss.Add("感染世界");
+        if (Main.teamBasedSpawnsSeed) ss.Add("团队生成点");
+        if (Main.dualDungeonsSeed) ss.Add("双地牢");
 
         if (ss.Count > 0)
             return $"彩蛋：{string.Join(", ", ss)}";

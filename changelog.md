@@ -4,19 +4,26 @@
 
 ## 20260208（v1.5）
 - 兼容泰拉 v1.5.4.3，引用1453库文件。
-- 代码文件编码问题，gbk编码转成utf-8编码，避免中文乱码。
-- `NPC回家`指令变更，`/gohome` → `/npc gohome`。
-
-- 彩蛋种子和秘密世界
-  - `/wm vampire`，吸血鬼特性开关。
+- 将部分 gbk 编码的代码文件，转成utf-8编码，避免中文乱码。
+- `让NPC回家`指令从 `/gohome` 变更为 `/npc gohome`。
 
 - `巨型龙蛋（疾旋鼬）`
   - `/wm find egg`，查找巨型龙蛋。
   - `/igen place egg`，放置巨型龙蛋。
 
-- `/wm find`
+- `/wm find` 指令 功能增强：
   - `/wm find 以太晶塔`
   - `/wm find 地狱晶塔`
+
+- 新增 `/wm secret` 指令，用于开关秘密世界：
+  - `/wm secret sky`，开关 空岛 秘密世界。
+  - `/wm secret vampire`，开关 吸血鬼 秘密世界。
+  - `/wm secret infected`，开关 感染世界 秘密世界。
+  - `/wm secret team`，开关 团队生成点 秘密世界。
+  - `/wm secret dual`，开关 双地牢 秘密世界。
+  - `/wm 2011`、`/wm ftw` 、`/wm zenith` 等旧指令，依然有效。
+
+- 新增 `/wm save` 指令，功能同 `/wm backup` 旧指令。
 
 ---
 ## 20230107 （v1.4.0.7未发布)

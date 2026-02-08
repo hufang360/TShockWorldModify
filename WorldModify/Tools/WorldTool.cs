@@ -126,7 +126,7 @@ namespace WorldModify
             if (!op.RealPlayer)
                 op.SendErrorMessage($"[i:3061]世界正在重建（{seedText}）");
             TSPlayer.All.SendErrorMessage($"[i:3061]世界正在重建（{seedText}）");
-            await AsyncGenerateWorld();
+            await AsyncGenerateWorld(Main.ActiveWorldFileData.Seed);
 
             // 创建完成
             int second = Utils.GetUnixTimestamp - secondLast;
@@ -160,13 +160,12 @@ namespace WorldModify
             }
         }
 
-        private static Task AsyncGenerateWorld()
+        private static Task AsyncGenerateWorld(int seed)
         {
             TileHelper.isTaskRunning = true;
-            WorldGen.clearWorld();
             return Task.Run(() =>
             {
-                WorldGen.GenerateWorld(new GenerationProgress());
+                WorldGen.GenerateWorld();
             }).ContinueWith((d) =>
             {
                 TileHelper.GenAfter();
