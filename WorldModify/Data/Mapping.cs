@@ -43,6 +43,7 @@
                 "bb" => "弹力巨石",
                 "tnt" => "TNT枪管",
                 "water bolt" or "wb" => "水矢",
+                "dig" or "digtoise" => "碎岩龟",
                 "egg" or "chilletegg" => "巨型龙蛋",
 
                 "h" => "help",

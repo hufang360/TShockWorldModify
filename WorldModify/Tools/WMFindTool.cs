@@ -49,7 +49,8 @@ namespace WorldModify
 
                     $"/wm f dirtiest，查找 {FT("最脏的块")}",
                     $"/wm f tulip，查找 {FT("发光郁金香")}",
-                    $"/wm f egg，查找 {FT("巨型龙蛋（疾旋鼬）")}",
+                    $"/wm f digtoise，查找 {FT("碎岩龟")}",
+                    $"/wm f egg，查找 {FT("巨型龙蛋")}",
                     $"/wm f <森林晶塔/海洋晶塔……>，查找 {FT("晶塔")}",
                 };
 
@@ -70,7 +71,7 @@ namespace WorldModify
             }
             else
             {
-                var tileProp = TileHelper.GetTileByIDOrName(args.Parameters[0].ToLowerInvariant());
+                var tileProp = TileHelper.GetTileByIDOrName(kw);
                 if (tileProp != null)
                 {
                     ListedExtra(op, tileProp.Desc, new FindInfo(tileProp.id, 0), !tileProp.isFrame);
@@ -108,6 +109,7 @@ namespace WorldModify
             { "梳妆台", new FindInfo(88) },
             { "最脏的块", new FindInfo(668) },
             { "发光郁金香", new FindInfo(656) },
+            { "碎岩龟", new FindInfo(751,0, 2,2, 0,0) },
             { "巨型龙蛋", new FindInfo(752,0, 2,2, 0,0) },
             { "水矢", new FindInfo(50,5,1,1,90,0) },
 

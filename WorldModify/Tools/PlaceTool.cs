@@ -33,6 +33,7 @@ namespace WorldModify.Tools
                     $"/igen p bulb，放置 {FT("花苞")}",
                     $"/igen p larva，放置 {FT("幼虫")}",
                     $"/igen p tulip，放置 {FT("发光郁金香")}",
+                    $"/igen p digtoise，放置 {FT("碎岩龟")}",
                     $"/igen p egg，放置 {FT("巨型龙蛋（疾旋鼬）")}",
 
                     "/igen p pot，放置 罐子",
@@ -136,6 +137,14 @@ namespace WorldModify.Tools
                 case "发光郁金香":
                     PlaceTulip(x, y);
                     op.SendSuccessMessage($"已放置1朵{FT(kw)}");
+                    break;
+
+                case "碎岩龟":
+                    flag = PlaceDigtoise(x, y);
+                    if (flag)
+                        op.SendSuccessMessage($"已放置1只{FT(kw)}");
+                    else
+                        op.SendErrorMessage($"请移动到合适的位置，再进行操作！");
                     break;
 
                 case "巨型龙蛋":
@@ -362,6 +371,41 @@ namespace WorldModify.Tools
 
             WorldGen.PlaceTile(x, y, TileID.GlowTulip, true);
             NetMessage.SendTileSquare(-1, x, y, 3);
+        }
+
+        /// <summary>
+        /// 放置碎岩龟
+        /// </summary>
+        /// <param name="x"></param>
+        /// <param name="y"></param>
+        static bool PlaceDigtoise(int x, int y)
+        {
+            for (int rx = x; rx <= x + 1; rx++)
+            {
+                for (int ry = y - 2; ry <= y + 1; ry++)
+                {
+                    ITile tile = Main.tile[rx, ry];
+                    if (ry != y + 1)
+                    {
+                        tile.active(active: false);
+                    }
+                    else
+                    {
+                        // 只生成在指定图格上面
+                        var type = tile.type;
+
+                        // 放置“沙岩块”方块
+                        tile.active(active: true);
+                        tile.type = 396;
+                        tile.slope(0);
+                        tile.halfBrick(halfBrick: false);
+                    }
+                }
+            }
+
+            bool flag = WorldGen.PlaceTile(x + 1, y, TileID.PalworldDigtoiseSleeping, true);
+            NetMessage.SendTileSquare(-1, x, y, 3);
+            return flag;
         }
 
         /// <summary>

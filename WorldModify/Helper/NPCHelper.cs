@@ -30,6 +30,7 @@ namespace WorldModify
                 op.SendInfoMessage("/npc list, 查看支持切换解救状态的NPC");
                 op.SendInfoMessage("/npc sm, sm召唤指令备注（SpawnMob NPC召唤指令）");
                 op.SendInfoMessage("/npc mq, 召唤美杜莎boss");
+                op.SendInfoMessage("/npc demo, 召唤几个NPC");
                 return;
             }
 
@@ -79,11 +80,14 @@ namespace WorldModify
                 // 让NPC回家
                 case "gh":
                 case "gohome":
-                    Relive(args);
+                    GoHome(args);
                     break;
 
                 // 召唤美杜莎boss
                 case "mq": NPC.SpawnMechQueen(op.Index); break;
+
+                // 召唤几个NPC
+                case "demo": SpawnDemoNPC(args); break;
             }
         }
         #endregion
@@ -883,6 +887,51 @@ namespace WorldModify
                         }
                     }
                     break;
+            }
+        }
+        #endregion
+
+        #region 生成几个NPC
+        /// <summary>
+        /// 生成几个NPC
+        /// </summary>
+        /// <param name="args"></param>
+        public static void SpawnDemoNPC(CommandArgs args)
+        {
+            args.Parameters.RemoveAt(0);
+            TSPlayer op = args.Player;
+
+            List<int> found = GetRelive();
+            List<int> demos = [22, 17, 18, 19];
+
+            List<string> names = [];
+            foreach (int npcID in demos)
+            {
+                if (found.Contains(npcID))
+                {
+                    continue;
+                }
+
+                NPC npc = new();
+                npc.SetDefaults(npcID);
+                TSPlayer.Server.SpawnNPC(npc.type, npc.FullName, 1, op.TileX, op.TileY, 5, 2);
+
+                if (names.Count != 0 && names.Count % 10 == 0)
+                    names.Add("\n" + npc.FullName);
+                else
+                    names.Add(npc.FullName);
+            }
+
+            if (names.Count > 0)
+            {
+                string text = $"{op.Name} 生成了 {names.Count}个 NPC:\n{string.Join("、", names)}";
+                TSPlayer.All.SendInfoMessage(text);
+                if (!op.RealPlayer)
+                    op.SendInfoMessage(text);
+            }
+            else
+            {
+                op.SendInfoMessage("要生成的3个NPC都活着");
             }
         }
         #endregion
