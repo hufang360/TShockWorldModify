@@ -26,7 +26,8 @@ namespace WorldModify
                     "/igen room [数量]，小房间（默认生成3个）",
                     "/igen hotel，NPC小旅馆",
                     "/igen hell，地狱直通车",
-                    "/igen pond [water/lava/honey/shimmer]，鱼池",
+                    "/igen we，水电梯（WaterElevator）",
+                    "/igen pond [water/lava/honey/shimmer/main/full]，鱼池",
 
                     "/igen dirt，填土",
                     "/igen sm [宽] [高]，盾构机（默认宽61高34）",
@@ -116,7 +117,8 @@ namespace WorldModify
                     int type = 0;
                     if (args.Parameters.Count > 1)
                     {
-                        type = Tools.LiquidMan.GetLiquidID(args.Parameters[1].ToLowerInvariant());
+                        string kw2 = args.Parameters[1].ToLowerInvariant();
+                        type = Tools.LiquidMan.GetLiquidID(kw2);
                         if (type == -1)
                         {
                             op.SendErrorMessage("鱼池风格不对");
@@ -169,6 +171,13 @@ namespace WorldModify
                     return;
                 #endregion
 
+                #region 水电梯
+                case "we":
+                case "waterelevator":
+                    if (NeedInGame() || NeedWaitTask()) return;
+                    await WaterHellevator.AsyncGen(op, op.TileX, op.TileY + 3);
+                    return;
+                #endregion
 
                 #region 全图随机
                 case "random":

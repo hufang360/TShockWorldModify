@@ -207,7 +207,7 @@ namespace WorldModify
                             case Type.Honey:
                             case Type.Lava:
                             case Type.Shimmer:
-                                if (tile.liquid == 0 && tile.wall == 0 && !tile.active())
+                                if (tile.liquid == 0 && !tile.active())
                                 {
                                     count++;
                                     FillLiquid(x, y, type);

@@ -431,7 +431,7 @@ namespace WorldModify.Tools
 
                         // 放置“草”方块
                         tile.active(active: true);
-                        tile.type = 2;
+                        tile.type = 183;
                         tile.slope(0);
                         tile.halfBrick(halfBrick: false);
                     }

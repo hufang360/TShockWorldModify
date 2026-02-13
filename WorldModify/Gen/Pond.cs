@@ -2,6 +2,7 @@
 using Terraria;
 using Terraria.ID;
 using TShockAPI;
+using WorldModify.Tools;
 
 namespace WorldModify.Gen;
 
@@ -15,18 +16,31 @@ public class Pond
         int secondLast = Utils.GetUnixTimestamp;
         return Task.Run(() =>
         {
-            GenPond(posX, posY, style);
+            switch (style)
+            {
+                // main
+                case 4:
+                    GenPond(posX, posY, LiquidID.Water);
+                    GenPond(posX + 13, posY, LiquidID.Honey);
+                    GenPond(posX + 13 * 2, posY, LiquidID.Lava);
+                    break;
+                // full
+                case 5:
+                    GenPond(posX, posY, LiquidID.Water);
+                    GenPond(posX + 13, posY, LiquidID.Honey);
+                    GenPond(posX + 13 * 2, posY, LiquidID.Shimmer);
+                    GenPond(posX + 13 * 3, posY, LiquidID.Lava);
+                    break;
+                default:
+                    GenPond(posX, posY, style);
+                    break;
+            }
+
         }).ContinueWith((d) =>
         {
             TileHelper.GenAfter();
             int second = Utils.GetUnixTimestamp - secondLast;
-            string desc = style switch
-            {
-                LiquidID.Lava => "岩浆",
-                LiquidID.Honey => "蜂蜜",
-                LiquidID.Shimmer => "微光",
-                _ => "普通",
-            };
+            string desc = LiquidMan.GetName((short)style);
             op.SendSuccessMessage($"已生成{desc}鱼池，用时{second}秒。");
         });
     }

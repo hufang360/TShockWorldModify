@@ -7,6 +7,7 @@ using System.Reflection;
 using Terraria;
 using Terraria.GameContent.Bestiary;
 using Terraria.GameContent.Events;
+using Terraria.GameContent;
 using Terraria.ID;
 using TerrariaApi.Server;
 using TShockAPI;
@@ -678,6 +679,13 @@ public class WorldModify : TerrariaPlugin
             if (TShock.Config.Settings.RequireLogin) texts.Add("已开启需要登录");
             if (TShock.ServerSideCharacterConfig.Settings.Enabled) texts.Add("已开启SSC");
             lines.Add($"杂项：{string.Join(", ", texts)}");
+
+            texts.Clear();
+            if (Main.specialSeedWorld) texts.Add($"specialSeedWorld：{Main.specialSeedWorld}");
+            if (Main.IsRainingForever) texts.Add($"IsRainingForever：{Main.IsRainingForever}");
+            if (WorldGen.SecretSeed.teamBasedSpawns.Enabled) texts.Add($"teamBasedSpawns：开启");
+            if (ExtraSpawnPointManager.extraSpawnPoints.Length > 0) texts.Add($"extraSpawnPoints：{Utils.Points2String(ExtraSpawnPointManager.extraSpawnPoints)}");
+            lines.Add($"秘密种子：{string.Join(", ", texts)}");
         }
         op.SendInfoMessage(string.Join("\n", lines));
     }
@@ -686,13 +694,13 @@ public class WorldModify : TerrariaPlugin
         if (Main.maxTilesX == 8400 && Main.maxTilesY == 2400) return "大（8400x2400）";
         else if (Main.maxTilesX == 6400 && Main.maxTilesY == 1800) return "中（6400x1800）";
         else if (Main.maxTilesX == 4200 && Main.maxTilesY == 1200) return "小（4200x1200）";
-        else return "未知";
+        else return $"{Main.maxTilesX}x{Main.maxTilesY}";
     }
     #endregion
 
 
     #region 日晷/月晷
-    private string GetSundial()
+    private static string GetSundial()
     {
         string text = Main.IsFastForwardingTime() ? "生效中" : "";
         string text2 = Main.sundialCooldown > 0 ? $"{Main.sundialCooldown}天后可再次使用" : "";
@@ -708,7 +716,7 @@ public class WorldModify : TerrariaPlugin
         else
             return "";
     }
-    private string GetMoondial()
+    private static string GetMoondial()
     {
         string text = Main.IsFastForwardingTime() ? "生效中" : "";
         string text2 = Main.moondialCooldown > 0 ? $"{Main.moondialCooldown}天后可再次使用" : "";

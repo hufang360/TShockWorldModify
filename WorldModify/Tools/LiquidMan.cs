@@ -18,6 +18,9 @@ public class LiquidMan
             "岩浆" or "lava" => 1,
             "蜂蜜" or "honey" => 2,
             "微光" or "shimmer" => 3,
+
+            "main" => 4,
+            "full" => 5,
             _ => -1,
         };
     }
@@ -34,6 +37,9 @@ public class LiquidMan
             1 => "岩浆",
             2 => "蜂蜜",
             3 => "微光",
+
+            4 => "水、岩浆、蜂蜜",
+            5 => "水、岩浆、蜂蜜、微光",
             _ => "",
         };
     }

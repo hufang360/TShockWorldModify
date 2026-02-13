@@ -1,5 +1,7 @@
 ﻿using System.Collections.Generic;
 using Terraria;
+using Terraria.GameContent;
+using Terraria.WorldBuilding;
 using TShockAPI;
 
 namespace WorldModify
@@ -18,21 +20,22 @@ namespace WorldModify
                 List<string> lines =
                 [
                     "/wm s 2020，开启/关闭 05162020 秘密世界",
-                    $"/wm s 2021，开启/关闭 05162021 秘密世界",
-                    $"/wm s ftw，开启/关闭 for the worthy 秘密世界",
-                    $"/wm s ntb，开启/关闭 not the bees 秘密世界",
+                    "/wm s 2021，开启/关闭 05162021 秘密世界",
+                    "/wm s ftw，开启/关闭 for the worthy 秘密世界",
+                    "/wm s ntb，开启/关闭 not the bees 秘密世界",
 
-                    $"/wm s dst，开启/关闭 饥荒联动 秘密世界",
-                    $"/wm s remix，开启/关闭 Remix 秘密世界",
-                    $"/wm s nt，开启/关闭 No Traps 秘密世界",
-                    $"/wm s zenith，开启/关闭 Zenith 秘密世界",
+                    "/wm s dst，开启/关闭 饥荒联动 秘密世界",
+                    "/wm s remix，开启/关闭 Remix 秘密世界",
+                    "/wm s nt，开启/关闭 No Traps 秘密世界",
+                    "/wm s zenith，开启/关闭 Zenith 秘密世界",
 
-                    $"/wm s sky，开启/关闭 空岛 秘密世界",
-                    $"/wm s vampire，开启/关闭 吸血鬼 秘密世界",
-                    $"/wm s infected，开启/关闭 infect 秘密世界",
-                    $"/wm s team，开启/关闭 team 秘密世界",
+                    "/wm s sky，开启/关闭 空岛 秘密世界",
+                    "/wm s vampire，开启/关闭 吸血鬼 秘密世界",
+                    "/wm s infected，开启/关闭 infect 秘密世界",
+                    "/wm s team，开启/关闭 team 秘密世界",
 
-                    $"/wm s dual，开启/关闭 双地牢 秘密世界",
+                    "/wm s dual，开启/关闭 双地牢 秘密世界",
+                    "/wm s rain，开启/关闭 一年的雨量 特性",
                 ];
 
                 Utils.Pagination(args, ref lines, "/wm secret");
@@ -173,26 +176,54 @@ namespace WorldModify
                     op.SendSuccessMessage($"{Utils.BFlag(Main.infectedSeed)} 感染世界 秘密世界（infected）");
                     break;
 
-                // team
+                // team[试验]
                 case "team":
-                case "team based":
-                case "team based spawns":
                     Main.teamBasedSpawnsSeed = !Main.teamBasedSpawnsSeed;
+                    if (Main.teamBasedSpawnsSeed)
+                    {
+                        ExtraSpawnPointManager.PrepareExtraSpawns();
+                        ExtraSpawnPointManager.settings = new ExtraSpawnSettings
+                        {
+                            spawnType = ExtraSpawnType.TeamBased,
+                            surface = !GenVars.worldSpawnHasBeenRandomized && Main.isThereAWorldSurface,
+                            remix = Main.remixWorld,
+                            roundLandmass = WorldGen.SecretSeed.roundLandmasses.Enabled,
+                            skyblock = Main.skyblockWorld,
+                            extraLiquid = WorldGen.SecretSeed.extraLiquid.Enabled
+                        };
+                        ExtraSpawnPointManager.GenerateExtraSpawns();
+                        op.SendSuccessMessage($"{Utils.Points2String(ExtraSpawnPointManager.extraSpawnPoints)}");
+                    }
                     TSPlayer.All.SendData(PacketTypes.WorldInfo);
                     op.SendSuccessMessage($"{Utils.BFlag(Main.teamBasedSpawnsSeed)} 团队生成点 秘密世界（team based spawns）");
                     break;
 
                 // 双地牢
                 case "dual":
-                case "dual dungeons":
                     Main.dualDungeonsSeed = !Main.dualDungeonsSeed;
                     TSPlayer.All.SendData(PacketTypes.WorldInfo);
                     op.SendSuccessMessage($"{Utils.BFlag(Main.dualDungeonsSeed)} 双地牢 秘密世界（dual dungeons）");
                     break;
 
+                // 一年的雨量
+                case "rain":
+                    if (Main.IsRainingForever)
+                    {
+                        Main.raining = false;
+                        Main.rainTime = 0;
+                        Main.numClouds = 0;
+                    }
+                    else
+                    {
+                        // Main.rainTime = 5184000;
+                        WorldGen.SecretSeed.DoRainsForAYear();
+                    }
+                    TSPlayer.All.SendData(PacketTypes.WorldInfo);
+                    op.SendSuccessMessage($"{Utils.BFlag(Main.IsRainingForever)} 一年的雨量 秘密世界（rainsForAYear）");
+                    break;
+
                 // 全秘密世界种子
                 case "full":
-                case "fullseed":
                     string fullseedText = "1.1.1.0.abandoned manors|arachnophobia|beam me up|bring a towel|double daring dangers|fish mox|hocus pocus|how did i get here|i am error|invisible plane|jagged rocks|jingle all the way|mole people|monochrome|more traps please|negative infinity|night of the living dead|planetoids|pumpkin season|purify this|rainbow road|royale with cheese|does that sparkle|too easy|water park|what a horrible night to have a curse|winter is coming|xray vision|truck stop|sandy britches|save the rainforest|such great heights|the care bears movie|toadstool|we don\'t even test for that";
                     op.SendSuccessMessage($"全彩蛋种子为: {fullseedText}");
                     break;

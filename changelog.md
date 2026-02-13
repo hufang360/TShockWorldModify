@@ -7,6 +7,9 @@
 - `碎岩龟`
   - `/wm find digtoise`，查找碎岩龟。
   - `/igen place digtoise`，放置碎岩龟。
+- `/igen fill water`指令，选中区域是背景墙也会填充水。
+- 新增 `/igen waterelevator` 指令，快速在脚下创建`水电梯`，简写 `/igen we`。
+- 增加 `/igen pond main` 和 `/igen pond full` 指令，以创建几个连续的鱼池。
 
 ## 20260208（v1.5）
 - 兼容泰拉 v1.5.4.3，引用1453库文件。

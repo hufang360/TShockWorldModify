@@ -133,6 +133,30 @@ namespace WorldModify
         /// <returns></returns>
         public static Rectangle CloneRect(Rectangle rect) { return new Rectangle(rect.X, rect.Y, rect.Width, rect.Height); }
 
+        /// <summary>
+        /// 坐标转字符串
+        /// </summary>
+        /// <param name="pos"></param>
+        /// <returns></returns>
+        public static string Point2String(Point point)
+        {
+            return $"x={point.X},y={point.Y}";
+        }
+
+        /// <summary>
+        /// 坐标转字符串
+        /// </summary>
+        /// <param name="pos"></param>
+        /// <returns></returns>
+        public static string Points2String(Point[] points)
+        {
+            List<string> texts = [];
+            foreach (var p in points)
+            {
+                texts.Add(Point2String(p));
+            }
+            return string.Join(", ", texts);
+        }
 
         #region 位置信息
         /// <summary>
