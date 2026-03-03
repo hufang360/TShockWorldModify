@@ -52,6 +52,7 @@ namespace WorldModify
                     $"/wm f digtoise，查找 {FT("碎岩龟")}",
                     $"/wm f egg，查找 {FT("巨型龙蛋")}",
                     $"/wm f <森林晶塔/海洋晶塔……>，查找 {FT("晶塔")}",
+                    "/igen stats，类似的指令",
                 };
 
                 Utils.Pagination(args, ref lines, "/wm find");

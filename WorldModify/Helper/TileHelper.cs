@@ -180,6 +180,11 @@ namespace WorldModify
             {
                 var arr = line.Split(',');
                 int id = int.Parse(arr[0]);
+                if (Tiles.ContainsKey(id))
+                {
+                    TShock.Log.ConsoleInfo($"[Tile.csv] 重复ID: {id}, 跳过");
+                    continue;
+                }
                 Tiles.Add(id, new TileProp
                 {
                     id = id,
@@ -406,6 +411,11 @@ namespace WorldModify
             {
                 var arr = line.Split(',');
                 int id = int.Parse(arr[0]);
+                if (Walls.ContainsKey(id))
+                {
+                    TShock.Log.ConsoleInfo($"[Wall.csv] 重复ID: {id}, 跳过");
+                    continue;
+                }
                 Walls.Add(id, new WallProp
                 {
                     id = id,

@@ -18,7 +18,7 @@
       Also, be sure to release on github with the exact assembly version tag as below
       so that the update manager works correctly (via the Github releases api and mimic)
     -->
-    <Version>1.5</Version>
+    <Version>1.5.1</Version>
     <AssemblyTitle>WorldModify</AssemblyTitle>
     <Company></Company>
     <Product>WorldModify</Product>
@@ -68,19 +68,19 @@
     <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
     <Reference
       Include="OTAPI">
-      <HintPath>../../lib/1453/OTAPI.dll</HintPath>
+      <HintPath>../../lib/1455/OTAPI.dll</HintPath>
     </Reference>
     <Reference
       Include="TerrariaServer">
-      <HintPath>../../lib/1453/TerrariaServer.dll</HintPath>
+      <HintPath>../../lib/1455/TerrariaServer.dll</HintPath>
     </Reference>
     <Reference
       Include="TShockAPI">
-      <HintPath>../../lib/1453/TShockAPI.dll</HintPath>
+      <HintPath>../../lib/1455/TShockAPI.dll</HintPath>
     </Reference>
     <Reference
       Include="ModFramework">
-      <HintPath>../../lib/1453/ModFramework.dll</HintPath>
+      <HintPath>../../lib/1455/ModFramework.dll</HintPath>
     </Reference>
   </ItemGroup>
 

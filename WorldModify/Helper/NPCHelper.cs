@@ -29,6 +29,7 @@ namespace WorldModify
                 op.SendInfoMessage("/npc <id/名称>, 切换NPC解救状态");
                 op.SendInfoMessage("/npc list, 查看支持切换解救状态的NPC");
                 op.SendInfoMessage("/npc sm, sm召唤指令备注（SpawnMob NPC召唤指令）");
+                op.SendInfoMessage("/npc sb, 请使用 /boss sb 指令");
                 op.SendInfoMessage("/npc mq, 召唤美杜莎boss");
                 op.SendInfoMessage("/npc demo, 召唤几个NPC");
                 return;
@@ -44,7 +45,7 @@ namespace WorldModify
                 case "sm":
                 case "spawn":
                 case "spawnmob":
-                    List<string> newStrs = new();
+                    List<string> newStrs = [];
                     int count = 0;
                     foreach (int id in NPCIDHelper.smIDs)
                     {
@@ -54,6 +55,10 @@ namespace WorldModify
                     }
                     op.SendInfoMessage($"以下是城镇NPC生成指令参考（共{NPCIDHelper.smIDs.Length}个）：");
                     op.SendInfoMessage(string.Join(", ", newStrs));
+                    break;
+
+                case "sb":
+                    op.SendInfoMessage("请使用 /boss sb 指令");
                     break;
 
                 // 查看npc解救情况
@@ -742,7 +747,7 @@ namespace WorldModify
                 20, // 树妖
                 22, // 向导
                 38, // 爆破专家
-                54, // 服装商
+                54, // 服装商 
                 107, // 哥布林工匠
                 108, // 巫师
                 124, // 机械师
