@@ -69,6 +69,9 @@ namespace WorldModify
         {
             string kw = args.Parameters[0].ToLowerInvariant();
             TSPlayer op = args.Player;
+
+            if (!TryParseState(args.Parameters, op, out bool? state)) return;
+
             switch (kw)
             {
                 default:
@@ -83,7 +86,7 @@ namespace WorldModify
                 case "05162020":
                 case "2020":
                 case "drunk":
-                    Main.drunkWorld = !Main.drunkWorld;
+                    Main.drunkWorld = ResolveState(Main.drunkWorld, state, op);
                     TSPlayer.All.SendData(PacketTypes.WorldInfo);
                     op.SendSuccessMessage($"{Utils.BFlag(Main.drunkWorld)} 05162020 秘密世界（醉酒世界 / DrunkWorld）");
                     break;
@@ -97,7 +100,7 @@ namespace WorldModify
                 case "05162011":
                 case "05162021":
                 case "celebrationmk10":
-                    Main.tenthAnniversaryWorld = !Main.tenthAnniversaryWorld;
+                    Main.tenthAnniversaryWorld = ResolveState(Main.tenthAnniversaryWorld, state, op);
                     TSPlayer.All.SendData(PacketTypes.WorldInfo);
                     op.SendSuccessMessage($"{Utils.BFlag(Main.tenthAnniversaryWorld)} 10周年庆典 秘密世界（05162021）");
                     break;
@@ -105,14 +108,14 @@ namespace WorldModify
                 // ftw（for the worthy）
                 case "ftw":
                 case "for the worthy":
-                    Main.getGoodWorld = !Main.getGoodWorld;
+                    Main.getGoodWorld = ResolveState(Main.getGoodWorld, state, op);
                     TSPlayer.All.SendData(PacketTypes.WorldInfo);
                     op.SendSuccessMessage($"{Utils.BFlag(Main.getGoodWorld)} for the worthy 秘密世界");
                     break;
 
                 // not the bees
                 case "ntb":
-                    Main.notTheBeesWorld = !Main.notTheBeesWorld;
+                    Main.notTheBeesWorld = ResolveState(Main.notTheBeesWorld, state, op);
                     TSPlayer.All.SendData(PacketTypes.WorldInfo);
                     op.SendSuccessMessage($"{Utils.BFlag(Main.notTheBeesWorld)} not the bees 秘密世界");
                     break;
@@ -121,7 +124,7 @@ namespace WorldModify
                 case "eye":
                 case "dst":
                 case "constant":
-                    Main.dontStarveWorld = !Main.dontStarveWorld;
+                    Main.dontStarveWorld = ResolveState(Main.dontStarveWorld, state, op);
                     TSPlayer.All.SendData(PacketTypes.WorldInfo);
                     op.SendSuccessMessage($"{Utils.BFlag(Main.dontStarveWorld)} 永恒领域 秘密世界（饥荒联动）");
                     break;
@@ -129,7 +132,7 @@ namespace WorldModify
 
                 // Remix 种子
                 case "remix":
-                    Main.remixWorld = !Main.remixWorld;
+                    Main.remixWorld = ResolveState(Main.remixWorld, state, op);
                     TSPlayer.All.SendData(PacketTypes.WorldInfo);
                     op.SendSuccessMessage($"{Utils.BFlag(Main.remixWorld)} Remix 秘密世界（don't dig up）");
                     break;
@@ -137,7 +140,7 @@ namespace WorldModify
                 // noTraps 种子
                 case "nt":
                 case "no traps":
-                    Main.noTrapsWorld = !Main.noTrapsWorld;
+                    Main.noTrapsWorld = ResolveState(Main.noTrapsWorld, state, op);
                     TSPlayer.All.SendData(PacketTypes.WorldInfo);
                     op.SendSuccessMessage($"{Utils.BFlag(Main.noTrapsWorld)} No Traps 秘密世界");
                     break;
@@ -146,7 +149,7 @@ namespace WorldModify
                 case "zenith":
                 case "gfb":
                 case "everything":
-                    Main.zenithWorld = !Main.zenithWorld;
+                    Main.zenithWorld = ResolveState(Main.zenithWorld, state, op);
                     TSPlayer.All.SendData(PacketTypes.WorldInfo);
                     op.SendSuccessMessage($"{Utils.BFlag(Main.zenithWorld)} 天顶 秘密世界（getfixedboi）");
                     break;
@@ -154,7 +157,7 @@ namespace WorldModify
                 // 空岛
                 case "sky":
                 case "sky block":
-                    Main.skyblockWorld = !Main.skyblockWorld;
+                    Main.skyblockWorld = ResolveState(Main.skyblockWorld, state, op);
                     TSPlayer.All.SendData(PacketTypes.WorldInfo);
                     op.SendSuccessMessage($"{Utils.BFlag(Main.skyblockWorld)} 空岛 秘密世界（getfixedboi）");
                     break;
@@ -164,21 +167,21 @@ namespace WorldModify
                 // 吸血鬼种子
                 case "va":
                 case "vampire":
-                    Main.vampireSeed = !Main.vampireSeed;
+                    Main.vampireSeed = ResolveState(Main.vampireSeed, state, op);
                     TSPlayer.All.SendData(PacketTypes.WorldInfo);
                     op.SendSuccessMessage($"{Utils.BFlag(Main.vampireSeed)} 吸血鬼 秘密世界（vampire）");
                     break;
 
                 // infected
                 case "infected":
-                    Main.infectedSeed = !Main.infectedSeed;
+                    Main.infectedSeed = ResolveState(Main.infectedSeed, state, op);
                     TSPlayer.All.SendData(PacketTypes.WorldInfo);
                     op.SendSuccessMessage($"{Utils.BFlag(Main.infectedSeed)} 感染世界 秘密世界（infected）");
                     break;
 
                 // team[试验]
                 case "team":
-                    Main.teamBasedSpawnsSeed = !Main.teamBasedSpawnsSeed;
+                    Main.teamBasedSpawnsSeed = ResolveState(Main.teamBasedSpawnsSeed, state, op);
                     if (Main.teamBasedSpawnsSeed)
                     {
                         ExtraSpawnPointManager.PrepareExtraSpawns();
@@ -200,23 +203,25 @@ namespace WorldModify
 
                 // 双地牢
                 case "dual":
-                    Main.dualDungeonsSeed = !Main.dualDungeonsSeed;
+                    Main.dualDungeonsSeed = ResolveState(Main.dualDungeonsSeed, state, op);
                     TSPlayer.All.SendData(PacketTypes.WorldInfo);
                     op.SendSuccessMessage($"{Utils.BFlag(Main.dualDungeonsSeed)} 双地牢 秘密世界（dual dungeons）");
                     break;
 
                 // 一年的雨量
                 case "rain":
-                    if (Main.IsRainingForever)
                     {
-                        Main.raining = false;
-                        Main.rainTime = 0;
-                        Main.numClouds = 0;
-                    }
-                    else
-                    {
-                        // Main.rainTime = 5184000;
-                        WorldGen.SecretSeed.DoRainsForAYear();
+                        bool rainState = ResolveState(Main.IsRainingForever, state, op);
+                        if (rainState && !Main.IsRainingForever)
+                        {
+                            WorldGen.SecretSeed.DoRainsForAYear();
+                        }
+                        else if (!rainState && Main.IsRainingForever)
+                        {
+                            Main.raining = false;
+                            Main.rainTime = 0;
+                            Main.numClouds = 0;
+                        }
                     }
                     TSPlayer.All.SendData(PacketTypes.WorldInfo);
                     op.SendSuccessMessage($"{Utils.BFlag(Main.IsRainingForever)} 一年的雨量 秘密世界（rainsForAYear）");
@@ -229,6 +234,50 @@ namespace WorldModify
                     break;
 
                 #endregion
+            }
+        }
+
+        /// <summary>
+        /// 计算目标状态，若已处于目标状态则给出提示
+        /// </summary>
+        /// <param name="current">当前状态</param>
+        /// <param name="state">目标状态（null=切换）</param>
+        /// <param name="op">操作者</param>
+        /// <returns>最终状态</returns>
+        private static bool ResolveState(bool current, bool? state, TSPlayer op)
+        {
+            if (state.HasValue && current == state.Value)
+                op.SendInfoMessage(state.Value ? "已经是开启状态" : "已经是关闭状态");
+            return state ?? !current;
+        }
+
+        /// <summary>
+        /// 解析可选的开关状态参数
+        /// </summary>
+        /// <param name="parameters">命令参数列表</param>
+        /// <param name="op">操作者</param>
+        /// <param name="state">null=切换, true=开启, false=关闭</param>
+        /// <returns>参数是否有效</returns>
+        private static bool TryParseState(List<string> parameters, TSPlayer op, out bool? state)
+        {
+            state = null;
+            if (parameters.Count < 2) return true;
+            string s = parameters[1].ToLowerInvariant();
+            switch (s)
+            {
+                case "on":
+                case "true":
+                case "1":
+                    state = true;
+                    return true;
+                case "off":
+                case "false":
+                case "0":
+                    state = false;
+                    return true;
+                default:
+                    op.SendErrorMessage("无效的状态参数，请使用 on/off 或 true/false");
+                    return false;
             }
         }
 
