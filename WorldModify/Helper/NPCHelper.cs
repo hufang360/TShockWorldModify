@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Terraria;
 using Terraria.GameContent.Bestiary;
+using Terraria.ID;
 using TShockAPI;
 
 
@@ -89,7 +90,38 @@ namespace WorldModify
                     break;
 
                 // 召唤美杜莎boss
-                case "mq": NPC.SpawnMechQueen(op.Index); break;
+                case "mq":
+                    if (args.Parameters.Count < 2 || args.Parameters[1].ToLowerInvariant() != "true")
+                    {
+                        op.SendErrorMessage("本操作比较危险，将召唤三合一机械boss（美杜莎），如确定此操作，请输入 /npc mq true");
+                        break;
+                    }
+                    if (NPC.AnyNPCs(NPCID.TheDestroyer) || NPC.AnyNPCs(NPCID.SkeletronPrime) ||
+                        NPC.AnyNPCs(NPCID.Retinazer) || NPC.AnyNPCs(NPCID.Spazmatism))
+                    {
+                        op.SendErrorMessage("场上已有机械Boss（毁灭者/机械骷髅王/双子魔眼），无法召唤美杜莎");
+                        break;
+                    }
+                    // 美杜莎是 getfixedboi（Remix+for the worthy）种子专属Boss，普通世界需临时开启特性
+                    bool remix = Main.remixWorld;
+                    bool getGood = Main.getGoodWorld;
+                    Main.remixWorld = true;
+                    Main.getGoodWorld = true;
+                    bool ok = NPC.SpawnMechQueen(op.Index);
+                    if (!ok)
+                    {
+                        Main.remixWorld = remix;
+                        Main.getGoodWorld = getGood;
+                        op.SendErrorMessage("召唤美杜莎失败");
+                    }
+                    else if (!(remix && getGood))
+                    {
+                        List<string> restore = new();
+                        if (!remix) restore.Add("/wm remix");
+                        if (!getGood) restore.Add("/wm ftw");
+                        op.SendErrorMessage($"美杜莎已召唤！已临时开启特性，召唤结束后请执行 {string.Join("、", restore)} 关闭对应特性");
+                    }
+                    break;
 
                 // 召唤几个NPC
                 case "demo": SpawnDemoNPC(args); break;

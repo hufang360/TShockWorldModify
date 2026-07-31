@@ -37,6 +37,8 @@ namespace WorldModify.Tools
                     $"/igen p egg，放置 {FT("巨型龙蛋（疾旋鼬）")}",
 
                     "/igen p pot，放置 罐子",
+                    $"/igen p boulder，放置 {FT("友好巨石")}",
+                    "/igen p rainbow，放置 彩虹巨石",
                 };
                 Utils.Pagination(args, ref lines, "/igen place");
             }
@@ -153,6 +155,20 @@ namespace WorldModify.Tools
                         op.SendSuccessMessage($"已放置1颗{FT(kw)}");
                     else
                         op.SendErrorMessage($"请移动到合适的位置，再进行操作！");
+                    break;
+
+                case "友好巨石":
+                    PreparePlace(x, y, 2, 2, true);
+                    WorldGen.PlaceTile(x, y, TileID.BoulderThatSpawnsPet, forced: true);
+                    NetMessage.SendTileSquare(-1, x, y, 3);
+                    op.SendSuccessMessage($"已放置1个{FT(kw)}");
+                    break;
+
+                case "彩虹巨石":
+                    PreparePlace(x, y, 2, 2, true);
+                    WorldGen.PlaceTile(x, y, TileID.RainbowBoulder, forced: true);
+                    NetMessage.SendTileSquare(-1, x, y, 3);
+                    op.SendSuccessMessage($"已放置1个{FT(kw)}");
                     break;
 
                 default:

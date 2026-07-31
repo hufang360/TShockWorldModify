@@ -19,13 +19,13 @@ public class WorldModify : TerrariaPlugin
 {
     public override string Author => "hufang360";
 
-    public override string Description => "简易的世界修改器（测试版本：V20230305）";
+    public override string Description => "简易的世界修改器";
 
     public override string Name => "WorldModify";
 
     public override Version Version => Assembly.GetExecutingAssembly().GetName().Version;
 
-    public static readonly string VersionCodename = "20230305";
+    public static readonly string VersionCodename = "20260731";
 
     public static readonly string SaveDir = Path.Combine(TShock.SavePath, "WorldModify");
 
@@ -513,11 +513,7 @@ public class WorldModify : TerrariaPlugin
             case "version":
             case "v":
             case "ver":
-                string dllpath = $"ServerPlugins/WorldModify.dll";
-                string md5 = Utils.GetMD5HashFromFile(dllpath);
-                if (md5.Length > 4)
-                    md5 = md5[..4];
-                op.SendInfoMessage($"{Name} v{Version}（{md5}）");
+                op.SendInfoMessage($"{Name} v{Version}（{VersionCodename}）");
                 break;
                 #endregion
         }

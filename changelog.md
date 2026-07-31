@@ -1,6 +1,15 @@
 
 
 # 更新日志
+## 待发布
+- 新增 `/igen place <boulder / rainbow>` 指令，放置 友好巨石/彩虹巨石。
+- 新增 `/wm find <boulder / rainbow>` 指令，查找 友好巨石、彩虹巨石。
+
+- 现在 `/npc mq` 指令，在召唤美杜莎前，会检测世界属性，如不满足会主动修改，并给出对应的恢复世界属性指令。
+- 修复 `/wm version` 指令报错（FileNotFoundException），改为读取插件实际路径，并显示版本代号。
+
+- README 补充完整指令列表（一级指令表格、/wm find、/wm clear、/npc、/igen place 等）。
+
 ## 20260227（v1.5.1）
 - 修复 `/npc demo` 指令，之前错写成复活npc，现在执行后会生成 向导、商人、护士、军火商。
 - 修正 `/igen clear water` 和 `/igen fill water` 指令结果文字显示错误，之前是提示“红电线”。

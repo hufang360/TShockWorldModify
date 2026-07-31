@@ -51,6 +51,8 @@ namespace WorldModify
                     $"/wm f tulip，查找 {FT("发光郁金香")}",
                     $"/wm f digtoise，查找 {FT("碎岩龟")}",
                     $"/wm f egg，查找 {FT("巨型龙蛋")}",
+                    $"/wm f boulder，查找 {FT("友好巨石")}",
+                    $"/wm f rainbow，查找 {FT("彩虹巨石")}",
                     $"/wm f <森林晶塔/海洋晶塔……>，查找 {FT("晶塔")}",
                     "/igen stats，类似的指令",
                 };
@@ -112,6 +114,8 @@ namespace WorldModify
             { "发光郁金香", new FindInfo(656) },
             { "碎岩龟", new FindInfo(751,0, 2,2, 0,0) },
             { "巨型龙蛋", new FindInfo(752,0, 2,2, 0,0) },
+            { "友好巨石", new FindInfo(TileID.BoulderThatSpawnsPet, 0, 2, 2) },
+            { "彩虹巨石", new FindInfo(TileID.RainbowBoulder, 0, 2, 2) },
             { "水矢", new FindInfo(50,5,1,1,90,0) },
 
             {"森林晶塔", new FindInfo(597,1, 3,4, 0, 0) },

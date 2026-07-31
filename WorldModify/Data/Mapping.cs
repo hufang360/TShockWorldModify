@@ -20,7 +20,7 @@
                 "larva" => "幼虫",
                 "bulb" or "世纪之花灯泡" or "世界之花球茎" => "花苞",
                 "gelatin crystal" or "gc" => "明胶水晶",
-                "life crystal" or "lc" => "生命水晶",
+                "life crystal" or "lc" or "life" => "生命水晶",
                 "life fruit" or "lf" => "生命果",
                 "orb" => "暗影珠",
                 "heart" => "猩红之心",
@@ -45,6 +45,8 @@
                 "water bolt" or "wb" => "水矢",
                 "dig" or "digtoise" => "碎岩龟",
                 "egg" or "chilletegg" => "巨型龙蛋",
+                "boulder" or "stone" => "友好巨石",
+                "rainbow boulder" or "rainbow" => "彩虹巨石",
 
                 "h" => "help",
                 _ => name,
