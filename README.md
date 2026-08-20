@@ -27,15 +27,16 @@
 /wm mode [1~4/经典/专家/大师/旅行]，查看/修改 世界难度；
 /wm seed [种子]，查看/修改 世界种子；
 
-# 秘密世界/特性开关，
-/wm secret help
-/wm secret <特性> [on/off]，秘密世界/特性开关（简写 /wm s）；
+# 秘密世界/特性开关
 /wm 2020，开启/关闭 05162020 秘密世界；
 /wm 2021，开启/关闭 05162021 秘密世界；
 /wm ftw，开启/关闭 for the worthy 秘密世界；
 /wm ntb，开启/关闭 not the bees 秘密世界；
 /wm dst，开启/关闭 the constant 秘密世界；
-/wm s <remix/nt/zenith/sky/vampire/infected/team/dual/rain/full>（泰拉1.4.5）；
+
+/wm secret help
+/wm s <remix/nt/zenith/sky/vampire/infected/team/dual/rain/full> [on/off]，秘密世界/特性开关；
+/wm s random，随机开启一个秘密世界特性（2020/2021/rain/full，随机到已开启的特性会自动跳过，最多随机3次）；
 
 /wm research，查看 物品研究用法；
 /wm re unlock，解锁 全物品研究；
@@ -104,9 +105,17 @@
 /wm c ws，全图清除 木尖刺；
 
 
+/wm e stone [on/off]，查看/开关 巨石雨（临时开启 Constant 种子 + 暴风雨）；
+/wm e slime [on/off]，查看/开关 史莱姆雨；
+/wm e windy [on/off]，查看/开关 大风天（白天 7:30~16:30 生效）；
+/wm e storm [on/off]，查看/开关 暴风雨；
+/wm e party [on/off]，查看/开关 派对；
+/wm e clear，风和日丽（停雨/无风/清云/时间调到08:15/跳过入侵/停止事件）；
+/wm e skip，跳过 入侵；
+（雨/沙尘暴/血月/日食/灯笼夜/流星雨/陨石/入侵 等功能，请使用 /worldevent 指令）
+
+
 /wm gps <x> <y>，将图格坐标转成GPS信息（有少许误差）；
-
-
 /wm sundial 查看 附魔日晷；
 /wm moondial 查看 附魔月晷；
 /wm sd [on/off/天数]，开关 附魔日晷 / 修改 冷却天数；

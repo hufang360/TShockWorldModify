@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using Terraria;
 using Terraria.GameContent;
 using Terraria.WorldBuilding;
@@ -36,6 +37,8 @@ namespace WorldModify
 
                     "/wm s dual，开启/关闭 双地牢 秘密世界",
                     "/wm s rain，开启/关闭 一年的雨量 特性",
+
+                    "/wm s random，随机开启一个秘密世界特性（2020/2021/rain/full，已开启的会自动跳过，最多随机3次）",
                 ];
 
                 Utils.Pagination(args, ref lines, "/wm secret");
@@ -54,11 +57,52 @@ namespace WorldModify
                 case "h":
                     Help();
                     break;
+                case "random":
+                    RandomSecret(args);
+                    break;
                 default:
                     SecretSeed(args);
                     break;
             }
 
+        }
+
+        /// <summary>
+        /// 随机开启一个秘密世界特性（2020/2021/rain/full）
+        /// 若随机到当前世界已开启的特性，则继续随机，最多随机3次
+        /// </summary>
+        /// <param name="args"></param>
+        private static void RandomSecret(CommandArgs args)
+        {
+            TSPlayer op = args.Player;
+
+            // 随机池：2020 / 2021 / rain / full
+            // full 无开关状态（仅显示全彩蛋种子），始终可执行
+            List<(string kw, string name, bool isOn)> pool =
+            [
+                ("2020", "05162020 醉酒世界", Main.drunkWorld),
+                ("2021", "05162021 10周年庆典", Main.tenthAnniversaryWorld),
+                ("rain", "一年的雨量", Main.IsRainingForever),
+                ("full", "全彩蛋种子", false),
+            ];
+
+            Random rnd = new Random();
+            for (int i = 1; i <= 3; i++)
+            {
+                var pick = pool[rnd.Next(pool.Count)];
+                if (pick.isOn)
+                {
+                    op.SendInfoMessage($"第{i}次随机到 [{pick.name}]，当前世界已开启该特性，继续随机");
+                    continue;
+                }
+
+                args.Parameters[0] = pick.kw;
+                SecretSeed(args);
+                op.SendSuccessMessage($"本次随机结果：{pick.name}");
+                return;
+            }
+
+            op.SendErrorMessage("连续3次随机均命中已开启的特性，本次未开启新特性");
         }
 
         /// <summary>

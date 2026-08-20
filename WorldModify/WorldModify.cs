@@ -86,6 +86,7 @@ public class WorldModify : TerrariaPlugin
 
                 "/wm find help，全图查找图格",
                 "/wm clear help，全图清理图格",
+                "/wm event help，世界事件",
                 "/wm gps <x> <y>，将图格坐标转成GPS信息（有少许误差）",
 
                 "/moon help，月相管理",
@@ -448,9 +449,14 @@ public class WorldModify : TerrariaPlugin
                 break;
             #endregion
 
+            // 世界事件
+            case "event":
+            case "e":
+                WMEventTool.Manage(args);
+                break;
+
             // GPS
-            case "gps":
-                if (args.Parameters.Count < 3)
+            case "gps":                if (args.Parameters.Count < 3)
                 {
                     op.SendErrorMessage("坐标输入不完整，示例：/wm gps 100 100");
                     return;
