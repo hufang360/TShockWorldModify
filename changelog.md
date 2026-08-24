@@ -1,16 +1,20 @@
 
 
 # 更新日志
-## 待发布
-- 新增 `/igen place <boulder / rainbow>` 指令，放置 友好巨石/彩虹巨石。
-- 新增 `/wm find <boulder / rainbow>` 指令，查找 友好巨石、彩虹巨石。
-- 新增 `/wm s random` 指令，随机开启一个秘密世界特性（2020/2021/rain/full），随机到当前世界已开启的特性会自动跳过，最多随机3次。
-- 新增 `/wm event` 系列指令：巨石雨（原版机制）、史莱姆雨、大风天、暴风雨、派对、风和日丽、跳过入侵。
-- `/wm event` 中的 雨/沙尘暴/血月/日食/灯笼夜/流星雨/陨石/入侵 等已被 `/worldevent` 指令覆盖，已移除并提示使用 `/worldevent`。
-
-- 现在 `/npc mq` 指令，在召唤美杜莎前，会检测世界属性，如不满足会主动修改，并给出对应的恢复世界属性指令。
+## 20260824（v1.6.0）
+- 修复 `/igen world` 在运行中的服务器上重建地图必然失败的问题：服务器（netMode==2）不会创建 `Main.sectionManager`，而 1.4.5 的 `WorldGen.Reset()` 结尾会引用它，导致抛出异常、重建中断后会把被清空的地图存盘；现在生成前会先补建 sectionManager。
+- 修复 `/igen world` 重建地图时秘密种子不生效的问题：1.4.5 起 `WorldGen.GenerateWorld()` 的 `Reset()` 改为从 `WorldGenerationOptions`（WorldSeedOption_*）读取秘密世界开关，直接设置 `WorldGen.*` 标志会被覆盖，现在改用选项类设置。
+- `/igen world` 秘密种子新增 remix、nt、zenith、sky 支持。
+- `/igen world` 彩蛋关键字支持用英文逗号、竖线或空格分隔组合，且可以直接写在种子参数里，例如 `/igen world 2020,ftw`；并兼容 notthebees、fortheworthy、theconstant、dontdigup、getfixedboi 等原版别名。
+- `/igen world` 现在会捕获并记录世界生成过程中的异常（写入 TShock 日志），不再静默失败。
+- 修复 `/wm s` 指令别名不一致的问题：`infect` 路由后无对应分支（报“请输入用法”），`rain`、`full` 不支持直达写法；现在三者均已对齐，全部别名可用。
+- `友好巨石/彩虹巨石`
+  - `/wm find <boulder / rainbow>`，查找友好巨石、彩虹巨石。
+  - `/igen place <boulder / rainbow>`，放置友好巨石/彩虹巨石。
+- `/wm s random`，随机开启一个秘密世界特性（2020/2021/rain/full），随机到当前世界已开启的特性会自动跳过，最多随机3次。
+- `/wm event` 系列指令：巨石雨（原版机制）、史莱姆雨、大风天、暴风雨、派对、风和日丽、跳过入侵。
+- `/npc mq`，在召唤美杜莎前，会检测世界属性，如不满足会主动修改，并给出对应的恢复世界属性指令。
 - 修复 `/wm version` 指令报错（FileNotFoundException），改为读取插件实际路径，并显示版本代号。
-
 - README 补充完整指令列表（一级指令表格、/wm find、/wm clear、/npc、/igen place 等）。
 
 ## 20260227（v1.5.1）

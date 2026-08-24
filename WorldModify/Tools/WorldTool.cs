@@ -18,7 +18,8 @@ namespace WorldModify
                 op.SendErrorMessage("种子：输入任意种子名，0表示随机");
                 op.SendErrorMessage("腐化：腐化/猩红 或 1/2, 0表示随机");
                 op.SendErrorMessage("大小：小/中/大 或 1/2/3, 0表示忽略");
-                op.SendErrorMessage("彩蛋特性：种子名中间输入英文逗号，例如 2020,ftw");
+                op.SendErrorMessage("彩蛋特性：写在最后一个参数（或种子里用英文逗号分隔），例如 2020,ftw");
+                op.SendErrorMessage("支持：2020/2021/ntb/ftw/dst/remix/nt/zenith/sky，superegg=全彩蛋");
                 return;
             }
             if (TileHelper.NeedWaitTask(op)) return;
@@ -121,6 +122,11 @@ namespace WorldModify
             }
             WorldGen.WorldGenParam_Evil = evil;
 
+            // 1.4.5：运行中的服务器 netMode==2 时 clearWorld() 不会创建 sectionManager，
+            // 而 WorldGen.Reset() 结尾会引用它（创建委托时 null this 抛异常），导致重建中断，必须先补建
+            if (Main.sectionManager == null)
+                Main.sectionManager = new WorldSections(Main.maxTilesX / 200, Main.maxTilesY / 150);
+
             // 开始创建
             string seedText = Main.ActiveWorldFileData.SeedText;
             if (!op.RealPlayer)
@@ -165,7 +171,15 @@ namespace WorldModify
             TileHelper.isTaskRunning = true;
             return Task.Run(() =>
             {
-                WorldGen.GenerateWorld();
+                try
+                {
+                    WorldGen.GenerateWorld();
+                }
+                catch (Exception ex)
+                {
+                    // 避免异常被静默吞掉后，把被清空的地图存盘
+                    TShock.Log.Error($"[wm] GenerateWorld 异常：{ex}");
+                }
             }).ContinueWith((d) =>
             {
                 TileHelper.GenAfter();
@@ -174,17 +188,20 @@ namespace WorldModify
 
 
         /// <summary>
-        /// 处理秘密世界种子
+        /// 处理秘密世界种子（1.4.5+）
+        /// WorldGen.Reset() 会从 WorldGenerationOptions 读取各选项的 Enabled 状态并覆盖 WorldGen.*/Main.* 标志，
+        /// 因此必须通过选项类设置，而不是直接设置 WorldGen.* 标志。
+        /// 种子串里允许用逗号/空格组合多个秘密世界，例如：2020,ftw 或 celebrationmk10 ntb。
         /// </summary>
         /// <param name="seed"></param>
         private static void ProcessSeeds(string seed)
         {
-            // UIWorldCreation.ProcessSpecialWorldSeeds(seedStr);
-            WorldGen.notTheBees = false;
-            WorldGen.getGoodWorldGen = false;
-            WorldGen.tenthAnniversaryWorldGen = false;
-            WorldGen.dontStarveWorldGen = false;
-            ToggleSpecialWorld(seed.ToLowerInvariant());
+            // 重置为普通世界（Normal.Enabled = true 时会关闭其它所有选项）
+            WorldGenerationOptions.Reset();
+            foreach (string token in SplitTokens(seed))
+            {
+                ToggleSpecialWorld(token);
+            }
         }
 
         /// <summary>
@@ -193,65 +210,127 @@ namespace WorldModify
         /// <param name="seedstr">例如：2020,2021,ftw</param>
         private static void ProcessEggSeeds(string seedstr)
         {
-            string[] seeds = seedstr.ToLowerInvariant().Split(',');
-            foreach (string newseed in seeds)
+            foreach (string token in SplitTokens(seedstr))
             {
-                ToggleSpecialWorld(newseed);
+                ToggleSpecialWorld(token);
             }
         }
+
         /// <summary>
-        /// 开关秘密世界（创建器的属性）
+        /// 拆分秘密世界关键字（支持逗号、竖线和空格分隔）
         /// </summary>
-        /// <param name="seed"></param>
+        private static string[] SplitTokens(string s)
+        {
+            if (string.IsNullOrWhiteSpace(s)) return Array.Empty<string>();
+            return s.ToLowerInvariant().Split(new[] { ',', '|', ' ' }, StringSplitOptions.RemoveEmptyEntries);
+        }
+
+        /// <summary>
+        /// 开关秘密世界（创建器的属性，1.4.5+ 使用 WorldGenerationOptions 选项类）
+        /// </summary>
+        /// <param name="seed">单个关键字（小写）</param>
         private static void ToggleSpecialWorld(string seed)
         {
             switch (seed)
             {
+                // 醉酒世界 DrunkWorld
                 case "2020":
                 case "516":
                 case "5162020":
                 case "05162020":
+                case "drunk":
+                case "drunkworld":
                     Main.ActiveWorldFileData._seed = 5162020;
+                    SetOption<WorldSeedOption_Drunk>(true);
                     break;
 
+                // 10周年庆典 Celebrationmk10
+                case "2011":
                 case "2021":
                 case "5162011":
                 case "5162021":
                 case "05162011":
                 case "05162021":
+                case "anniversary":
                 case "celebrationmk10":
-                    WorldGen.tenthAnniversaryWorldGen = true;
+                    SetOption<WorldSeedOption_Anniversary>(true);
                     break;
 
+                // not the bees
                 case "ntb":
+                case "notthebees":
                 case "not the bees":
                 case "not the bees!":
-                    WorldGen.notTheBees = true;
+                    SetOption<WorldSeedOption_NotTheBees>(true);
                     break;
 
+                // for the worthy
                 case "ftw":
+                case "fortheworthy":
                 case "for the worthy":
-                    WorldGen.getGoodWorldGen = true;
+                    SetOption<WorldSeedOption_ForTheWorthy>(true);
                     break;
 
+                // 饥荒联动 The Constant
                 case "dst":
                 case "constant":
                 case "theconstant":
                 case "the constant":
                 case "eye4aneye":
                 case "eyeforaneye":
-                    WorldGen.dontStarveWorldGen = true;
+                    SetOption<WorldSeedOption_DontStarve>(true);
+                    break;
+
+                // Remix（don't dig up）
+                case "remix":
+                case "dontdigup":
+                case "don't dig up":
+                    SetOption<WorldSeedOption_Remix>(true);
+                    break;
+
+                // No Traps
+                case "nt":
+                case "notraps":
+                case "no traps":
+                    SetOption<WorldSeedOption_NoTraps>(true);
+                    break;
+
+                // 天顶 getfixedboi
+                case "zenith":
+                case "gfb":
+                case "everything":
+                case "getfixedboi":
+                case "get fixed boi":
+                    SetOption<WorldSeedOption_Everything>(true);
+                    break;
+
+                // 空岛 Skyblock
+                case "sky":
+                case "skyblock":
+                case "sky block":
+                    SetOption<WorldSeedOption_Skyblock>(true);
                     break;
 
                 case "superegg":
                     Main.ActiveWorldFileData._seed = 5162020;
 
-                    WorldGen.notTheBees = true;
-                    WorldGen.getGoodWorldGen = true;
-                    WorldGen.tenthAnniversaryWorldGen = true;
-                    WorldGen.dontStarveWorldGen = true;
+                    SetOption<WorldSeedOption_Drunk>(true);
+                    SetOption<WorldSeedOption_NotTheBees>(true);
+                    SetOption<WorldSeedOption_ForTheWorthy>(true);
+                    SetOption<WorldSeedOption_Anniversary>(true);
+                    SetOption<WorldSeedOption_DontStarve>(true);
                     break;
             }
+        }
+
+        /// <summary>
+        /// 设置世界生成选项的开关状态（1.4.5+）
+        /// </summary>
+        private static void SetOption<T>(bool enabled) where T : AWorldGenerationOption, new()
+        {
+            AWorldGenerationOption option = WorldGenerationOptions.Get<T>();
+            if (option != null)
+                option.Enabled = enabled;
         }
 
     }

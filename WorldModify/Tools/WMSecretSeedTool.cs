@@ -38,6 +38,10 @@ namespace WorldModify
                     "/wm s dual，开启/关闭 双地牢 秘密世界",
                     "/wm s rain，开启/关闭 一年的雨量 特性",
 
+                    "/wm s ml，开启/关闭 moreLightning 特性，1.4.5.7,Electric boogaloo",
+                    "/wm s nl，开启/关闭 noLightning 特性，1.4.5.7,Calm before the storm",
+                    "/wm s gl，开启/关闭 绿色闪电 特性，moreLightning+noLightning",
+
                     "/wm s random，随机开启一个秘密世界特性（2020/2021/rain/full，已开启的会自动跳过，最多随机3次）",
                 ];
 
@@ -217,6 +221,7 @@ namespace WorldModify
                     break;
 
                 // infected
+                case "infect":
                 case "infected":
                     Main.infectedSeed = ResolveState(Main.infectedSeed, state, op);
                     TSPlayer.All.SendData(PacketTypes.WorldInfo);
@@ -269,6 +274,34 @@ namespace WorldModify
                     }
                     TSPlayer.All.SendData(PacketTypes.WorldInfo);
                     op.SendSuccessMessage($"{Utils.BFlag(Main.IsRainingForever)} 一年的雨量 秘密世界（rainsForAYear）");
+                    break;
+
+                // moreLightning 特性（1.4.5.7）
+                case "ml":
+                case "more lightning":
+                    Main.moreLightningSeed = ResolveState(Main.moreLightningSeed, state, op);
+                    TSPlayer.All.SendData(PacketTypes.WorldInfo);
+                    op.SendSuccessMessage($"{Utils.BFlag(Main.moreLightningSeed)} moreLightning 特性（1.4.5.7）");
+                    break;
+
+                // noLightning 特性（1.4.5.7）
+                case "nl":
+                case "no lightning":
+                    Main.noLightningSeed = ResolveState(Main.noLightningSeed, state, op);
+                    TSPlayer.All.SendData(PacketTypes.WorldInfo);
+                    op.SendSuccessMessage($"{Utils.BFlag(Main.noLightningSeed)} noLightning 特性（1.4.5.7）");
+                    break;
+
+                // 绿色闪电 特性（moreLightning + noLightning，1.4.5.7）
+                case "gl":
+                case "green lightning":
+                    {
+                        bool gl = ResolveState(Main.moreLightningSeed && Main.noLightningSeed, state, op);
+                        Main.moreLightningSeed = gl;
+                        Main.noLightningSeed = gl;
+                        TSPlayer.All.SendData(PacketTypes.WorldInfo);
+                        op.SendSuccessMessage($"{Utils.BFlag(gl)} 绿色闪电 特性（moreLightning+noLightning）");
+                    }
                     break;
 
                 // 全秘密世界种子
@@ -390,6 +423,20 @@ namespace WorldModify
 
                 "team",
                 "dual",
+
+                // 一年的雨量 / 全彩蛋种子查询
+                "rain",
+                "full",
+
+                // moreLightning / noLightning 特性（1.4.5.7）
+                "ml",
+                "more lightning",
+                "nl",
+                "no lightning",
+
+                // 绿色闪电 特性（moreLightning+noLightning）
+                "gl",
+                "green lightning",
             ];
             return ss.Contains(kw);
         }

@@ -687,6 +687,8 @@ public class WorldModify : TerrariaPlugin
             if (Main.IsRainingForever) texts.Add($"IsRainingForever：{Main.IsRainingForever}");
             if (WorldGen.SecretSeed.teamBasedSpawns.Enabled) texts.Add($"teamBasedSpawns：开启");
             if (ExtraSpawnPointManager.extraSpawnPoints.Length > 0) texts.Add($"extraSpawnPoints：{Utils.Points2String(ExtraSpawnPointManager.extraSpawnPoints)}");
+            if (Main.moreLightningSeed) texts.Add("moreLightning：开启");
+            if (Main.noLightningSeed) texts.Add("noLightning：开启");
             lines.Add($"秘密种子：{string.Join(", ", texts)}");
         }
         op.SendInfoMessage(string.Join("\n", lines));

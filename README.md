@@ -148,7 +148,7 @@
 /npc sm，sm召唤指令备注（SpawnMob npc召唤指令）；
 
 
-/igen world [种子] [腐化] [大小] [彩蛋特性], 重建地图（无需进入游戏）；（泰拉1.4.5后本插件有问题，暂时不知道原因，不建议使用）
+/igen world [种子] [腐化] [大小] [彩蛋特性], 重建地图（无需进入游戏）；（已适配 1.4.5+ 的 WorldGenerationOptions 秘密种子机制）
 /igen random true，全图图格和背景墙随机（无需进入游戏）；
 /igen stats help，统计工具（选区内，无需进入游戏时统计整个世界的图格）；
 

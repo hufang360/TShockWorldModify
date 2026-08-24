@@ -18,7 +18,7 @@
       Also, be sure to release on github with the exact assembly version tag as below
       so that the update manager works correctly (via the Github releases api and mimic)
     -->
-    <Version>1.5.2</Version>
+    <Version>1.6.0</Version>
     <AssemblyTitle>WorldModify</AssemblyTitle>
     <Company></Company>
     <Product>WorldModify</Product>
@@ -62,26 +62,26 @@
 
   <ItemGroup>
     <PackageReference Include="System.Drawing.Common" Version="6.0.0" />
-    <PackageReference Include="TShock" Version="6.1.0" />
-    <!-- <PackageReference Include="Microsoft.Data.Sqlite" Version="9.0.0" />
+    <!-- <PackageReference Include="TShock" Version="6.1.0" /> -->
+    <PackageReference Include="Microsoft.Data.Sqlite" Version="9.0.0" />
     <PackageReference Include="MySql.Data" Version="9.1.0" />
     <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
     <Reference
       Include="OTAPI">
-      <HintPath>../../lib/1455/OTAPI.dll</HintPath>
+      <HintPath>../../lib/1458/OTAPI.dll</HintPath>
     </Reference>
     <Reference
       Include="TerrariaServer">
-      <HintPath>../../lib/1455/TerrariaServer.dll</HintPath>
+      <HintPath>../../lib/1458/TerrariaServer.dll</HintPath>
     </Reference>
     <Reference
       Include="TShockAPI">
-      <HintPath>../../lib/1455/TShockAPI.dll</HintPath>
+      <HintPath>../../lib/1458/TShockAPI.dll</HintPath>
     </Reference>
     <Reference
       Include="ModFramework">
-      <HintPath>../../lib/1455/ModFramework.dll</HintPath>
-    </Reference> -->
+      <HintPath>../../lib/1458/ModFramework.dll</HintPath>
+    </Reference>
   </ItemGroup>
 
   <ItemGroup>
