@@ -1,5 +1,8 @@
 # 简易的世界修改器
 
+[WorldModify-v1.6-1457.dll](https://github.com/hufang360/TShockWorldModify/releases/download/v1.6/WorldModify-v1.6-1457.dll)
+
+
 ## 一级指令
 
 | 指令 | 简写 | 权限 | 说明 |
