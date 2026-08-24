@@ -12,6 +12,9 @@
   - `/wm find <boulder / rainbow>`，查找友好巨石、彩虹巨石。
   - `/igen place <boulder / rainbow>`，放置友好巨石/彩虹巨石。
 - `/wm s random`，随机开启一个秘密世界特性（2020/2021/rain/full），随机到当前世界已开启的特性会自动跳过，最多随机3次。
+- `/wm s ml`，开启/关闭 moreLightning 特性（1.4.5.7，Electric boogaloo）。
+- `/wm s nl`，开启/关闭 noLightning 特性（1.4.5.7，Calm before the storm）。
+- `/wm s gl`，开启/关闭 绿色闪电 特性（moreLightning+noLightning）。
 - `/wm event` 系列指令：巨石雨（原版机制）、史莱姆雨、大风天、暴风雨、派对、风和日丽、跳过入侵。
 - `/npc mq`，在召唤美杜莎前，会检测世界属性，如不满足会主动修改，并给出对应的恢复世界属性指令。
 - 修复 `/wm version` 指令报错（FileNotFoundException），改为读取插件实际路径，并显示版本代号。
