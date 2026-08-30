@@ -9,6 +9,11 @@
   - `/npc shi shi [all]`，将 NPC 变成嬗变的样子：游戏内默认切换操作者周围 128x60 图格范围内的可嬗变 NPC，加 `all` 则标记全部 29 个（含未入住的存档标记，重新入住后即为嬗变外观），已嬗变的自动跳过；终端操作时需加 `all`；
   - `/npc shi recover [all]`，将已嬗变的 NPC 恢复为正常样子：游戏内默认恢复操作者周围 128x60 图格范围，加 `all` 恢复全部（含未入住的存档标记）；终端操作时需加 `all`，否则提示改用 `/npc shi recover all`；
   - `/npc shi list`，查看支持切换嬗变状态的 NPC 名单。
+- 修复并优化 `/wm re unlock / import / <id>` 研究数据同步：
+  - 原版 1458 `NetCreativeUnlocksModule.SerializeItemSacrifice` 声明容量为3却写入4字节，发送时必然 `IndexOutOfRangeException`（ShrinkToFit，Overwrite on supplied Length），改用正确尺寸手动构造同载荷包；
+  - 在线玩家研究界面即时生效（原版模块客户端无条件应用，不再依赖组队关系）；
+  - 解锁/导入改为批量多值 INSERT（分块单语句入库，避免每物品一次数据库连接）+ 写库成功后原地同步 TShock 内存缓存，失败自动回退逐条；
+  - 网络发包合并为单次主线程入队批量发送，不再每物品一个 `QueueMainThreadAction`（约5000个闭包）。
 
 ## 20260824（v1.6.0）
 - 修复 `/igen world` 在运行中的服务器上重建地图必然失败的问题：服务器（netMode==2）不会创建 `Main.sectionManager`，而 1.4.5 的 `WorldGen.Reset()` 结尾会引用它，导致抛出异常、重建中断后会把被清空的地图存盘；现在生成前会先补建 sectionManager。

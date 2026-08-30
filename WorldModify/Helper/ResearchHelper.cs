@@ -116,30 +116,125 @@ namespace WorldModify
                 return;
             }
             int needNum = CreativeItemSacrificesCatalog.Instance.SacrificeCountNeededByItemId[id];
-            TShock.ResearchDatastore.SacrificeItem(id, needNum, op);
-            var response = NetCreativeUnlocksPlayerReportModule.SerializeSacrificeRequest(op.Index, id, needNum);
-            NetManager.Instance.Broadcast(response);
+            int total = TShock.ResearchDatastore.SacrificeItem(id, needNum, op);
+            // 1.4.5.7+ 权威同步模块，客户端直接 SetSacrificeCountDirectly（所有玩家都能应用，不要求队友关系）
+            NetManager.Instance.SendToClient(MakeUnlockPacket(id, total), op.Index);
             op.SendErrorMessage($"{Lang.GetItemName(id)} 已研究。id:{id} 研究数:{needNum}");
+        }
+
+        /// <summary>
+        /// 构造 NetCreativeUnlocksModule 研究同步包
+        /// 1458 原版 SerializeItemSacrifice 声明容量为3却写入4字节(short+ushort)，SendData 时 ShrinkToFit 会抛
+        /// IndexOutOfRangeException("Overwrite on supplied Length")；这里手动用正确尺寸(4)构造同载荷包。
+        /// </summary>
+        private static NetPacket MakeUnlockPacket(int itemId, int sacrificeCount)
+        {
+            NetPacket packet = new(NetManager.Instance.GetId<NetCreativeUnlocksModule>(), 4);
+            packet.Writer.Write((short)itemId);
+            packet.Writer.Write((ushort)sacrificeCount);
+            return packet;
         }
 
         // 解锁全部
         private static async void UnlockAll(TSPlayer op)
         {
+            int playerId = op.Index;
             await Task.Run(() =>
             {
                 isTasking = true;
-                Backup();
-                op.SendInfoMessage("正在解锁，请稍等……");
-                Dictionary<int, int> dic = CreativeItemSacrificesCatalog.Instance.SacrificeCountNeededByItemId;
-                foreach (KeyValuePair<int, int> item in dic)
+                try
                 {
-                    TShock.ResearchDatastore.SacrificeItem(item.Key, item.Value, op);
-                    var response = NetCreativeUnlocksPlayerReportModule.SerializeSacrificeRequest(op.Index, item.Key, item.Value);
-                    NetManager.Instance.Broadcast(response);
+                    Backup();
+                    op.SendInfoMessage("正在解锁，请稍等……");
+                    Dictionary<int, int> dic = CreativeItemSacrificesCatalog.Instance.SacrificeCountNeededByItemId;
+
+                    // 批量写库（一次性多值INSERT），失败自动回退逐条写入，均保持 TShock 内存缓存一致
+                    List<(int key, int amount)> items = new(dic.Count);
+                    foreach (KeyValuePair<int, int> item in dic)
+                        items.Add((item.Key, item.Value));
+
+                    List<(int id, int total)> unlocks = new(items.Count);
+                    if (!BulkAddResearch(op.Account?.ID ?? -1, Main.worldID, items, unlocks))
+                    {
+                        foreach (var (key, amount) in items)
+                            unlocks.Add((key, TShock.ResearchDatastore.SacrificeItem(key, amount, op)));
+                    }
+
+                    // 网络栈必须在主线程操作：合并为单次入队，一次性批量发包（与 TShock 登录恢复研究数据的方式一致）
+                    Main.QueueMainThreadAction(() =>
+                    {
+                        foreach (var (id, total) in unlocks)
+                            NetManager.Instance.SendToClient(MakeUnlockPacket(id, total), playerId);
+                    });
+
+                    op.SendSuccessMessage($"已解锁 {unlocks.Count} 个物品研究");
                 }
-                op.SendSuccessMessage($"已解锁 {dic.Count} 个物品研究");
-                isTasking = false;
+                finally
+                {
+                    isTasking = false;
+                }
             });
+        }
+
+        /// <summary>
+        /// 批量写入研究数据：多值INSERT分块单语句入库（避免每物品一次数据库连接），
+        /// 写库成功后原地同步 TShock 内存缓存（GetSacrificedItems 返回的是同一字典实例），
+        /// 保证 备份/信息统计/再次解锁 读到一致数据。返回 false 表示失败，由调用方回退为逐条写入。
+        /// </summary>
+        /// <param name="accountId">操作者账号ID（-1 表示无账号，直接失败回退，与原行为一致）</param>
+        private static bool BulkAddResearch(int accountId, int worldId,
+            List<(int key, int amount)> items, List<(int id, int total)> unlocks)
+        {
+            if (accountId < 0 || items.Count == 0)
+                return false;
+            try
+            {
+                var cache = TShock.ResearchDatastore.GetSacrificedItems();
+
+                // 先按缓存旧值计算每条的新累计（暂不改缓存，待写库成功后统一同步）
+                var rows = new List<(int key, int amount, int total)>(items.Count);
+                foreach (var (key, amount) in items)
+                {
+                    cache.TryGetValue(key, out int old);
+                    rows.Add((key, amount, old + amount));
+                    unlocks.Add((key, old + amount));
+                }
+
+                DateTime now = DateTime.Now;
+                var args = new List<object>(800 * 5);
+                var sb = new StringBuilder(800 * 5 * 8);
+                const int chunk = 800; // 800行*5参数=4000，兼容 SQLite(32766)/MySQL(65535) 参数上限
+                for (int i = 0; i < rows.Count; i += chunk)
+                {
+                    int n = Math.Min(chunk, rows.Count - i);
+                    sb.Length = 0;
+                    sb.Append("INSERT INTO Research (WorldId, PlayerId, ItemId, AmountSacrificed, TimeSacrificed) VALUES ");
+                    args.Clear();
+                    for (int r = 0; r < n; r++)
+                    {
+                        if (r > 0) sb.Append(',');
+                        int p = args.Count;
+                        sb.Append($"(@{p},@{p + 1},@{p + 2},@{p + 3},@{p + 4})");
+                        args.Add(worldId); args.Add(accountId);
+                        args.Add(rows[i + r].key); args.Add(rows[i + r].amount); args.Add(now);
+                    }
+                    TShock.DB.Query(sb.ToString(), args.ToArray());
+                }
+
+                // 写库全部成功后，原地同步 TShock 内存缓存（与逐条写入的最终结果一致）
+                foreach (var (key, amount) in items)
+                {
+                    cache.TryGetValue(key, out int old);
+                    cache[key] = old + amount;
+                }
+                return true;
+            }
+            catch (Exception ex)
+            {
+                TShock.Log.Error($"批量写入研究数据失败，回退为逐条写入：{ex}");
+                unlocks.Clear(); // 防止回退时与已预填的条目重复
+                return false;
+            }
         }
 
         private static void Backup()
@@ -163,22 +258,41 @@ namespace WorldModify
             }
             await Task.Run(() =>
             {
-                op.SendInfoMessage("正在导入，请稍等……");
-                int count = 0;
-                foreach (string s in File.ReadAllLines(SaveFile))
+                isTasking = true;
+                try
                 {
-                    string[] arr = s.Split(',');
-                    if (arr.Length < 2) continue;
+                    op.SendInfoMessage("正在导入，请稍等……");
 
-                    if (int.TryParse(arr[0], out int key) && int.TryParse(arr[0], out int value))
+                    // 先解析 CSV
+                    List<(int key, int amount)> items = new();
+                    foreach (string s in File.ReadAllLines(SaveFile))
                     {
-                        TShock.ResearchDatastore.SacrificeItem(key, value, op);
-                        var response = NetCreativeUnlocksPlayerReportModule.SerializeSacrificeRequest(op.Index, key, value);
-                        NetManager.Instance.Broadcast(response);
-                        count++;
+                        string[] arr = s.Split(',');
+                        if (arr.Length < 2) continue;
+                        if (int.TryParse(arr[0], out int key) && int.TryParse(arr[1], out int value))
+                            items.Add((key, value));
                     }
+
+                    // 批量写库（失败回退逐条），再一次性主线程发包
+                    int playerId = op.Index;
+                    List<(int id, int total)> unlocks = new(items.Count);
+                    if (!BulkAddResearch(op.Account?.ID ?? -1, Main.worldID, items, unlocks))
+                    {
+                        foreach (var (key, amount) in items)
+                            unlocks.Add((key, TShock.ResearchDatastore.SacrificeItem(key, amount, op)));
+                    }
+                    Main.QueueMainThreadAction(() =>
+                    {
+                        foreach (var (id, total) in unlocks)
+                            NetManager.Instance.SendToClient(MakeUnlockPacket(id, total), playerId);
+                    });
+
+                    op.SendSuccessMessage($"已导入 {unlocks.Count} 个物品研究");
                 }
-                op.SendSuccessMessage($"已导入 {count} 个物品研究");
+                finally
+                {
+                    isTasking = false;
+                }
             });
         }
 
@@ -187,6 +301,9 @@ namespace WorldModify
         {
             await Task.Run(() =>
             {
+                isTasking = true;
+                try
+                {
                 IDbConnection db = TShock.DB;
                 IDbConnection database = db;
 
@@ -227,6 +344,11 @@ namespace WorldModify
                     op.SendInfoMessage("历史世界 的 物品研究 已清空");
                 else
                     op.SendInfoMessage("当前世界 的 物品研究 已清空，重开服后有效！");
+                }
+                finally
+                {
+                    isTasking = false;
+                }
             });
         }
 
