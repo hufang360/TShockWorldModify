@@ -21,6 +21,7 @@ namespace WorldModify
             if (args.Parameters.Count == 0 || args.Parameters[0].ToLowerInvariant() == "help")
             {
                 op.SendInfoMessage("/npc info, NPC信息");
+                op.SendInfoMessage("/npc shimmer, NPC嬗变管理（简写 /npc shi）");
                 op.SendInfoMessage("/npc unique, 城镇NPC去重");
                 op.SendInfoMessage("/npc clear help, 移除指定NPC");
                 op.SendInfoMessage("/npc tphere help, 将NPC传送到你身边");
@@ -41,6 +42,12 @@ namespace WorldModify
             {
                 default:
                     if (!ToggleNPC(op, param)) op.SendErrorMessage("语法不正确！");
+                    break;
+
+                // NPC嬗变管理
+                case "shi":
+                case "shimmer":
+                    Shimmer(args);
                     break;
 
                 case "sm":
@@ -126,6 +133,300 @@ namespace WorldModify
                 // 召唤几个NPC
                 case "demo": SpawnDemoNPC(args); break;
             }
+        }
+        #endregion
+
+        #region NPC嬗变
+        /// <summary>
+        /// 支持嬗变的NPC（对应 NPCID.Sets.ShimmerTownTransform）
+        /// </summary>
+        static readonly int[] shimmerIDs = new int[] {
+            22, 17, 18, 369, 227, 124, 107, 228, 20, 207, 54, 353, 38, 633, 208, 550, 588, // 肉前
+            108, 229, 209, 441, 160, 142, 178, 663, // 肉后
+            37, 453, 368, // 其它
+        };
+
+        /// <summary>
+        /// NPC嬗变管理
+        /// </summary>
+        private static void Shimmer(CommandArgs args)
+        {
+            args.Parameters.RemoveAt(0);
+            TSPlayer op = args.Player;
+            if (args.Parameters.Count == 0 || args.Parameters[0].ToLowerInvariant() is "help" or "h")
+            {
+                op.SendInfoMessage("/npc shimmer 指令用法：");
+                op.SendInfoMessage("/npc shi info, 查看NPC嬗变信息");
+                op.SendInfoMessage("/npc shi list, 查看支持切换嬗变状态的NPC");
+                op.SendInfoMessage("/npc shi <id/名称>, 切换NPC嬗变/正常状态");
+                op.SendInfoMessage("/npc shi random, 随机切换一位NPC的嬗变/正常状态（只对在场的活NPC）");
+                op.SendInfoMessage("/npc shi shi [all], 将NPC变成嬗变的样子（游戏内=周围128x60范围，加all=全部）");
+                op.SendInfoMessage("/npc shi recover [all], 将已嬗变的NPC恢复为正常（游戏内=周围128x60范围，加all=全部）");
+                return;
+            }
+
+            switch (args.Parameters[0].ToLowerInvariant())
+            {
+                // 查看嬗变信息
+                case "info":
+                    ShimmerInfo(args);
+                    break;
+
+                // 随机切换一位NPC（只对在场的活NPC）
+                case "random":
+                    RandomShimmer(op);
+                    break;
+
+                // 将NPC变成嬗变的样子（默认=操作者周围范围，加all=全部）
+                case "shi":
+                    ShimmerAll(op, args.Parameters.Count > 1 && args.Parameters[1].ToLowerInvariant() == "all");
+                    break;
+
+                // 恢复为正常样子
+                case "recover":
+                case "re":
+                    RecoverShimmer(op, args.Parameters.Count > 1 && args.Parameters[1].ToLowerInvariant() == "all");
+                    break;
+
+                // 查看支持切换的名单
+                case "list":
+                    List<string> texts = new();
+                    int count = 0;
+                    foreach (int id in shimmerIDs)
+                    {
+                        string tFlag = count != 0 && count % 5 == 0 ? "\n" : "";
+                        texts.Add($"{tFlag}{NPCIDHelper.GetNameByID(id)}={id}");
+                        count++;
+                    }
+                    op.SendInfoMessage("支持切换嬗变状态的NPC有：");
+                    op.SendInfoMessage(string.Join(", ", texts));
+                    break;
+
+                default:
+                    if (!ToggleShimmer(op, args.Parameters[0]))
+                        op.SendErrorMessage("语法不正确！");
+                    break;
+            }
+        }
+
+        /// <summary>
+        /// 查看NPC嬗变信息（参考 /boss info）
+        /// </summary>
+        private static void ShimmerInfo(CommandArgs args)
+        {
+            List<string> li1 = new();
+            List<string> li2 = new();
+            List<string> li3 = new();
+
+            int[] ids1 = new int[] { 22, 17, 18, 369, 227, 124, 107, 228, 20, 207, 54, 353, 38, 633, 208, 550, 588 };
+            foreach (int id in ids1)
+                li1.Add(Utils.CFlag(NPC.ShimmeredTownNPCs[id], NPCIDHelper.GetNameByID(id)));
+
+            int[] ids2 = new int[] { 108, 229, 209, 441, 160, 142, 178, 663 };
+            foreach (int id in ids2)
+                li2.Add(Utils.CFlag(NPC.ShimmeredTownNPCs[id], NPCIDHelper.GetNameByID(id)));
+
+            int[] ids3 = new int[] { 37, 453, 368 };
+            foreach (int id in ids3)
+                li3.Add(Utils.CFlag(NPC.ShimmeredTownNPCs[id], NPCIDHelper.GetNameByID(id)));
+
+            // 肉前NPC较多，第9个后换行展示
+            string pre1 = string.Join(", ", li1.Take(9));
+            string pre2 = string.Join(", ", li1.Skip(9));
+
+            args.Player.SendInfoMessage(string.Join("\n",
+                $"支持嬗变的NPC（{shimmerIDs.Length}个：",
+                $"肉前：{pre1}",
+                $"　　　{pre2}",
+                $"肉后：{string.Join(", ", li2)}",
+                $"其它：{string.Join(", ", li3)}"));
+        }
+
+        /// <summary>
+        /// 切换NPC嬗变状态
+        /// </summary>
+        private static bool ToggleShimmer(TSPlayer op, string param)
+        {
+            int id;
+            if (!int.TryParse(param, out id))
+            {
+                id = NPCIDHelper.GetIDByName(param);
+                if (id <= 0) return false;
+            }
+            if (!shimmerIDs.Contains(id))
+            {
+                op.SendErrorMessage($"{NPCIDHelper.GetNameByID(id)} 不支持嬗变");
+                return false;
+            }
+
+            // 切换世界存档中的嬗变标记（无在场NPC时依然生效，重新入住后为嬗变外观）
+            NPC.ShimmeredTownNPCs[id] = !NPC.ShimmeredTownNPCs[id];
+
+            // 触发原版嬗变动作：给在场NPC施加 微光buff(353)，
+            // 由原版AI依次完成 闪光渐隐(约90tick) -> GetShimmered -> 上浮变身(约75tick) 整套动画，
+            // 完成后自动切换 townNpcVariationIndex 并向所有客户端同步（客户端也会本地模拟光效/粒子）。
+            int count = 0;
+            for (int i = 0; i < Main.maxNPCs; i++)
+            {
+                NPC npc = Main.npc[i];
+                if (!npc.active || npc.netID != id || !npc.townNPC)
+                    continue;
+
+                npc.AddBuff(353, 600, true);
+                TSPlayer.All.SendData(PacketTypes.NpcAddBuff, "", i, 353, 600);
+                npc.netUpdate = true;
+                TSPlayer.All.SendData(PacketTypes.NpcUpdate, "", i);
+                count++;
+            }
+
+            TSPlayer.All.SendData(PacketTypes.WorldInfo);
+            bool shimmered = NPC.ShimmeredTownNPCs[id];
+            op.SendSuccessMessage($"{NPCIDHelper.GetNameByID(id)} 已标记为 {(shimmered ? "嬗变" : "正常")} 状态" +
+                (count > 0 ? $"（已触发{count}个在场NPC的嬗变动作）" : "（暂无在场NPC，重新入住后生效）"));
+            return true;
+        }
+
+        /// <summary>
+        /// 随机切换一位NPC的嬗变/正常状态（只对活着的在场的NPC）
+        /// </summary>
+        private static void RandomShimmer(TSPlayer op)
+        {
+            List<int> alive = new();
+            for (int i = 0; i < Main.maxNPCs; i++)
+            {
+                NPC npc = Main.npc[i];
+                if (npc.active && npc.townNPC && shimmerIDs.Contains(npc.netID))
+                    alive.Add(npc.netID);
+            }
+            if (alive.Count == 0)
+            {
+                op.SendErrorMessage("没有活着的可嬗变NPC！");
+                return;
+            }
+            ToggleShimmer(op, alive[Main.rand.Next(alive.Count)].ToString());
+        }
+
+        /// <summary>
+        /// 将NPC变成嬗变的样子
+        /// </summary>
+        /// <param name="all">true=全部29个NPC（含未入住的），false=操作者周围128x60范围（终端操作时需指定all）</param>
+        private static void ShimmerAll(TSPlayer op, bool all)
+        {
+            // 终端操作且未指定 all：提示使用 all
+            if (!op.RealPlayer && !all)
+            {
+                op.SendInfoMessage("请输入 /npc shi shi all，将所有NPC变成嬗变的样子");
+                return;
+            }
+
+            int count = 0;
+            Rectangle area = new();
+            if (op.RealPlayer)
+            {
+                // 以操作者为中心 128x60 图格范围
+                area = new Rectangle(op.TileX - 64, op.TileY - 30, 128, 60);
+            }
+
+            for (int i = 0; i < Main.maxNPCs; i++)
+            {
+                NPC npc = Main.npc[i];
+                if (!npc.active || !npc.townNPC || !shimmerIDs.Contains(npc.netID))
+                    continue;
+
+                // 已嬗变的跳过
+                if (NPC.ShimmeredTownNPCs[npc.netID])
+                    continue;
+
+                if (!all)
+                {
+                    int nx = (int)((npc.position.X + npc.width / 2f) / 16f);
+                    int ny = (int)((npc.position.Y + npc.height / 2f) / 16f);
+                    if (!area.Contains(nx, ny))
+                        continue;
+                }
+
+                NPC.ShimmeredTownNPCs[npc.netID] = true;
+                npc.AddBuff(353, 600, true);
+                TSPlayer.All.SendData(PacketTypes.NpcAddBuff, "", i, 353, 600);
+                npc.netUpdate = true;
+                TSPlayer.All.SendData(PacketTypes.NpcUpdate, "", i);
+                count++;
+            }
+
+            if (all)
+            {
+                // 标记全部NPC的嬗变档案（含未入住的，重新入住后即为嬗变外观）
+                foreach (int id in shimmerIDs)
+                    NPC.ShimmeredTownNPCs[id] = true;
+            }
+
+            TSPlayer.All.SendData(PacketTypes.WorldInfo);
+            if (count > 0 && all)
+                op.SendSuccessMessage($"已将 {count} 个在场NPC变成嬗变的样子，并标记全部{shimmerIDs.Length}个NPC的嬗变档案");
+            else if (count > 0)
+                op.SendSuccessMessage($"已将 {count} 个NPC变成嬗变的样子");
+            else if (all)
+                op.SendInfoMessage("所有NPC本来就已是嬗变状态");
+            else
+                op.SendInfoMessage("范围内没有可嬗变的NPC");
+        }
+
+        /// <summary>
+        /// 将已嬗变的NPC恢复为正常样子
+        /// </summary>
+        /// <param name="all">true=全部NPC，false=操作者周围128x60范围（终端操作时需指定all）</param>
+        private static void RecoverShimmer(TSPlayer op, bool all)
+        {
+            // 终端操作且未指定 all：提示使用 all
+            if (!op.RealPlayer && !all)
+            {
+                op.SendInfoMessage("请输入 /npc shi recover all，将所有NPC变回正常样子");
+                return;
+            }
+
+            int count = 0;
+            Rectangle area = new();
+            if (op.RealPlayer)
+            {
+                // 以操作者为中心 128x60 图格范围
+                area = new Rectangle(op.TileX - 64, op.TileY - 30, 128, 60);
+            }
+
+            for (int i = 0; i < Main.maxNPCs; i++)
+            {
+                NPC npc = Main.npc[i];
+                if (!npc.active || !npc.townNPC || !npc.IsShimmerVariant)
+                    continue;
+
+                if (!all)
+                {
+                    int nx = (int)((npc.position.X + npc.width / 2f) / 16f);
+                    int ny = (int)((npc.position.Y + npc.height / 2f) / 16f);
+                    if (!area.Contains(nx, ny))
+                        continue;
+                }
+
+                npc.townNpcVariationIndex = 0;
+                TSPlayer.All.SendData(PacketTypes.UpdateNPCName, "", i);
+                npc.netUpdate = true;
+                TSPlayer.All.SendData(PacketTypes.NpcUpdate, "", i);
+                NPC.ShimmeredTownNPCs[npc.netID] = false;
+                count++;
+            }
+
+            if (all)
+            {
+                // 清空所有NPC的嬗变存档标记（含未入住的NPC，重新入住后为正常样子）
+                System.Array.Clear(NPC.ShimmeredTownNPCs, 0, NPC.ShimmeredTownNPCs.Length);
+            }
+
+            TSPlayer.All.SendData(PacketTypes.WorldInfo);
+            if (count > 0)
+                op.SendSuccessMessage($"已将 {count} 个NPC恢复为正常样子");
+            else if (all)
+                op.SendInfoMessage("没有已嬗变的NPC");
+            else
+                op.SendInfoMessage("范围内没有已嬗变的NPC");
         }
         #endregion
 

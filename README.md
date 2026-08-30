@@ -149,6 +149,12 @@
 /npc mq true，召唤美杜莎boss（三合一机械boss，需输入 true 确认）；
 /npc demo，召唤几个NPC（向导、商人、护士、军火商。服主测试用）；
 /npc sm，sm召唤指令备注（SpawnMob npc召唤指令）；
+/npc shimmer，NPC嬗变管理（简写 /npc shi）；
+/npc shi info，查看NPC嬗变信息；
+/npc shi list，查看支持切换嬗变状态的NPC；
+/npc shi <id/名称>，切换NPC嬗变/正常状态（会播放嬗变动作）；
+/npc shi random [all]，随机切换一位NPC的嬗变/正常状态（默认只对在场的活NPC，加all包含未入住的）；
+/npc shi recover [all]，将已嬗变的NPC恢复为正常（游戏内=周围128x60范围，加all=全部，终端需加all）；
 
 
 /igen world [种子] [腐化] [大小] [彩蛋特性], 重建地图（无需进入游戏）；（已适配 1.4.5+ 的 WorldGenerationOptions 秘密种子机制）

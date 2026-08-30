@@ -1,6 +1,15 @@
 
 
 # 更新日志
+## 20260830（v1.6.1）
+- 新增 `/npc shimmer`（简写 `/npc shi`）指令，查看/切换 NPC 嬗变（微光）状态：
+  - `/npc shi info`，参考 `/boss info`，列出所有支持嬗变的 NPC（29个），已嬗变的打勾；
+  - `/npc shi <id/名称>`，切换指定 NPC 的嬗变/正常状态（参考 `/npc <解救npc名>`），在场 NPC 会播放原版嬗变动作（微光渐隐→上浮→变身），由原版 AI 同步外观；
+  - `/npc shi random`，随机切换一位 NPC 的嬗变/正常状态：只对**活着的在场 NPC**随机（遍历 Main.npc 筛出），若没有活着的可嬗变 NPC 则提示“没有活着的可嬗变NPC！”；
+  - `/npc shi shi [all]`，将 NPC 变成嬗变的样子：游戏内默认切换操作者周围 128x60 图格范围内的可嬗变 NPC，加 `all` 则标记全部 29 个（含未入住的存档标记，重新入住后即为嬗变外观），已嬗变的自动跳过；终端操作时需加 `all`；
+  - `/npc shi recover [all]`，将已嬗变的 NPC 恢复为正常样子：游戏内默认恢复操作者周围 128x60 图格范围，加 `all` 恢复全部（含未入住的存档标记）；终端操作时需加 `all`，否则提示改用 `/npc shi recover all`；
+  - `/npc shi list`，查看支持切换嬗变状态的 NPC 名单。
+
 ## 20260824（v1.6.0）
 - 修复 `/igen world` 在运行中的服务器上重建地图必然失败的问题：服务器（netMode==2）不会创建 `Main.sectionManager`，而 1.4.5 的 `WorldGen.Reset()` 结尾会引用它，导致抛出异常、重建中断后会把被清空的地图存盘；现在生成前会先补建 sectionManager。
 - 修复 `/igen world` 重建地图时秘密种子不生效的问题：1.4.5 起 `WorldGen.GenerateWorld()` 的 `Reset()` 改为从 `WorldGenerationOptions`（WorldSeedOption_*）读取秘密世界开关，直接设置 `WorldGen.*` 标志会被覆盖，现在改用选项类设置。
